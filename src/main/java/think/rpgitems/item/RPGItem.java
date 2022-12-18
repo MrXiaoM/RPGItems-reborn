@@ -41,6 +41,7 @@ import think.rpgitems.AdminCommands;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.data.Context;
+import think.rpgitems.event.LoreUpdateEvent;
 import think.rpgitems.power.*;
 import think.rpgitems.power.cond.SlotCondition;
 import think.rpgitems.power.marker.*;
@@ -610,6 +611,7 @@ public class RPGItem {
     }
 
     public void updateItem(ItemStack item, boolean loreOnly) {
+        List<String> oldLore = new ArrayList<>(item.getItemMeta().getLore());
         List<String> reservedLores = this.filterLores(item);
         item.setType(getItem());
         ItemMeta meta = item.getItemMeta();
@@ -639,8 +641,11 @@ public class RPGItem {
         // Patch for mcMMO buff. See SkillUtils.java#removeAbilityBuff in mcMMO
         if (item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).hasLore() && Objects.requireNonNull(item.getItemMeta().getLore()).contains("mcMMO Ability Tool"))
             lore.add("mcMMO Ability Tool");
+
         lore.addAll(reservedLores);
-        meta.setLore(lore);
+        LoreUpdateEvent event = new LoreUpdateEvent(oldLore, lore);
+        Bukkit.getPluginManager().callEvent(event);
+        meta.setLore(event.newLore);
 
         //quality prefix
         String qualityPrefix = plugin.cfg.qualityPrefixes.get(getQuality());

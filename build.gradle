@@ -18,12 +18,13 @@ String minecraftVersion = "${minecraftMajorVersion}.${minecraftMinorVersion}"
 
 Grgit repo = Grgit.open(currentDir: project.projectDir)
 
-String branch = System.getenv("BRANCH_NAME") == null ? repo.branch.current().name : System.getenv("BRANCH_NAME")
-String buildNumber = System.getenv("BUILD_NUMBER") == null ? "686936"             : System.getenv("BUILD_NUMBER")
-String mavenDirectory = System.getenv("MAVEN_DIR") == null ? "$projectDir/repo"   : System.getenv("MAVEN_DIR")
-String jdDirectory = System.getenv("JAVADOCS_DIR") == null ? null                 : System.getenv("JAVADOCS_DIR")
 Commit commit = repo.head()
 String commitHash = commit.abbreviatedId
+
+String branch = System.getenv("BRANCH_NAME") == null ? repo.branch.current().name      : System.getenv("BRANCH_NAME")
+String buildNumber = System.getenv("BUILD_NUMBER") == null ? commitHash.substring(0,6) : System.getenv("BUILD_NUMBER")
+String mavenDirectory = System.getenv("MAVEN_DIR") == null ? "$projectDir/repo"        : System.getenv("MAVEN_DIR")
+String jdDirectory = System.getenv("JAVADOCS_DIR") == null ? null                      : System.getenv("JAVADOCS_DIR")
 
 boolean mainBranch = minecraftMajorVersion == branch
 boolean releasing = commit.shortMessage.contains("[release]")
@@ -50,11 +51,12 @@ repositories {
     // mavenLocal()
     jcenter()
     mavenCentral()
+    maven { url = "https://lss233.littleservice.cn/repositories/minecraft" }
+    maven { name 'NyaaCat'; url 'https://ci.nyaacat.com/maven/' }
     maven { name 'Spigot'; url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { name 'Sonatype'; url 'https://oss.sonatype.org/content/groups/public' }
     maven { name 'sk89q'; url 'http://maven.sk89q.com/artifactory/repo/' }
     maven { name 'vault-repo'; url 'https://jitpack.io' }
-    maven { name 'NyaaCat'; url 'https://ci.nyaacat.com/maven/' }
     maven { name 'EssentialsX'; url 'https://ci.ender.zone/plugin/repository/everything' }
     maven { name 'aikar';     url 'https://repo.aikar.co/content/groups/aikar/' }
 }
@@ -65,24 +67,20 @@ shadowJar {
 
 dependencies {
     api "org.spigotmc:spigot-api:$minecraftVersion-R0.1-SNAPSHOT"
-    if (gradle.hasProperty("useLocalDependencies") && gradle.useLocalDependencies) {
-        api project(":NyaaCore")
-        api project(":LanguageUtils")
-    } else {
-        api "cat.nyaa:nyaacore:8.0-SNAPSHOT"
-    }
+    // api "cat.nyaa:nyaacore:8.0-SNAPSHOT"
 
     compileOnly 'io.netty:netty-all:4.1.25.Final' // netty is shadowed inside spigot jar
     compileOnly 'org.ow2.asm:asm:7.0'
     compileOnly 'cglib:cglib-nodep:3.2.12'
     shadow 'cglib:cglib-nodep:3.2.12'
 
-    implementation('com.sk89q.worldguard:worldguard-core:7.0.1-SNAPSHOT')
-    implementation('com.sk89q.worldguard:worldguard-bukkit:7.0.1-SNAPSHOT') {
-        exclude group: 'io.papermc', module: 'paperlib'
-        exclude group: 'org.bstats', module: 'bstats-bukkit'
-        exclude group: 'org.bukkit', module: 'bukkit'
-    }
+    //implementation('com.sk89q.worldguard:worldguard-core:7.0.4-SNAPSHOT')
+    //implementation('com.sk89q.worldguard:worldguard-bukkit:7.0.4-SNAPSHOT') {
+    //    exclude group: 'io.papermc', module: 'paperlib'
+    //    exclude group: 'org.bstats', module: 'bstats-bukkit'
+    //    exclude group: 'org.bukkit', module: 'bukkit'
+    //}
+    implementation fileTree(dir: 'libs', includes: ['*.jar'])
 
     implementation 'com.google.code.findbugs:jsr305:1.3.9'
     implementation('net.milkbowl.vault:VaultAPI:1.7') {
@@ -101,7 +99,6 @@ tasks.withType(ProcessResources) {
         expand 'version': project.version
     }
 }
-
 
 publishing {
     publications {

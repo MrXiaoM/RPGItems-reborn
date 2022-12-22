@@ -611,11 +611,12 @@ public class RPGItem {
     }
 
     public void updateItem(ItemStack item, boolean loreOnly) {
-        List<String> oldLore = new ArrayList<>(item.getItemMeta().getLore());
+        List<String> oldLore = item == null || item.getItemMeta() == null || item.getItemMeta().getLore() == null ? new ArrayList<>() : new ArrayList<>(item.getItemMeta().getLore());
         List<String> reservedLores = this.filterLores(item);
         item.setType(getItem());
         ItemMeta meta = item.getItemMeta();
         List<String> lore = new ArrayList<>(getLore());
+
         PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
         SubItemTagContainer rpgitemsTagContainer = makeTag(itemTagContainer, TAG_META);
         set(rpgitemsTagContainer, TAG_ITEM_UID, getUid());
@@ -816,6 +817,7 @@ public class RPGItem {
                 }
             }
         }
+
         return ret;
     }
 

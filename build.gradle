@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'signing'
     id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
     id 'com.github.johnrengelman.shadow' version '5.1.0'
     id 'org.ajoberstar.grgit' version '3.0.0'
@@ -180,14 +181,42 @@ publishing {
     publications {
         mavenRelease(MavenPublication) {
             from components.java
-            afterEvaluate {
-                artifacts = [jar, apiJar, sourcesJar]
-            }
             groupId "top.mrxiaom"
             artifactId "rpgitems"
             version "$mavenVersion"
+
+            artifact apiJar
+            artifact shadowJar
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'RPGItems-reloaded'
+                description = 'The legacy RPGItems continues. (fork)'
+                url = 'https://github.com/MrXiaoM/RPGItems-reloaded'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://mit-license.org/'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'MrXiaoM'
+                        email = 'mrxiaom@qq.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/MrXiaoM/RPGItems-reloaded'
+                    connection = 'scm:git:https://github.com/MrXiaoM/RPGItems-reloaded.git'
+                    developerConnection = 'scm:git:https://github.com/MrXiaoM/RPGItems-reloaded.git'
+                }
+            }
         }
     }
+}
+signing {
+    sign publishing.publications.mavenRelease
 }
 nexusPublishing {
     repositories {

@@ -4,6 +4,21 @@ The RPGItems2 plugin continued from [TheCreeperOfRedstone/RPG-Items-2](https://g
 
 **RPGitem starting from 3.6 depends on [NyaaCore](https://github.com/NyaaCat/NyaaCore) to work! See [Installation](https://nyaacat.github.io/RPGItems-wiki/#/en-us/installation) for detail.**
 
+## Fork
+
+This is a personal fork. I add [LoreUpdateEvent](/src/main/java/think/rpgitems/event/LoreUpdateEvent.java) so it is friendly to *SoulBinding-kind* plugins. 
+```grovvy
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'top.mrxiaom:rpgitems:3.8-2e8ce4:all'
+}
+
+```
+I uploaded it to central. It is easy to depend it. :P
+
 ## Project Discussion
 
 Discord Server: [![Discord](https://img.shields.io/discord/486394125206421524.svg?logo=discord&link=https%3A%2F%2Fdiscord.gg%QeVy8Yd)](https://discord.gg/QeVy8Yd)

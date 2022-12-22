@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
     id 'com.github.johnrengelman.shadow' version '5.1.0'
     id 'org.ajoberstar.grgit' version '3.0.0'
 }
@@ -23,13 +24,13 @@ String commitHash = commit.abbreviatedId
 
 String branch = System.getenv("BRANCH_NAME") == null ? repo.branch.current().name      : System.getenv("BRANCH_NAME")
 String buildNumber = System.getenv("BUILD_NUMBER") == null ? commitHash.substring(0,6) : System.getenv("BUILD_NUMBER")
-String mavenDirectory = System.getenv("MAVEN_DIR") == null ? "$projectDir/repo"        : System.getenv("MAVEN_DIR")
 String jdDirectory = System.getenv("JAVADOCS_DIR") == null ? null                      : System.getenv("JAVADOCS_DIR")
 
 boolean mainBranch = minecraftMajorVersion == branch
 boolean releasing = commit.shortMessage.contains("[release]")
 
-archivesBaseName = "RPGItems-mc$minecraftVersion"
+group = 'top.mrxiaom'
+archivesBaseName = "RPGItems-reloaded-mc$minecraftVersion"
 version = "$majorVersion.$minorVersion-$buildNumber"
 
 String mavenVersion = releasing ? version : "$majorVersion.$minorVersion-SNAPSHOT"
@@ -97,25 +98,6 @@ tasks.withType(ProcessResources) {
     }
     filesMatching("**/plugin.yml") {
         expand 'version': project.version
-    }
-}
-
-publishing {
-    publications {
-        mavenRelease(MavenPublication) {
-            from components.java
-            afterEvaluate {
-                artifacts = [jar, apiJar, sourcesJar]
-            }
-            groupId "cat.nyaa"
-            artifactId "rpgitems"
-            version "$mavenVersion"
-        }
-    }
-    repositories {
-        maven {
-            url "$mavenDirectory"
-        }
     }
 }
 
@@ -189,6 +171,29 @@ javadoc {
         docTitle = "<b>RPGItems</b> " + version
         if (!mainBranch) {
             docTitle += branch.replace(minecraftMajorVersion, "")
+        }
+    }
+}
+
+
+publishing {
+    publications {
+        mavenRelease(MavenPublication) {
+            from components.java
+            afterEvaluate {
+                artifacts = [jar, apiJar, sourcesJar]
+            }
+            groupId "top.mrxiaom"
+            artifactId "rpgitems"
+            version "$mavenVersion"
+        }
+    }
+}
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
         }
     }
 }

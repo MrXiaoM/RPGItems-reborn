@@ -94,14 +94,14 @@ dependencies {
 }
 
 tasks.withType(ProcessResources) {
-    with copySpec {
-        filteringCharset = 'UTF-8'
-        from 'src/main/resources/lang'
-        into 'lang'
-        filter(ReplaceTokens, tokens: ['GIT_BRANCH': branch, 'GIT_HASH': commitHash], beginToken: '{', endToken: '}')
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from(sourceSets.main.resources.srcDirs) {
+        expand('version': project.version)
+        include 'plugin.yml'
     }
-    filesMatching("**/plugin.yml") {
-        expand 'version': project.version
+    from(sourceSets.main.resources.srcDirs) {
+        filter(ReplaceTokens, tokens: ['GIT_BRANCH': branch, 'GIT_HASH': commitHash], beginToken: '{', endToken: '}')
+        include 'lang/'
     }
 }
 

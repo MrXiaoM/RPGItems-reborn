@@ -67,7 +67,7 @@ public class OfflinePlayerUtils {
         CompletableFuture<FullHttpResponse> response = HttpClient.postJson("https://api.mojang.com/profiles/minecraft", Collections.emptyMap(), new Gson().toJson(Stream.of(names).collect(Collectors.toList())));
         return response.thenApply((r) -> {
             try {
-                NyaaCoreLoader.getInstance().getLogger().log(Level.FINER, "request name -> uuid api " + r.status().code());
+                NyaaCoreLoader.getInstance().getPlugin().getLogger().log(Level.FINER, "request name -> uuid api " + r.status().code());
                 if (r.status().code() > 299 || r.content() == null) {
                     return HashBiMap.<UUID, String>create();
                 }
@@ -85,7 +85,7 @@ public class OfflinePlayerUtils {
             ret.putAll(u.inverse());
             return ret;
         }).exceptionally((e) -> {
-            NyaaCoreLoader.getInstance().getLogger().log(Level.INFO, "failed to request name -> uuid api", e);
+            NyaaCoreLoader.getInstance().getPlugin().getLogger().log(Level.INFO, "failed to request name -> uuid api", e);
             return ret;
         });
     }
@@ -98,7 +98,7 @@ public class OfflinePlayerUtils {
         CompletableFuture<FullHttpResponse> response = HttpClient.get("https://api.mojang.com/user/profiles/" + uuid.toString().toLowerCase().replace("-", "") + "/names", Collections.emptyMap());
         return response.thenApply((r) -> {
             try {
-                NyaaCoreLoader.getInstance().getLogger().log(Level.FINER, "request uuid -> name api " + r.status().code());
+                NyaaCoreLoader.getInstance().getPlugin().getLogger().log(Level.FINER, "request uuid -> name api " + r.status().code());
                 if (r.status().code() > 299 || r.content() == null) {
                     return null;
                 }
@@ -112,7 +112,7 @@ public class OfflinePlayerUtils {
                 ReferenceCountUtil.release(r);
             }
         }).exceptionally((e) -> {
-            NyaaCoreLoader.getInstance().getLogger().log(Level.INFO, "failed to request uuid -> name api", e);
+            NyaaCoreLoader.getInstance().getPlugin().getLogger().log(Level.INFO, "failed to request uuid -> name api", e);
             return null;
         });
     }

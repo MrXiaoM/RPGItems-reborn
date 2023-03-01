@@ -344,7 +344,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
                 msg(sender, "internal.error.invalid_command_arg");
             }
             msg(sender, "internal.info.usage_prompt",
-                    getHelpContent("usage", getHelpPrefix(), subCommand));
+                    getHelpContent("usage", subCommand));
         } catch (NoPermissionException ex) {
             msg(sender, "internal.error.no_required_permission", ex.getMessage());
         } catch (Exception ex) {
@@ -400,17 +400,13 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
         }
     }
 
-    private String getHelpContent(String type, String... subkeys) {
-        String key = "manual";
-        for (String s : subkeys) {
-            if (s != null && s.length() > 0)
-                key += "." + s;
-        }
-        key += "." + type;
+    private String getHelpContent(String type, String cmd) {
+        String prefix = getHelpPrefix().length() == 0 ? "" : (getHelpPrefix() + ".");
+        String key = "manual." + prefix + cmd + "." + type;
         if (i18n.hasKey(key)) {
             return i18n.getFormatted(key);
         } else {
-            return i18n.getFormatted("manual.no_" + type);
+            return i18n.getFormatted("manual.no_" + type, cmd);
         }
     }
 
@@ -418,27 +414,33 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
     public void printHelp(CommandSender sender, Arguments args) {
         List<String> cmds = new ArrayList<>(subCommands.keySet());
         cmds.sort(Comparator.naturalOrder());
-
-        String tmp = "";
+        String format = i18n.getFormatted("manual.format");
+        StringBuilder tmp = new StringBuilder();
         for (String cmd : cmds) {
             if (!subCommands.get(cmd).hasPermission(sender)) continue;
-            tmp += "\n    " + cmd + ":  " + getHelpContent("description", getHelpPrefix(), cmd) + ChatColor.RESET;
-            tmp += "\n    " + cmd + ":  " + getHelpContent("usage", getHelpPrefix(), cmd) + ChatColor.RESET;
+            String description = getHelpContent("description", cmd);
+            String usage = getHelpContent("usage", cmd);
+            tmp.append("\n").append(format
+                    .replace("<description>", description)
+                    .replace("<usage>", usage));
         }
 
         if (defaultSubCommand != null && defaultSubCommand.hasPermission(sender)) {
             String cmd = "<default>";
-            tmp += "\n    " + cmd + ":  " + getHelpContent("description", getHelpPrefix(), cmd) + ChatColor.RESET;
-            tmp += "\n    " + cmd + ":  " + getHelpContent("usage", getHelpPrefix(), cmd) + ChatColor.RESET;
+            String description = getHelpContent("description", cmd);
+            String usage = getHelpContent("usage", cmd);
+            tmp.append("\n").append(format
+                    .replace("<description>", description)
+                    .replace("<usage>", usage));
         }
-        sender.sendMessage(tmp);
+        sender.sendMessage(tmp.toString());
     }
 
     public void msg(CommandSender target, String template, Object... args) {
         target.sendMessage(i18n.getFormatted(template, args));
     }
 
-    private class SubCommandInfo {
+    public class SubCommandInfo {
         final String name; // default command can have this be null
         final String permission; // if none then no permission required
         final Method tabCompleter;

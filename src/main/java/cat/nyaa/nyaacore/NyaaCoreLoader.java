@@ -26,13 +26,16 @@ public class NyaaCoreLoader {
     public NyaaCoreLoader(RPGItems plugin) {
         this.plugin = plugin;
     }
+    public JavaPlugin getPlugin() {
+        return plugin;
+    }
     public static NyaaCoreLoader getInstance() {
         return instance;
     }
 
     public void onLoad() {
         instance = this;
-        LanguageRepository.initInternalMap(this);
+        LanguageRepository.initInternalMap(plugin);
         //timerManager = new TimerManager(this);
     }
 

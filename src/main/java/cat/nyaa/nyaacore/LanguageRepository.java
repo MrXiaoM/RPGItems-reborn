@@ -4,6 +4,7 @@ import cat.nyaa.nyaacore.utils.HexColorUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import think.rpgitems.RPGItems;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public abstract class LanguageRepository implements ILocalizer {
      * The internal map will be shared across all plugins using {@link LanguageRepository}
      */
     private final static Map<String, Map<String, String>> internalMap = new HashMap<>();
-    private static NyaaCoreLoader corePlugin = null;
+    private static RPGItems corePlugin = null;
     /**
      * Per-plugin language map used by {@link LanguageRepository}
      * This map has a higher priority than {@link this#internalMap}
@@ -86,7 +87,7 @@ public abstract class LanguageRepository implements ILocalizer {
      *
      * @param plugin the NyaaCore plugin
      */
-    public static void initInternalMap(NyaaCoreLoader plugin) {
+    public static void initInternalMap(RPGItems plugin) {
         if (internalMap.size() != 0 || corePlugin != null) {
             plugin.getLogger().warning("Multiple internalMap initiation");
             return;
@@ -121,6 +122,11 @@ public abstract class LanguageRepository implements ILocalizer {
                 if (path.startsWith("internal") && ignoreInternal) continue;
                 if (!path.startsWith("internal") && ignoreNormal) continue;
                 map.put(path, HexColorUtils.hexColored(section.getString(key)));
+            } else if (section.isList(key)) {
+                if (path.startsWith("internal") && ignoreInternal) continue;
+                if (!path.startsWith("internal") && ignoreNormal) continue;
+                String s = String.join("\n&r", section.getStringList(key));
+                map.put(path, HexColorUtils.hexColored(s));
             } else if (section.isConfigurationSection(key)) {
                 loadLanguageSection(map, section.getConfigurationSection(key), path + ".", ignoreInternal, ignoreNormal);
             }

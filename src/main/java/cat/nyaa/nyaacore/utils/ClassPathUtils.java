@@ -128,7 +128,7 @@ public final class ClassPathUtils {
     }
 
     private static Logger getLogger() {
-        return NyaaCoreLoader.getInstance().getLogger();
+        return NyaaCoreLoader.getInstance().getPlugin().getLogger();
     }
 
     @VisibleForTesting

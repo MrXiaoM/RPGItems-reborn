@@ -41,6 +41,7 @@ public class RPGItems extends JavaPlugin {
 
     public static Logger logger;
     public static RPGItems plugin;
+
     List<Plugin> managedPlugins = new ArrayList<>();
     public Configuration cfg;
     private NyaaCoreLoader nyaaCoreLoader = new NyaaCoreLoader(this);

@@ -70,6 +70,11 @@ public class I18n extends LanguageRepository {
                 if (path.startsWith("internal") && ignoreInternal) continue;
                 if (!path.startsWith("internal") && ignoreNormal) continue;
                 map.put(path, HexColorUtils.hexColored(section.getString(key)));
+            } else if (section.isList(key)) {
+                if (path.startsWith("internal") && ignoreInternal) continue;
+                if (!path.startsWith("internal") && ignoreNormal) continue;
+                String s = String.join("\n&r", section.getStringList(key));
+                map.put(path, HexColorUtils.hexColored(s));
             } else if (section.isConfigurationSection(key)) {
                 loadLanguageSection(map, section.getConfigurationSection(key), path + ".", ignoreInternal, ignoreNormal);
             }

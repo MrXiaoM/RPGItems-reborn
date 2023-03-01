@@ -963,298 +963,301 @@ properties:
   HIT_GLOBAL:
     main_name: 在击中实体时触发，会触发除主手外所有在背包中的道具
 manual:
+  format:
+    - '  &2<description> &8&l:'
+    - '    <usage>'
   no_description: 暂无说明
-  no_usage: 暂无用法
+  no_usage: '&f/rpgitem %s'
   additemflag:
-    description: 添加物品 flag。
-    usage: §e/rpgitem additemflag {神器} <物品flag>
+    description: 添加物品 flag
+    usage: '&f/rpgitem additemflag &a{神器} <物品flag>'
   addtogroup:
     description: 将物品加入一个物品组
-    usage: §e/rpgitem addtogroup {物品组} {神器}
+    usage: '&f/rpgitem addtogroup &a{物品组} {神器}'
   armorExpression:
     description: 设置物品的护甲表达式
-    usage: §e/rpgitem armorExpression {神器} <表达式>
+    usage: '&f/rpgitem armorExpression &a{神器} <表达式>'
   armour:
     description: 展示/设置物品护甲值
-    usage: §e/rpgitem armour {神器} [护甲值]
+    usage: '&f/rpgitem armour &a{神器} [护甲值]'
   attributemode:
     description: 物品的属性更新模式
-    usage: §e/rpgitem attributemode {神器} <模式>
+    usage: '&f/rpgitem attributemode &a{神器} <模式>'
   author:
     description: 显示物品的作者
-    usage: §e/rpgitem author {神器}
+    usage: '&f/rpgitem author &a{神器}'
   give:
     description: 将物品给与施令者或特定玩家
-    usage: §e/rpgitem give {神器} [玩家]
+    usage: '&f/rpgitem give &a{神器} [玩家]'
   worldguard:
-    description: 切换 WorldGuard 支持。
-    usage: §e/rpgitem worldguard
+    description: 切换 WorldGuard 支持
+    usage: '&f/rpgitem worldguard'
   reload:
     description: 重新读取配置文件
-    usage: §e/rpgitem reload
+    usage: '&f/rpgitem reload'
   giveperms:
     description: 切换 /rpgitem give 权限
-    usage: §e/rpgitem giveperms
+    usage: '&f/rpgitem giveperms'
   power:
     add:
       description: 给物品添加技能
-      usage: §e/rpgitem power add {神器} <配置> [可选配置]
+      usage: '&f/rpgitem power add &a{神器} <配置> [可选配置]'
     remove:
       description: 从物品上移除技能
-      usage: §e/rpgitem power remove {神器} <配置>
+      usage: '&f/rpgitem power remove &a{神器} <配置>'
     prop:
       description: 展示/修改物品的技能
-      usage: §e/rpgitem power prop {神器} <配置> [可选配置]
+      usage: '&f/rpgitem power prop &a{神器} <配置> [可选配置]'
     list:
       description: 列出所有的技能
-      usage: §e/rpgitem power list
+      usage: '&f/rpgitem power list'
     help:
       description: 查看power命令的帮助
-      usage: §e/rpgitem power [help]
+      usage: '&f/rpgitem power &a[help]'
     description: 设置物品的技能
-    usage: §e/rpgitem power [操作] {神器} <技能> <配置> [可选配置]
+    usage: '&f/rpgitem power &a[操作] {神器} <技能> <配置> [可选配置]'
   list:
     description: 列出所有的物品
-    usage: §e/rpgitem list [页数]
+    usage: '&f/rpgitem list &a[页数]'
   wgcustomflag:
-    description: 切换 WorldGuard custom flag 支持。
-    usage: §e/rpgitem wgcustomflag
+    description: 切换 WorldGuard custom flag 支持
+    usage: '&f/rpgitem wgcustomflag'
   wgforcerefresh:
-    description: 切换 WorldGuard 强制刷新。
-    usage: §e/rpgitem wgforcerefresh
+    description: 切换 WorldGuard 强制刷新
+    usage: '&f/rpgitem wgforcerefresh'
   wgignore:
-    description: 该物品是否忽略 WorldGuard PvP 保护。
-    usage: §e/rpgitem wgignore {神器}
+    description: 该物品是否忽略 WorldGuard PvP 保护
+    usage: '&f/rpgitem wgignore &a{神器}'
   create:
     description: 创建特定名称的物品
-    usage: §e/rpgitem create <名称>
+    usage: '&f/rpgitem create &a<名称>'
   remove:
     description: 移除此物品
-    usage: §e/rpgitem remove {神器}
+    usage: '&f/rpgitem remove &a{神器}'
   display:
     description: 设置物品名称
-    usage: §e/rpgitem display {神器} <名称>
+    usage: '&f/rpgitem display &a{神器} <名称>'
   meta:
     quality:
       description: 设置物品品质 (仅展示)
-      usage: §e/rpgitem meta (神器) quality <值>
+      usage: '&f/rpgitem meta &a{神器} &fquality &f<值>'
     type:
       description: 设置物品类型 (仅展示)
-      usage: §e/rpgitem meta (神器) type <值>
+      usage: '&f/rpgitem meta &a{神器} &ftype &f<值>'
     help:
       description: 查看meta命令的帮助
-      usage: §e/rpgitem meta [help]
+      usage: '&f/rpgitem meta &a[help]'
     description: 设置物品元数据
-    usage: §e/rpgitem meta (神器) <quality/type> <值>
+    usage: '&f/rpgitem meta &a{神器} <&fquality&a/&ftype&a> <值>'
   damage:
-    description: '展示/设置物品的伤害值。可用的参数：
+    description: '展示/设置物品的伤害值可用的参数：
 
       [value] - 设置物品伤害值为定值。/rpgitem test_item damage 15
 
       [min] [max] - 设置物品伤害值为一个范围随机值。/rpgitem test_item damage 10 20'
-    usage: §e/rpgitem damage {神器} [伤害值]
+    usage: '&f/rpgitem damage &a{神器} [伤害值]'
   item:
-    description: "设置物品的材质和其他参数。\n可选参数\n  [物品id] - 设置物品为特定材质\n  [物品id] hex [16进制颜色]\
+    description: "设置物品的材质和其他参数\n可选参数\n  [物品id] - 设置物品为特定材质\n  [物品id] hex [16进制颜色]\
       \ - 设置物品的材质并设置颜色。\n  [物品id] [子id(1.12及以下)] - 设置物品的材质和伤害值/损耗值。"
-    usage: §e/rpgitem item {神器} [选项|值]
+    usage: '&f/rpgitem item &a{神器} [选项|值]'
   print:
     description: 输出物品状态
-    usage: §e/rpgitem print {神器}
+    usage: '&f/rpgitem print &a{神器}'
   enchantment:
-    description: 以手中物品的附魔数据为模板，展示(不填参数)/复制(clone)或清除(clear)神器自带的附魔。
-    usage: §e/rpgitem enchantment {神器} [clone|clear]
+    description: 以手中物品的附魔数据为模板，展示(不填参数)/复制(clone)或清除(clear)神器自带的附魔
+    usage: '&f/rpgitem enchantment &a{神器} [clone|clear]'
   description:
-    description: 添加/移除或替换物品lore。支持使用 & 符号作为样式代码。行号从 0 开始。
-    usage: §e/rpgitem description {神器} <add <值>|set <行号> <值>|remove <行号>>
+    description: 添加/移除或替换物品lore。支持使用 & 符号作为样式代码。行号从 0 开始
+    usage: '&f/rpgitem description &a{神器} &8<&fadd &a<值>&8|&fset &a<行号> <值>&8|&fremove &a<行号>&8>'
   cost:
-    description: "展示/设置耐久消耗。\n可用参数：\n  breaking | breaking [value|integer] - 展示/设置物品破坏方块时的耐久消耗。\n\
+    description: "展示/设置耐久消耗。\n可用参数：\n  breaking | breaking [value|integer] - 展示/设置物品破坏方块时的耐久消耗\n\
       \  hit | hit [value|integer] - 展示/设置手持或穿着此物品被伤害时的耐久消耗。\n  toggle - 切换物品是否基于伤害值消耗耐久。\n\
       \  hitting | hitting [value|integer] - 展示/设置使用此物品攻击其他实体时的耐久消耗。\n注意，该值可以为负。负值将在相应消耗耐久事件时为物品增加耐久。"
-    usage: §e/rpgitem cost {神器} <选项>
+    usage: '&f/rpgitem cost &a{神器} <选项>'
   durability:
-    description: "展示/设置物品耐久的最大值/默认值和其他参数。\n可选参数：\n  [value] - 设置最大耐久值 - /rpgitem test_item\
+    description: "展示/设置物品耐久的最大值/默认值和其他参数\n可选参数：\n  [value] - 设置最大耐久值 - /rpgitem test_item\
       \ durability 100\n  infinite - 设置为无限耐久 - /rpgitem test_item durability infinite\n\
       \  default - 设置默认耐久值 - /rpgitem test_item durability default 100\n  togglebar\
       \ - 切换展示耐久条 - /rpgitem test_item durability togglebar\n  bound - 设置物品耐久边界值 -\
       \ /rpgitem test_item durability bound 10 100"
-    usage: §e/rpgitem durability {神器} <选项>
+    usage: '&f/rpgitem durability &a{神器} <选项>'
   permission:
     description: 设置物品权限
-    usage: §e/rpgitem permission {神器} <权限> <true|false>
+    usage: '&f/rpgitem permission &a{神器} <权限> <true|false>'
   togglepowerlore:
-    description: 切换展示技能说明文字。
-    usage: §e/rpgitem togglepowerlore {神器}
+    description: 切换展示技能说明文字
+    usage: '&f/rpgitem togglepowerlore &a{神器}'
   togglearmorlore:
-    description: 切换展示护甲值说明文字。
-    usage: §e/rpgitem togglearmorlore {神器}
+    description: 切换展示护甲值说明文字
+    usage: '&f/rpgitem togglearmorlore &a{神器}'
   removeitemflag:
     description: 移除物品 flag
-    usage: §e/rpgitem removeitemflag {神器} <物品flag>
+    usage: '&f/rpgitem removeitemflag &a{神器} <物品flag>'
   customitemmodel:
-    description: 切换物品自定义模型支持。
-    usage: §e/rpgitem customitemmodel {神器}
+    description: 切换物品自定义模型支持
+    usage: '&f/rpgitem customitemmodel &a{神器}'
   version:
-    description: 展示 RPGItem 的版本信息。
-    usage: §e/rpgitem version
+    description: 展示 RPGItem 的版本信息
+    usage: '&f/rpgitem version'
   damagemode:
     description: 展示/设置物品的伤害模式
-    usage: §e/rpgitem damagemode {神器} [伤害模式]
+    usage: '&f/rpgitem damagemode &a{神器} [伤害模式]'
   clone:
     description: 克隆为新物品
-    usage: §e/rpgitem clone {神器} <新物品>
+    usage: '&f/rpgitem clone &a{神器} <新物品>'
   creategroup:
     description: 新建一个物品组
-    usage: §e/rpgitem creategroup <名称>
+    usage: '&f/rpgitem creategroup &a<名称>'
   backupitem:
     description: 备份一个物品
-    usage: §e/rpgitem backupitem {神器}
+    usage: '&f/rpgitem backupitem &a{神器}'
   cleanbackup:
     description: 清除所有物品的备份
-    usage: §e/rpgitem cleanbackup
+    usage: '&f/rpgitem cleanbackup'
   condition:
     add:
       description: 给物品添加条件
-      usage: §e/rpgitem condition add {神器} <配置> [可选配置]
+      usage: '&f/rpgitem condition add &a{神器} <配置> [可选配置]'
     remove:
       description: 从物品上移除条件
-      usage: §e/rpgitem condition remove {神器} <配置>
+      usage: '&f/rpgitem condition remove &a{神器} <配置>'
     prop:
       description: 展示/修改物品的条件
-      usage: §e/rpgitem condition prop {神器} <配置> [可选配置]
+      usage: '&f/rpgitem condition prop &a{神器} <配置> [可选配置]'
     list:
       description: 列出所有的条件
-      usage: §e/rpgitem condition list
+      usage: '&f/rpgitem condition &alist'
     help:
       description: 查看condition命令的帮助
-      usage: §e/rpgitem condition [help]
+      usage: '&f/rpgitem condition &a[help]'
     description: 设置物品激活技能时需要的条件
-    usage: §e/rpgitem condition [选项] {神器} <条件> <配置> [可选配置]
+    usage: '&f/rpgitem condition &a[选项] {神器} <条件> <配置> [可选配置]'
   customModel:
     description: 设置物品的自定义模型ID
-    usage: §e/rpgitem customModel {神器} <值>
+    usage: '&f/rpgitem customModel &a{神器} <值>'
   damageType:
     description: 设置物品伤害类型
-    usage: §e/rpgitem damageType {神器} <值>
+    usage: '&f/rpgitem damageType &a{神器} <值>'
   debug:
     description: 查看手中持有物品的详细信息
-    usage: §e/rpgitem debug
+    usage: '&f/rpgitem debug'
   dump:
     description: 查看物品的配置文件信息
-    usage: §e/rpgitem dump {神器}
+    usage: '&f/rpgitem dump &a{神器}'
   enchantmode:
     description: 设置物品的附魔模式
-    usage: §e/rpgitem enchantmode {神器} <值>
+    usage: '&f/rpgitem enchantmode &a{神器} <值>'
   export:
     description: 导出指定物品
-    usage: §e/rpgitem export {神器} <gist>
+    usage: '&f/rpgitem export &a{神器} <gist>'
   gen-wiki:
     description: 在RPGItems插件的文件夹下生成wiki文件
-    usage: §e/rpgitem gen-wiki
+    usage: '&f/rpgitem gen-wiki'
   help:
     description: RPGItems插件帮助指令
-    usage: §e/rpgitem help
+    usage: '&f/rpgitem help'
   import:
     description: 从Gist上导入物品
-    usage: §e/rpgitem import [link] [name|optional]
+    usage: '&f/rpgitem import &a[link] [name|optional]'
   license:
     description: 查看物品的协议
-    usage: §e/rpgitem lisence {神器}
+    usage: '&f/rpgitem lisence &a{神器}'
   listgroup:
     description: 列出物品组中的所有物品
-    usage: §e/rpgitem listgroup {组}
+    usage: '&f/rpgitem listgroup &a{组}'
   loadfile:
     description: 从文件中读取物品
-    usage: §e/rpgitem loadfile {文件名}
+    usage: '&f/rpgitem loadfile &a{文件名}'
   marker:
     add:
       description: 给物品添加标志
-      usage: §e/rpgitem marker add {神器} <配置> [可选配置]
+      usage: '&f/rpgitem marker add &a{神器} <配置> [可选配置]'
     remove:
       description: 从物品上移除标志
-      usage: §e/rpgitem marker remove {神器} <配置>
+      usage: '&f/rpgitem marker remove &a{神器} <配置>'
     prop:
       description: 展示/修改物品的标志
-      usage: §e/rpgitem marker prop {神器} <配置> [可选配置]
+      usage: '&f/rpgitem marker prop &a{神器} <配置> [可选配置]'
     list:
       description: 列出所有的标志
-      usage: §e/rpgitem marker list
+      usage: '&f/rpgitem marker &alist'
     help:
       description: 查看marker命令的帮助
-      usage: §e/rpgitem marker [help]
+      usage: '&f/rpgitem marker &a[help]'
     description: 设置物品的标志
-    usage: §e/rpgitem marker [option] {神器} <配置> [可选配置]
+    usage: '&f/rpgitem marker &a[选项] {神器} <配置> [可选配置]'
   modifier:
     add:
       description: 给物品添加修饰
-      usage: §e/rpgitem modifier add {神器} <配置> [可选配置]
+      usage: '&f/rpgitem modifier add &a{神器} <配置> [可选配置]'
     remove:
       description: 从物品上移除修饰
-      usage: §e/rpgitem modifier remove {神器} <配置>
+      usage: '&f/rpgitem modifier remove &a{神器} <配置>'
     prop:
       description: 展示/修改物品的修饰
-      usage: §e/rpgitem modifier prop {神器} <配置> [可选配置]
+      usage: '&f/rpgitem modifier prop &a{神器} <配置> [可选配置]'
     list:
       description: 列出所有的修饰
-      usage: §e/rpgitem modifier list
+      usage: '&f/rpgitem modifier &alist'
     help:
       description: 查看modifier命令的帮助
-      usage: §e/rpgitem modifier [help]
+      usage: '&f/rpgitem modifier &a[help]'
     description: 设置物品的标志
-    usage: §e/rpgitem marker [选项] {神器} <配置> [可选配置]
+    usage: '&f/rpgitem marker &a[选项] {神器} <配置> [可选配置]'
   note:
     description: 设置物品的说明
-    usage: §e/rpgitem note {神器} <值>
+    usage: '&f/rpgitem note &a{神器} <值>'
   reloaditem:
     description: 重载物品
-    usage: §e/rpgitem reloaditem {神器}
+    usage: '&f/rpgitem reloaditem &a{神器}'
   removefromgroup:
     description: 从物品组中移除物品
-    usage: §e/rpgitem removefromegroup {神器} {组}
+    usage: '&f/rpgitem removefromegroup &a{神器} {组}'
   removegroup:
     description: 删除物品组
-    usage: §e/rpgitem removegroup {组}
+    usage: '&f/rpgitem removegroup &a{组}'
   save-all:
     description: 保存所有物品
-    usage: §e/rpgitem save-all
+    usage: '&f/rpgitem save-all'
   template:
     create:
       description: 以特定物品创建模板
-      usage: §e/rpgitem template create {神器}
+      usage: '&f/rpgitem template create &a{神器}'
     apply:
       description: 对物品应用指定模板
-      usage: §e/rpgitem template apply {神器}
+      usage: '&f/rpgitem template apply &a{神器}'
     delete:
       description: 删除指定模板
-      usage: §e/rpgitem template delete {神器}
+      usage: '&f/rpgitem template delete &a{神器}'
     placeholder:
       description: 设定模板的技能占位符，被设定的技能指定参数在应用模板时不会发生变化
-      usage: §e/rpgitem template placeholder <选项> {神器} <powerId:property>
+      usage: '&f/rpgitem template placeholder &a<选项> {神器} <powerId:property>'
     help:
       description: 查看template命令的帮助
-      usage: §e/rpgitem template [help]
+      usage: '&f/rpgitem template &a[help]'
     description: 设置物品的模板
-    usage: §e/rpgitem template [选项]
+    usage: '&f/rpgitem template &a[选项]'
   trigger:
     description: 设置物品的触发
-    usage: §e/rpgitem trigger [选项] {神器} <配置>
+    usage: '&f/rpgitem trigger &a[选项] {神器} <配置>'
   add:
     description: 给物品添加技能/条件/标志/修饰
-    usage: §e/rpgitem <power|condition|marker|modifier> add {神器} <配置>
+    usage: '&f/rpgitem &8 &aadd &a{神器} <配置>'
   reorder:
     description: 交换两个技能的执行顺序
-    usage: §e/rpgitem power reorder {神器} <技能> <技能>
+    usage: '&f/rpgitem power reorder &a{神器} <技能> <技能>'
   prop:
     description: 显示/修改物品的技能/条件/标志/修饰
-    usage: §e/rpgitem <power|condition|marker|modifier> prop {神器} [可选配置]
+    usage: '&f/rpgitem <&fpower&8|&fcondition&8|&fmarker&8|&fmodifier88> &fprop &a{神器} [可选配置]'
   apply:
     description: 对物品应用指定模板
-    usage: §e/rpgitem template apply {神器}
+    usage: '&f/rpgitem template apply &a{神器}'
   delete:
     description: 删除指定模板
-    usage: §e/rpgitem template delete {神器}
+    usage: '&f/rpgitem template delete &a{神器}'
   placeholder:
     description: 设定模板的技能占位符，被设定的技能指定参数在应用模板时不会发生变化
-    usage: §e/rpgitem template placeholder <选项> {神器} <powerId:property>
+    usage: '&f/rpgitem template placeholder &a<选项> {神器} <powerId:property>'
 command:
   template:
     apply:
@@ -1279,5 +1282,36 @@ item:
   multiplydamage: '%s 倍伤害'
   damage: '%s 伤害'
 internal:
+  info:
+    errorusing_language: "Now using language: %s"
+    command_complete: "Command Executed!"
+    usage_prompt: "Usage: %s"
   error:
+    bad_subcommand: "Bad subcommand handler: %s"
+    not_player: "Only players can do this"
+    no_item_hand: "No item in main hand"
+    no_item_offhand: "No item in off hand"
     command_exception: 执行命令时出现一个内部错误， 请前往控制台查看详细
+    no_required_permission: "You do not have the required permission: %s"
+    invalid_command_arg: "Invalid command line arguments."
+
+    bad_int: "Not a valid integer: %s"
+    bad_double: "Not a valid number: %s"
+    bad_enum: "Not valid for enum type: %s. Values: %s"
+    bad_decimal_pattern: "Not a valid pattern: %s"
+
+    no_more_int: "No more integers in argument"
+    no_more_double: "No more numbers in argument"
+    no_more_enum: "No more enum values in argument"
+    no_more_bool: "No more booleans in argument"
+    no_more_string: "No more strings in argument"
+    no_more_player: "No more player name in argument"
+    no_more_entity: "No more entity id in argument"
+
+    assert_fail: "Command assertion fail, Expect: %s, Actual: %s"
+    player_not_found: "Cannot find player \"%s\""
+    entity_not_found: "Cannot find entity \"%s\""
+  named_argument:
+    missing_arg: "Missing argument: %s"
+    not_int: "Argument \"%s\" is not an integer: %s"
+    not_double: "Argument \"%s\" is not a double: %s"

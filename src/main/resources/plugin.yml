@@ -2,10 +2,10 @@ name: RPGItems
 main: think.rpgitems.RPGItems
 description: "RPGItems"
 version: ${version}
-depend: [NyaaCore,LangUtils]
-softdepend: [WorldGuard,NyaaUtils]
+depend: [LangUtils]
+softdepend: [WorldGuard,NyaaUtils,Vault,Essentials]
 authors: [Taiterio,cyilin,RecursiveG,Librazy]
-website: "https://github.com/NyaaCat/RPGItems-reloaded"
+website: "https://github.com/MrXiaoM/RPGItems-reloaded"
 database: false
 api-version: 1.13
 

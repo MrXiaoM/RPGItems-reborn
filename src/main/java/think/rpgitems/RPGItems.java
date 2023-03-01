@@ -1,5 +1,6 @@
 package think.rpgitems;
 
+import cat.nyaa.nyaacore.NyaaCoreLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -42,7 +43,7 @@ public class RPGItems extends JavaPlugin {
     public static RPGItems plugin;
     List<Plugin> managedPlugins = new ArrayList<>();
     public Configuration cfg;
-
+    private NyaaCoreLoader nyaaCoreLoader = new NyaaCoreLoader(this);
     //constructors are used in tests.
     public RPGItems() {
         super();
@@ -56,6 +57,7 @@ public class RPGItems extends JavaPlugin {
     public void onLoad() {
         plugin = this;
         logger = this.getLogger();
+        nyaaCoreLoader.onLoad();
 
         String versionDesc = getDescription().getVersion();
         Pattern serialPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)-mc([\\d.]+)");
@@ -152,6 +154,7 @@ public class RPGItems extends JavaPlugin {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "======================================");
             throw new IllegalStateException();
         }
+        nyaaCoreLoader.onEnable();
 
         String implementationVersion = Bukkit.class.getPackage().getImplementationVersion();
         //may null in test environment
@@ -218,6 +221,7 @@ public class RPGItems extends JavaPlugin {
         this.getServer().getScheduler().cancelTasks(plugin);
         ItemManager.unload();
         managedPlugins.forEach(Bukkit.getPluginManager()::disablePlugin);
+        nyaaCoreLoader.onDisable();
     }
 
     @SuppressWarnings({"unchecked", "JavaReflectionInvocation"})

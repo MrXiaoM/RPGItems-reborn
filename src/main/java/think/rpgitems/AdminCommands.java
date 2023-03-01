@@ -64,6 +64,7 @@ import static think.rpgitems.item.RPGItem.AttributeMode.FULL_UPDATE;
 import static think.rpgitems.item.RPGItem.AttributeMode.PARTIAL_UPDATE;
 import static think.rpgitems.item.RPGItem.*;
 import static think.rpgitems.power.Utils.rethrow;
+import static think.rpgitems.utils.ColorHelper.parseGradient;
 import static think.rpgitems.utils.ItemTagUtils.getInt;
 import static think.rpgitems.utils.ItemTagUtils.getTag;
 import static think.rpgitems.utils.NetworkUtils.Location.GIST;
@@ -1559,7 +1560,7 @@ public class AdminCommands extends RPGCommandReceiver {
             String next = arguments.next();
             sb.append(next);
             if (arguments.top() == null) {
-                return sb.toString();
+                return parseGradient(sb.toString());
             }
             sb.append(" ");
         }

@@ -349,75 +349,75 @@ message:
   custom_model_data:
     set: 物品的自定义模型ID已设置为 %d
 power:
-  airborne: 攻击在滑翔时增加 %d%%
-  charge: 攻击随速度增加，并在疾跑时增加 %d%%
-  noimmutabletick: 取消攻击后敌方的无敌时间
-  selector: 仅对部分实体有效
-  potionself: 获得 %s %d 持续 %.1f 秒
-  deathcommand: 1/%d 几率杀死敌人然后 %s
-  food: 回复 %d 点饥饿值
-  lightning: '%d%% 的几率发生雷击'
-  attract: 爆发吧，小宇(黑)宙(洞)！
+  airborne: '&a攻击在滑翔时增加 %d%%'
+  charge: '&a攻击随速度增加，并在疾跑时增加 %d%%'
+  noimmutabletick: '&a取消攻击后敌方的无敌时间'
+  selector: '&a仅对部分实体有效'
+  potionself: '&a获得 %s %d 持续 %.1f 秒'
+  deathcommand: '&a1/%d 几率杀死敌人然后 %s'
+  food: '&a回复 %d 点饥饿值'
+  lightning: '&a%d%% 的几率发生雷击'
+  attract: '&a爆发吧，小宇(黑)宙(洞)！'
   projectile:
-    display: 右键发射 `%s` (%.1f秒冷却)
-    cone: 右键发射一堆 `%s` (%.1f秒冷却)
-    noFireball: 火焰弹无法应用于圆锥机制。
-  realdamage: 攻击后对敌人造成 %.1f 真实伤害.
-  rainbow: 发射 %d 彩色羊毛 (%.1f 秒冷却)
-  consume: 使用后消耗掉
-  teleport: 传送 %d 格 (%.1f 秒冷却)
-  ranged: 可远程使用
-  ice: 发射冰块 (%.1f 秒冷却时间)
+    display: '&a右键发射 `%s` (%.1f秒冷却)'
+    cone: '&a右键发射一堆 `%s` (%.1f秒冷却)'
+    noFireball: '&a火焰弹无法应用于圆锥机制。'
+  realdamage: '&a攻击后对敌人造成 %.1f 真实伤害.'
+  rainbow: '&a发射 %d 彩色羊毛 (%.1f 秒冷却)'
+  consume: '&a使用后消耗掉'
+  teleport: '&a传送 %d 格 (%.1f 秒冷却)'
+  ranged: '&a可远程使用'
+  ice: '&a发射冰块 (%.1f 秒冷却时间)'
   rescue:
-    display: 当生命值低于 %.1f 颗心时施展拯救技能 (%.1f秒冷却)
-    info: 你已被拯救。
-  consumehit: 击中后消耗掉
+    display: '&a当生命值低于 %.1f 颗心时施展拯救技能 (%.1f秒冷却)'
+    info: '&a你已被拯救。'
+  consumehit: '&a击中后消耗掉'
   aoe:
-    display: 附加 %s  (级别 %d ) 效果，时间为 %d 单位，作用物品：%s，作用范围：%d 格方块，冷却时间：%.1f秒
+    display: '&a附加 %s  (级别 %d ) 效果，时间为 %d 单位，作用物品：%s, 作用范围: %d 格方块，冷却时间：%.1f秒'
     selfapplication:
-      including: 排除自身
-      excluding: 包含自身
-  particle: 右键时产生一些粒子
-  deflect: 反弹射来的箭与火球
-  fireball: 发射火球 (%.1f 秒冷却时间)
-  fire: 发射火焰 (%.1f 秒冷却时间)
-  torch: 照亮一片区域 (%.1f 秒冷却时间)
-  tippedarrow: 发射 %s %d 持续 %.1f 秒的药箭 (%.1f 秒冷却)
-  color: 改变粘土，玻璃和羊毛的颜色 (%.1f秒冷却)
-  forcefield: 在你周围设置一个半径 %d，高度 %d，深度 %d 并持续 %.1f秒的力场
-  lifesteal: 1/%d 的几率偷取敌人生命值
-  unbreaking: 耐久 %d
-  knockup: '%d%% 的几率击飞目标'
-  rumble: 发出冲击波 (%.1f 秒冷却时间)
+      including: '&a排除自身'
+      excluding: '&a包含自身'
+  particle: '&a右键时产生一些粒子'
+  deflect: '&a反弹射来的箭与火球'
+  fireball: '&a发射火球 (%.1f 秒冷却时间)'
+  fire: '&a发射火焰 (%.1f 秒冷却时间)'
+  torch: '&a照亮一片区域 (%.1f 秒冷却时间)'
+  tippedarrow: '&a发射 %s %d 持续 %.1f 秒的药箭 (%.1f 秒冷却)'
+  color: '&a改变粘土，玻璃和羊毛的颜色 (%.1f秒冷却)'
+  forcefield: '&a在你周围设置一个半径 %d，高度 %d，深度 %d 并持续 %.1f秒的力场'
+  lifesteal: '&a1/%d 的几率偷取敌人生命值'
+  unbreaking: '&a耐久 %d'
+  knockup: '&a%d%% 的几率击飞目标'
+  rumble: '&a发出冲击波 (%.1f 秒冷却时间)'
   potiontick:
-    display: 持有/穿戴时给予效果 %s %d
-    clear: 持有/穿戴时清除效果 %s
-  pumpkin: 1/%d 几率使敌人戴上南瓜头
-  flame: 点燃目标 %.1f 秒
-  rangedonly: 仅远程使用
-  skyhook: 钩到指定方块
-  unbreakable: 不毁
-  tntcannon: 发射 TNT (%.1f 秒冷却时间)
-  particletick: 持有时产生一些粒子
-  potionhit: '%d%% 的几率触发效果 %s'
-  arrow: 发射火箭 (%.1f 秒冷却时间)
-  arrow-item: 消耗 %s 发射火箭 (%.1f 秒冷却时间)
-  stuck: 攻击后 %d 几率敌人无法移动 %d tick (%.1f 秒冷却时间)
-  shulkerbullet: 发射潜影贝子弹 (%.1f 秒冷却时间)
-  translocator: 切副手发射传送信标，切主手传送至信标，从副手拿出拆除信标 (%.1f 秒冷却时间)
-  glove: 捕获一个实体 (%.1fs 冷却)
-  mount: 骑乘一个实体 (%.1fs 冷却)
+    display: '&a持有/穿戴时给予效果 %s %d'
+    clear: '&a持有/穿戴时清除效果 %s'
+  pumpkin: '&a1/%d 几率使敌人戴上南瓜头'
+  flame: '&a点燃目标 %.1f 秒'
+  rangedonly: '&a仅远程使用'
+  skyhook: '&a钩到指定方块'
+  unbreakable: '&a不毁'
+  tntcannon: '&a发射 TNT (%.1f 秒冷却时间)'
+  particletick: '&a持有时产生一些粒子'
+  potionhit: '&a%d%% 的几率触发效果 %s'
+  arrow: '&a发射火箭 (%.1f 秒冷却时间)'
+  arrow-item: '&a发射%s (%.1f 秒冷却时间)'
+  stuck: '&a攻击后 %d 几率敌人无法移动 %d tick (%.1f 秒冷却时间)'
+  shulkerbullet: '&a发射潜影贝子弹 (%.1f 秒冷却时间)'
+  translocator: '&a切副手发射传送信标，切主手传送至信标，从副手拿出拆除信标 (%.1f 秒冷却时间)'
+  glove: '&a捕获一个实体 (%.1fs 冷却)'
+  mount: '&a骑乘一个实体 (%.1fs 冷却)'
   economy:
-    deposit: 获得 %s (%.1fs cooldown)
-    withdraw: 支付 %s (%.1fs cooldown)
-  explosion: 百分之 %.1f 的概率制造一个强度为 %.1f 的爆炸
-  headshot: 爆头时造成 %.1f 倍伤害
+    deposit: '&a获得 %s (%.1fs cooldown)'
+    withdraw: '&a支付 %s (%.1fs cooldown)'
+  explosion: '&a百分之 %.1f 的概率制造一个强度为 %.1f 的爆炸'
+  headshot: '&a爆头时造成 %.1f 倍伤害'
   criticalhit:
-    both: 百分之 %.1f 的几率暴击 %.1f 倍，百分之 %.1f 的几率背刺 %.1f 倍
-    critical: 百分之 %.1f 的几率暴击 %.1f 倍
-    backstab: 百分之 %.1f 的几率背刺 %.1f 倍
-  gunfu: 子弹会自动追踪敌人 (%.1fs cooldown)
-  beam: 发射粒子束攻击敌人
+    both: '&a百分之 %.1f 的几率暴击 %.1f 倍，百分之 %.1f 的几率背刺 %.1f 倍'
+    critical: '&a百分之 %.1f 的几率暴击 %.1f 倍'
+    backstab: '&a百分之 %.1f 的几率背刺 %.1f 倍'
+  gunfu: '&a子弹会自动追踪敌人 (%.1f 秒冷却时间)'
+  beam: '&a发射粒子束攻击敌人'
 properties:
   base:
     id: 此条件/选择器的ID。
@@ -493,6 +493,10 @@ properties:
   arrow:
     main_name: 射出一矢
     main_description: 发射一支箭。
+  arrow_item:
+    main_name: 射出自定义材质物品
+    main_description: 以自定义材质物品作为弹药发射。
+    no_arrow: 你的弹药不足 (%s)
   attachments:
     main_name: 配件
     main_description: 可以使用其他 RPGItem 作为配件。将会触发配件上的 ATTACHMENT 触发

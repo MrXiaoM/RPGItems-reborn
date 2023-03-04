@@ -77,9 +77,9 @@ public class HexColorUtils {
                 rgbMatcher.appendReplacement(rgbBuilder, "&#$2");
             }
             rgbMatcher.appendTail(rgbBuilder);
-            return rgbBuilder.toString();
+            return rgbBuilder.toString().replace("&x", "\u00a7x");
         }
-        return legacyBuilder.toString();
+        return legacyBuilder.toString().replace("&x", "\u00a7x");
     }
 
     /**
@@ -108,7 +108,7 @@ public class HexColorUtils {
             return replaceFormat(str);
         } catch (Exception e){
             //fallback in case an exception thrown.
-            return ChatColor.translateAlternateColorCodes('&', str);
+            return ChatColor.translateAlternateColorCodes('&', str).replace("&x", "\u00a7x");
         }
     }
 }

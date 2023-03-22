@@ -1560,7 +1560,7 @@ public class AdminCommands extends RPGCommandReceiver {
             String next = arguments.next();
             sb.append(next);
             if (arguments.top() == null) {
-                return parseGradient(sb.toString());
+                return sb.toString();
             }
             sb.append(" ");
         }

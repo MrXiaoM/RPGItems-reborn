@@ -2,7 +2,6 @@ package think.rpgitems.item;
 
 import cat.nyaa.nyaacore.Message;
 import cat.nyaa.nyaacore.Pair;
-import cat.nyaa.nyaacore.utils.HexColorUtils;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import cat.nyaa.nyaacore.utils.ItemTagUtils;
 import com.google.common.base.Strings;
@@ -49,6 +48,7 @@ import think.rpgitems.power.propertymodifier.Modifier;
 import think.rpgitems.power.propertymodifier.RgiParameter;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
+import think.rpgitems.utils.ColorHelper;
 import think.rpgitems.utils.MaterialUtils;
 
 import java.io.File;
@@ -115,6 +115,7 @@ public class RPGItem {
     private boolean hasPermission;
     private String permission;
     private String displayName;
+    private String displayNameColored;
     private int damageMin = 0;
     private int damageMax = 3;
     private DamageMode damageMode = DamageMode.FIXED;
@@ -205,7 +206,7 @@ public class RPGItem {
         setDisplayName(display);
         List<String> desc = s.getStringList("description");
         for (int i = 0; i < desc.size(); i++) {
-            desc.set(i, HexColorUtils.hexColored(desc.get(i)));
+            desc.set(i, ColorHelper.parseColor(desc.get(i)));
         }
         setDescription(desc);
         setDamageMin(s.getInt("damageMin"));
@@ -476,7 +477,7 @@ public class RPGItem {
 
         s.set("haspermission", isHasPermission());
         s.set("permission", getPermission());
-        s.set("display", getDisplayName().replaceAll("" + COLOR_CHAR, "&"));
+        s.set("display", getDisplayNameRaw().replaceAll("" + COLOR_CHAR, "&"));
         s.set("damageMin", getDamageMin());
         s.set("damageMax", getDamageMax());
         s.set("armour", getArmour());
@@ -1644,7 +1645,7 @@ public class RPGItem {
     }
 
     public void addDescription(String str) {
-        getDescription().add(HexColorUtils.hexColored(str));
+        getDescription().add(ColorHelper.parseColor(str));
         rebuild();
     }
 
@@ -2032,12 +2033,16 @@ public class RPGItem {
         this.description = description;
     }
 
-    public String getDisplayName() {
+    public String getDisplayNameRaw() {
         return displayName;
+    }
+    public String getDisplayName() {
+        return displayNameColored;
     }
 
     public void setDisplayName(String displayName) {
-        this.displayName = HexColorUtils.hexColored(displayName);
+        this.displayName = displayName;
+        this.displayNameColored = ColorHelper.parseColor(displayName);
     }
 
     public int getDurabilityLowerBound() {

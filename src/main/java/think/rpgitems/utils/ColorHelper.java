@@ -15,8 +15,15 @@ import java.util.regex.Pattern;
 public class ColorHelper {
     private static final Pattern startWithColor = Pattern.compile("^(&[LMNKOlmnko])+");
     private static final Pattern gradientPattern = Pattern.compile("\\{(#[ABCDEFabcdef0123456789]{6}):(#[ABCDEFabcdef0123456789]{6}):(.*)}");
-    public static String parseGradient(String s) {
-        return String.join("", split(gradientPattern, s, regexResult -> {
+    private static final Pattern hexPattern = Pattern.compile("&(#[ABCDEFabcdef0123456789]{6})");
+    public static String parseColor(String s) {
+        String fin = s;
+        fin = String.join("", split(hexPattern, fin, regexResult -> {
+            if (!regexResult.isMatched) return regexResult.text;
+            String hex = regexResult.text.substring(1);
+            return parseHex(hex);
+        }));
+        fin = String.join("", split(gradientPattern, fin, regexResult -> {
             if (!regexResult.isMatched) return regexResult.text;
             String[] args = regexResult.text.substring(1, regexResult.text.length() - 1).split(":", 3);
             String extra = "";
@@ -26,6 +33,7 @@ public class ColorHelper {
             }
             return parseGradient(m.replaceAll(""), extra, args[0], args[1]);
         }));
+        return ChatColor.translateAlternateColorCodes('&', fin);
     }
     /**
      * 生成 Minecraft 1.16+ 渐变颜色文字
@@ -53,9 +61,10 @@ public class ColorHelper {
      */
     public static String parseHex(String hex) {
         StringBuilder result = new StringBuilder("§x");
-        for (char c : hex.substring(1).toLowerCase().toCharArray()) {
+        for (char c : hex.substring(1, hex.length() - 1).toLowerCase().toCharArray()) {
             result.append('§').append(c);
         }
+        result.append("§F");
         return result.toString();
     }
     public static int[] createGradient(int startHex, int endHex, int step) {

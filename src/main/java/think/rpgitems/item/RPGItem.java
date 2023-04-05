@@ -641,11 +641,11 @@ public class RPGItem {
             }
         }
         // Patch for mcMMO buff. See SkillUtils.java#removeAbilityBuff in mcMMO
-        if (item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).hasLore() && Objects.requireNonNull(item.getItemMeta().getLore()).contains("mcMMO Ability Tool"))
+        if (oldLore.contains("mcMMO Ability Tool"))
             lore.add("mcMMO Ability Tool");
 
         lore.addAll(reservedLores);
-        LoreUpdateEvent event = new LoreUpdateEvent(oldLore, lore);
+        LoreUpdateEvent event = new LoreUpdateEvent(this, item, oldLore, lore);
         Bukkit.getPluginManager().callEvent(event);
         meta.setLore(event.newLore);
 

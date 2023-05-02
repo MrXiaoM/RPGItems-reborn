@@ -1,5 +1,6 @@
 package think.rpgitems.power.impl;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -88,27 +89,30 @@ public class CommandHit extends Command {
          */
         protected PowerResult<Void> executeCommand(Player player, LivingEntity e, double damage) {
             if (!player.isOnline()) return PowerResult.noop();
+            String cmd = getCommand();
+            cmd = handleEntityPlaceHolder(e, cmd);
+            cmd = handlePlayerPlaceHolder(player, cmd);
+            cmd = cmd.replaceAll("\\{damage}", String.valueOf(damage));
 
-            attachPermission(player, getPermission());
-            boolean wasOp = player.isOp();
-            try {
-                if (getPermission().equals("*"))
-                    player.setOp(true);
-
-                String cmd = getCommand();
-
-                cmd = handleEntityPlaceHolder(e, cmd);
-
-                cmd = handlePlayerPlaceHolder(player, cmd);
-
-                cmd = cmd.replaceAll("\\{damage}", String.valueOf(damage));
-
-                boolean result = player.performCommand(cmd);
-                return result ? PowerResult.ok() : PowerResult.fail();
-            } finally {
-                if (getPermission().equals("*"))
-                    player.setOp(wasOp);
+            if (getPermission().equals("console")) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+            } else {
+                boolean wasOp = player.isOp();
+                attachPermission(player, getPermission());
+                if (getPermission().equals("*")) {
+                    try {
+                        player.setOp(true);
+                        player.performCommand(cmd);
+                    } finally {
+                        if (!wasOp) {
+                            player.setOp(false);
+                        }
+                    }
+                } else {
+                    player.performCommand(cmd);
+                }
             }
+            return PowerResult.ok();
         }
 
         @Override

@@ -295,6 +295,17 @@ public class ItemTagUtils {
         itemStack.setTag(tag);
         return Optional.of(value);
     }
+    public static boolean remove(ItemStack item, String key) throws NoSuchFieldException, IllegalAccessException {
+        Optional<net.minecraft.server.v1_16_R3.ItemStack> is = getItem(item);
+        if (!is.isPresent()) {
+            return false;
+        }
+        net.minecraft.server.v1_16_R3.ItemStack itemStack = is.get();
+        NBTTagCompound tag = itemStack.getOrCreateTag();
+        tag.remove(key);
+        itemStack.setTag(tag);
+        return true;
+    }
 
     private static Optional<net.minecraft.server.v1_16_R3.ItemStack> getItem(ItemStack itemStack) throws NoSuchFieldException, IllegalAccessException {
         if (!(itemStack instanceof CraftItemStack)) {

@@ -647,6 +647,7 @@ public class RPGItem {
         lore.addAll(reservedLores);
         LoreUpdateEvent event = new LoreUpdateEvent(this, item, oldLore, lore);
         Bukkit.getPluginManager().callEvent(event);
+        item = event.item;
         meta.setLore(event.newLore);
 
         //quality prefix
@@ -702,9 +703,9 @@ public class RPGItem {
                     ItemTagUtils.setString(item, NBT_ITEM_UUID, uuid.toString());
                 }
             }
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+            LoreUpdateEvent.Post post = new LoreUpdateEvent.Post(event, this, item);
+            Bukkit.getPluginManager().callEvent(post);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }

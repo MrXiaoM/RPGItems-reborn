@@ -53,14 +53,13 @@ repositories {
     // mavenLocal()
     jcenter()
     mavenCentral()
-    maven { url = "https://maven.fastmirror.net/repositories/minecraft" }
+    maven { url "https://mvn.lumine.io/repository/maven-public/" }
     maven { name 'NyaaCat'; url 'https://ci.nyaacat.com/maven/' }
     maven { name 'Aikar'; url 'https://repo.aikar.co/content/groups/aikar/' }
     maven { name 'Spigot'; url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { name 'Sonatype'; url 'https://oss.sonatype.org/content/groups/public' }
     maven { name 'sk89q'; url 'http://maven.sk89q.com/artifactory/repo/' }
     maven { name 'vault-repo'; url 'https://jitpack.io' }
-    maven { name 'EssentialsX'; url 'https://ci.ender.zone/plugin/repository/everything' }
     maven { name 'aikar';     url 'https://repo.aikar.co/content/groups/aikar/' }
 }
 
@@ -70,7 +69,7 @@ shadowJar {
 
 dependencies {
     api "org.spigotmc:spigot-api:$minecraftVersion-R0.1-SNAPSHOT"
-    api "org.spigotmc:spigot:$minecraftVersion-R0.1-SNAPSHOT"
+    api "org.spigotmc:spigot-$minecraftVersion:dev" // lumine
     compileOnly "cat.nyaa:nyaautils:8.0-SNAPSHOT"
 
     compileOnly 'io.netty:netty-all:4.1.25.Final' // netty is shadowed inside spigot jar
@@ -91,7 +90,6 @@ dependencies {
     }
     compileOnly('com.meowj:LangUtils:2.4-SNAPSHOT')
     compileOnly('net.milkbowl.vault:VaultAPI:1.7') { transitive = false }  // soft dep
-    compileOnly('net.ess3:EssentialsX:2.18.0') { transitive = false }      // soft dep
     // implementation fileTree(dir: 'libs', includes: ['*.jar'])
 
     implementation 'com.google.code.findbugs:jsr305:1.3.9'

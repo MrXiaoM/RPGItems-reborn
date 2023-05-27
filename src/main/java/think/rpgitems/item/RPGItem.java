@@ -1680,7 +1680,14 @@ public class RPGItem {
                          Power proxy = DynamicMethodInterceptor.create(p, player, cls, stack, trigger);
                          return PowerManager.createImpl(cls, proxy);
                      })
-                     .map(p -> p.cast(trigger.getPowerClass()))
+                     .map(p -> {
+                         try {
+                             return p.cast(trigger.getPowerClass());
+                         } catch (ClassCastException ignored) {
+                             return null;
+                         }
+                         })
+                     .filter(Objects::nonNull)
                      .collect(Collectors.toList());
     }
 

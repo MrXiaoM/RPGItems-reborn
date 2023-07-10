@@ -281,7 +281,15 @@ public class ItemManager {
     }
 
     private static File mkdir() {
-        File items = new File(plugin.getDataFolder(), "items");
+        String itemsDirRedirect = plugin.cfg.itemsDirRedirect;
+        File items;
+        if (itemsDirRedirect == null)
+            items = new File(plugin.getDataFolder(), "items");
+        else {
+            if (itemsDirRedirect.startsWith("."))
+                items = new File(plugin.getDataFolder(), itemsDirRedirect.substring(1));
+            else items = new File(itemsDirRedirect);
+        }
         if (!items.exists() || !items.isDirectory()) {
             if (!items.mkdir()) {
                 throw new IllegalStateException();

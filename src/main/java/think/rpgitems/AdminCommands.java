@@ -184,6 +184,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand("save-all")
     public void save(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         ItemManager.save();
     }
 
@@ -406,6 +410,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand("create")
     public void createItem(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         String itemName = args.nextString();
         RPGItem newItem = ItemManager.newItem(itemName.toLowerCase(), sender);
         if (newItem != null) {
@@ -494,6 +502,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "remove", tabCompleter = "itemCompleter")
     public void removeItem(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         ItemManager.remove(item, true);
         msgs(sender, "message.remove.ok", item.getName());
@@ -501,6 +513,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "display", tabCompleter = "itemCompleter")
     public void itemDisplay(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         String value = consume(args);
         if (value != null) {
@@ -515,6 +531,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "customModel", tabCompleter = "itemCompleter")
     public void itemCustomModel(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         int customModelData = args.nextInt();
         item.setCustomModelData(customModelData);
@@ -525,6 +545,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "damage", tabCompleter = "itemCompleter")
     public void itemDamage(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         try {
             int damageMin = args.nextInt();
@@ -555,6 +579,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "armour", tabCompleter = "itemCompleter")
     public void itemArmour(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         try {
             int armour = args.nextInt();
@@ -569,6 +597,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "item", tabCompleter = "itemCompleter")
     public void itemItem(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         if (args.length() == 2) {
             new Message("")
@@ -617,6 +649,10 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "enchantment", tabCompleter = "itemCompleter")
     @Completion("item:clone,clear")
     public void itemEnchant(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         if (args.length() == 2) {
             if (item.getEnchantMap() != null) {
@@ -675,6 +711,10 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "attributemode", tabCompleter = "itemCompleter")
     @Completion("item:FULL_UPDATE,PARTIAL_UPDATE")
     public void setAttributeMode(CommandSender sender, Arguments arguments) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(arguments.nextString(), sender);
         switch (arguments.top()) {
             case "FULL_UPDATE":
@@ -696,6 +736,10 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "description", tabCompleter = "itemCompleter")
     @Completion("item:add,insert,set,remove")
     public void itemAddDescription(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         String command = args.nextString();
         switch (command) {
@@ -757,6 +801,10 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "cost", tabCompleter = "itemCompleter")
     @Completion("item:breaking,hitting,hit,toggle")
     public void itemCost(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         String type = args.nextString();
         if (args.length() == 3) {
@@ -802,6 +850,10 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "durability", tabCompleter = "itemCompleter")
     @Completion("item:infinite,default,bound,togglebar,barformat")
     public void itemDurability(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         if (args.length() == 2) {
             msgs(sender, "message.durability.info", item.getMaxDurability(), item.getDefaultDurability(), item.getDurabilityLowerBound(), item.getDurabilityUpperBound());
@@ -858,6 +910,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "permission", tabCompleter = "itemCompleter")
     public void setPermission(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         String permission = args.nextString();
         boolean enabled = args.nextBoolean();
@@ -869,6 +925,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "togglepowerlore", tabCompleter = "itemCompleter")
     public void togglePowerLore(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         item.setShowPowerText(!item.isShowPowerText());
         item.rebuild();
@@ -879,6 +939,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "togglearmorlore", tabCompleter = "itemCompleter")
     public void toggleArmorLore(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         item.setShowArmourLore(!item.isShowArmourLore());
         item.rebuild();
@@ -889,6 +953,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "additemflag", tabCompleter = "itemCompleter")
     public void addItemFlag(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         ItemFlag flag = args.nextEnum(ItemFlag.class);
         item.getItemFlags().add(ItemFlag.valueOf(flag.name()));
@@ -900,6 +968,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "removeitemflag", tabCompleter = "itemCompleter")
     public void removeItemFlag(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         ItemFlag flag = args.nextEnum(ItemFlag.class);
         ItemFlag itemFlag = ItemFlag.valueOf(flag.name());
@@ -916,6 +988,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "customitemmodel", tabCompleter = "itemCompleter")
     public void toggleCustomItemModel(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         item.setCustomItemModel(!item.isCustomItemModel());
         item.rebuild();
@@ -926,6 +1002,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     //    @SubCommand(value = "togglebar", tabCompleter = "itemCompleter")
     public void toggleBar(CommandSender sender, Arguments args, RPGItem item) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         item.toggleBar();
         ItemManager.refreshItem();
         ItemManager.save(item);
@@ -935,6 +1015,10 @@ public class AdminCommands extends RPGCommandReceiver {
     //    @SubCommand(value = "barformat", tabCompleter = "itemCompleter")
     @Completion("item:DEFAULT,NUMERIC,NUMERIC_MINUS_ONE,NUMERIC_HEX,NUMERIC_HEX_MINUS_ONE,DEFAULT8")
     public void toggleBarFormat(CommandSender sender, Arguments args, RPGItem item) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         item.setBarFormat(args.nextEnum(BarFormat.class));
         item.rebuild();
         ItemManager.refreshItem();
@@ -950,6 +1034,10 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "enchantmode", tabCompleter = "itemCompleter")
     @Completion("item:DISALLOW,PERMISSION,ALLOW")
     public void toggleItemEnchantMode(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         if (args.top() != null) {
             item.setEnchantMode(args.nextEnum(RPGItem.EnchantMode.class));
@@ -963,6 +1051,10 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "damagemode", tabCompleter = "itemCompleter")
     @Completion("item:FIXED,VANILLA,ADDITIONAL,MULTIPLY")
     public void toggleItemDamageMode(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         if (args.top() != null) {
             item.setDamageMode(args.nextEnum(RPGItem.DamageMode.class));
@@ -1009,6 +1101,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "clone", tabCompleter = "itemCompleter")
     public void cloneItem(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender, true);
         String name = args.nextString();
         RPGItem i = ItemManager.cloneItem(item, name);
@@ -1023,6 +1119,10 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "import", tabCompleter = "attrCompleter")
     @Completion("command:GIST")
     public void download(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         NetworkUtils.Location location = args.nextEnum(NetworkUtils.Location.class);
         String id = args.nextString();
         switch (location) {
@@ -1057,6 +1157,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "author", tabCompleter = "itemCompleter")
     public void setAuthor(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         String author = args.next();
         if (author != null) {
@@ -1107,6 +1211,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "note", tabCompleter = "itemCompleter")
     public void setNote(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         String note = args.next();
         if (note != null) {
@@ -1120,6 +1228,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "license", tabCompleter = "itemCompleter")
     public void setLicense(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         String license = args.next();
         if (license != null) {
@@ -1142,6 +1254,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand("creategroup")
     public void createGroup(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         String groupName = args.nextString();
         ItemGroup group = null;
         if (args.top() == null || !args.top().contains("/")) {
@@ -1181,6 +1297,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "addtogroup", tabCompleter = "itemCompleter")
     public void addToGroup(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender, true);
         String groupName = args.nextString();
         Optional<ItemGroup> optGroup = ItemManager.getGroup(groupName);
@@ -1196,6 +1316,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "removefromgroup", tabCompleter = "itemCompleter")
     public void removeFromGroup(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender, true);
         String groupName = args.nextString();
         Optional<ItemGroup> optGroup = ItemManager.getGroup(groupName);
@@ -1232,6 +1356,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand("removegroup")
     public void removeGroup(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         String groupName = args.nextString();
         Optional<ItemGroup> optGroup = ItemManager.getGroup(groupName);
         if (!optGroup.isPresent()) {
@@ -1245,6 +1373,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "damageType", tabCompleter = "damageTypeCompleter")
     public void damageType(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         String item = args.nextString();
 
         RPGItem rpgItem = ItemManager.getItem(item).orElse(null);
@@ -1281,6 +1413,10 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "armorExpression", tabCompleter = "damageExpressionCompleter")
     public void armorExpression(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         String item = args.nextString();
 
         RPGItem rpgItem = ItemManager.getItem(item).orElse(null);
@@ -1424,6 +1560,10 @@ public class AdminCommands extends RPGCommandReceiver {
     }
 
     private void downloadGist(CommandSender sender, Arguments args, String id) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         new Message(I18n.getInstance(sender).format("message.import.gist.ing")).send(sender);
         String token = args.argString("token", plugin.cfg.githubToken);
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -1444,6 +1584,10 @@ public class AdminCommands extends RPGCommandReceiver {
     }
 
     private void downloadUrl(CommandSender sender, Arguments args, String url) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         new Message(I18n.getInstance(sender).format("message.import.url.ing")).send(sender);
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {

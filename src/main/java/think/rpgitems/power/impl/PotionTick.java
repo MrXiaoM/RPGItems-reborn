@@ -36,6 +36,8 @@ public class PotionTick extends BasePower {
     public int interval = 0;
     @Property(order = 3)
     public int duration = 60;
+    @Property(order = 4)
+    public int minDuration = 5;
     @Property
     public boolean clear = false;
 
@@ -51,6 +53,13 @@ public class PotionTick extends BasePower {
      */
     public int getDuration() {
         return duration;
+    }
+
+    /**
+     * Minimum duration of this power
+     */
+    public int getMinDuration() {
+        return minDuration;
     }
 
     /**
@@ -110,7 +119,7 @@ public class PotionTick extends BasePower {
                     hasEffect = true;
                     if (isClear()) {
                         player.removePotionEffect(getEffect());
-                    } else if (potionEffect.getDuration() <= 5 || potionEffect.getAmplifier() < getAmplifier())
+                    } else if (potionEffect.getDuration() <= getMinDuration() || potionEffect.getAmplifier() < getAmplifier())
                         player.addPotionEffect(new PotionEffect(getEffect(), getDuration(), getAmplifier(), true), true);
                     break;
                 }

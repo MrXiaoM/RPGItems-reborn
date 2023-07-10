@@ -34,6 +34,12 @@ public class Configuration extends PluginConfigure {
     @Serializable(name = "general.spu_endpoint")
     public String spuEndpoint = null;
 
+    @Serializable(name = "general.items_dir_redirect")
+    public String itemsDirRedirect = null;
+
+    @Serializable(name = "general.readonly")
+    public boolean readonly = false;
+
     @Serializable(name = "command.list.item_per_page", alias = "itemperpage")
     public int itemPerPage = 9;
 

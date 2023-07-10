@@ -80,6 +80,10 @@ public class ModifierCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "add", tabCompleter = "addCompleter")
     public void add(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         String baseStr = args.top();
         if (baseStr == null || baseStr.equals("help") || args.remains() < 2) {
             msgs(sender, "manual.modifier.add.description");
@@ -182,6 +186,10 @@ public class ModifierCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "prop", tabCompleter = "propCompleter")
     public void prop(CommandSender sender, Arguments args) throws IllegalAccessException {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         String baseStr = args.top();
         Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, args, baseStr);
         PersistentDataContainer container = rootContainer.getValue();
@@ -231,6 +239,10 @@ public class ModifierCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "remove", tabCompleter = "propCompleter")
     public void remove(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         String baseStr = args.top();
         Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, args, baseStr);
         PersistentDataContainer container = rootContainer.getValue();

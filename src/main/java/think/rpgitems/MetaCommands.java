@@ -3,6 +3,7 @@ package think.rpgitems;
 import cat.nyaa.nyaacore.Message;
 import cat.nyaa.nyaacore.cmdreceiver.Arguments;
 import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
@@ -31,6 +32,10 @@ public class MetaCommands extends RPGCommandReceiver {
     //all prop in RPGItem will be able to modify here.
     @SubCommand(value = "quality", tabCompleter = "qualityCompleter")
     public void onQuality(CommandSender sender, Arguments arguments){
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(arguments.nextString(), sender);
         String quality = arguments.nextString();
         item.setQuality(quality);
@@ -54,6 +59,10 @@ public class MetaCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "type", tabCompleter = "typeCompleter")
     public void onType(CommandSender sender, Arguments arguments){
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(arguments.nextString(), sender);
         String type = arguments.nextString();
         item.setType(type);

@@ -73,6 +73,10 @@ public class PowerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "add", tabCompleter = "addCompleter")
     public void add(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         String itemStr = args.next();
         String powerStr = args.next();
         if (itemStr == null || itemStr.equals("help") || powerStr == null) {
@@ -191,6 +195,10 @@ public class PowerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "prop", tabCompleter = "propCompleter")
     public void prop(CommandSender sender, Arguments args) throws IllegalAccessException {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         if (args.top() == null) {
             for (int i = 0; i < item.getPowers().size(); i++) {
@@ -260,6 +268,10 @@ public class PowerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "remove", tabCompleter = "removeCompleter")
     public void remove(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         int nth = -1;
         Power power = nextPower(item, sender, args);
@@ -294,6 +306,10 @@ public class PowerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "reorder", tabCompleter = "reorderCompleter")
     public void reorder(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
         RPGItem item = getItem(args.nextString(), sender);
         int origin = -1;
         int next = -1;

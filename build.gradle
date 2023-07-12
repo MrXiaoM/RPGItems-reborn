@@ -36,6 +36,12 @@ version = "$majorVersion.$minorVersion-$buildNumber"
 
 String mavenVersion = releasing ? version : "$majorVersion.$minorVersion-SNAPSHOT"
 
+println("version: $version")
+println("isReleasing: $releasing")
+if (!releasing) {
+    println("mavenVersion: $mavenVersion")
+}
+
 if (!mainBranch) {
     String branchAddon = branch.replace(minecraftMajorVersion, "")
     version = "$majorVersion.$minorVersion$branchAddon-$buildNumber"

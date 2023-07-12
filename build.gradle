@@ -32,7 +32,7 @@ boolean releasing = commit.shortMessage.contains("[release]")
 
 group = 'top.mrxiaom'
 archivesBaseName = "RPGItems-reloaded-mc$minecraftVersion"
-version = "$majorVersion.$minorVersion-$buildNumber"
+version = "$majorVersion.$minorVersion.$buildNumber"
 
 String mavenVersion = releasing ? version : "$majorVersion.$minorVersion-SNAPSHOT"
 

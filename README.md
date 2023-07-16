@@ -29,7 +29,7 @@ class MyEventListener implements Listener {
         String owner = ItemTagUtils.getString(event.item, "bind_owner").orElse(null);
         if (owner != null) {
             e.newLore.add("");
-            e.newLore.add(ColorHelper.parseColor("&Bound to &2" + owner));
+            e.newLore.add(ColorHelper.parseColor("&aBound to &2" + owner));
         }
     }
 }
@@ -42,10 +42,12 @@ class MyEventListener implements Listener {
 * Gradient color support
 * More friendly and developer comfortably help command
 * More friendly Chinese translation with color
+* Read-only mode
+* BungeeCord notice read-only server to reload
 
 ## Accessible
 
-We **will** publish the functional update and bug fixing. We **WON'T** publish the powers, triggers and conditions made by us. They are packaged into an extension in our server.
+We **will** publish the functional update and bug fixing. We **WON'T** publish the powers, triggers and conditions we made. They are packaged into an extension in our server.
 
 ## Resources
 

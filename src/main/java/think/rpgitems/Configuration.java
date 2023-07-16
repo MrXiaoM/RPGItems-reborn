@@ -39,6 +39,8 @@ public class Configuration extends PluginConfigure {
 
     @Serializable(name = "general.readonly")
     public boolean readonly = false;
+    @Serializable(name = "general.reload-notice-readonly-server")
+    public boolean readonlyReloadNotice = true;
 
     @Serializable(name = "command.list.item_per_page", alias = "itemperpage")
     public int itemPerPage = 9;

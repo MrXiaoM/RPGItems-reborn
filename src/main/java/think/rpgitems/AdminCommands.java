@@ -9,11 +9,14 @@ import cat.nyaa.nyaacore.utils.HexColorUtils;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import cat.nyaa.nyaacore.utils.OfflinePlayerUtils;
 import com.google.common.base.Strings;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.udojava.evalex.Expression;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -39,9 +42,7 @@ import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.NetworkUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -204,6 +205,26 @@ public class AdminCommands extends RPGCommandReceiver {
         plugin.managedPlugins.forEach(Bukkit.getPluginManager()::enablePlugin);
         ItemManager.reload(plugin);
         sender.sendMessage(ChatColor.GREEN + "[RPGItems] Reloaded RPGItems.");
+        if (!plugin.cfg.readonly && plugin.cfg.readonlyReloadNotice) {
+            Player p = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
+            if (p == null) return;
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("Forward");
+                out.writeUTF("ALL");
+                out.writeUTF("RPGItems");
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                try (DataOutputStream msgOut = new DataOutputStream(bytes)) {
+                    msgOut.writeUTF("reload");
+                }catch (Throwable t){
+                    t.printStackTrace();
+                    return;
+                }
+                out.writeShort(bytes.toByteArray().length);
+                out.write(bytes.toByteArray());
+                p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+            });
+        }
     }
 
     @SubCommand("loadfile")

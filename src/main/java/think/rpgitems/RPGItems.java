@@ -1,6 +1,9 @@
 package think.rpgitems;
 
 import cat.nyaa.nyaacore.NyaaCoreLoader;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -15,6 +18,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 import think.rpgitems.data.Font;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.power.*;
@@ -22,9 +26,12 @@ import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.support.WGSupport;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -32,7 +39,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RPGItems extends JavaPlugin {
+public class RPGItems extends JavaPlugin implements PluginMessageListener {
 
     private static int version;
     private static int serial;
@@ -181,9 +188,33 @@ public class RPGItems extends JavaPlugin {
         getCommand("rpgitems").setExecutor(userCommandHandler);
         getCommand("rpgitems").setTabCompleter(userCommandHandler);
         getServer().getPluginManager().registerEvents(new ServerLoadListener(), this);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
         managedPlugins.forEach(Bukkit.getPluginManager()::enablePlugin);
     }
 
+    @Override
+    @SuppressWarnings({"all"})
+    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+        if (!channel.equals("BungeeCord")) return;
+        ByteArrayDataInput in = ByteStreams.newDataInput(message);
+        String subChannel = in.readUTF();
+        if (subChannel.equals("RPGItems")) {
+            short len = in.readShort();
+            byte[] bytes = new byte[len];
+            in.readFully(bytes);
+
+            try (DataInputStream msgIn = new DataInputStream(new ByteArrayInputStream(bytes))) {
+                String command = msgIn.readUTF();
+                logger.info("Received BungeeCord command: " + command);
+                if (command.equalsIgnoreCase("reload") && cfg.readonly) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rpgitem reload");
+                }
+            } catch (Throwable t){
+                t.printStackTrace();
+            }
+        }
+    }
     public static int getVersion() {
         return version;
     }

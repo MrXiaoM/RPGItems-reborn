@@ -77,6 +77,13 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
         });
     }
 
+    public boolean registerCommand(SubCommandInfo command, boolean override) {
+        boolean contains = subCommands.containsKey(command.name);
+        if (!override && contains) return false;
+        subCommands.put(command.name, command);
+        return contains;
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static CommandReceiver newInstance(Class cls, Object arg1, Object arg2) throws ReflectiveOperationException {
         for (Constructor c : cls.getConstructors()) {
@@ -184,11 +191,11 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
             // subcommand
             String subCommandName = scAnno.value();
             String perm = scAnno.permission().isEmpty() ? null : scAnno.permission();
-            return new SubCommandInfo(subCommandName, perm, false, m, null, null, false, tabm);
+            return new SubCommandInfo(this, subCommandName, perm, false, m, null, null, false, tabm);
         } else if (scAnno.isDefaultCommand()) {
             // default command
             String perm = scAnno.permission().isEmpty() ? null : scAnno.permission();
-            return new SubCommandInfo(null, perm, false, m, null, null, true, tabm);
+            return new SubCommandInfo(this, null, perm, false, m, null, null, true, tabm);
         } else {
             // not subcommand nor default command, remove the annotation
             plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", m.toString()));
@@ -245,11 +252,11 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
             // subcommand
             String subCommandName = scAnno.value();
             String perm = scAnno.permission().isEmpty() ? null : scAnno.permission();
-            return new SubCommandInfo(subCommandName, perm, true, null, f, obj, false, null);
+            return new SubCommandInfo(this, subCommandName, perm, true, null, f, obj, false, null);
         } else if (scAnno.isDefaultCommand()) {
             // default command
             String perm = scAnno.permission().isEmpty() ? null : scAnno.permission();
-            return new SubCommandInfo(null, perm, true, null, f, obj, true, null);
+            return new SubCommandInfo(this, null, perm, true, null, f, obj, true, null);
         } else {
             // not subcommand nor default command, remove the annotation
             plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", f.toString()));
@@ -277,7 +284,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
     // Only directly registered command handler need this
     // acceptCommand() will be called directly in subcommand classes
     @Override
-    public final boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Arguments cmd = Arguments.parse(args, sender);
         if (cmd == null) return false;
         acceptCommand(sender, cmd);
@@ -440,7 +447,8 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
         target.sendMessage(i18n.getFormatted(template, args));
     }
 
-    public class SubCommandInfo {
+    public static class SubCommandInfo {
+        final Object instance;
         final String name; // default command can have this be null
         final String permission; // if none then no permission required
         final Method tabCompleter;
@@ -450,7 +458,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
         final CommandReceiver fieldValue;
         final boolean isDefault;
 
-        SubCommandInfo(String name, String permission, boolean isField, Method method, Field field, CommandReceiver fieldValue, boolean isDefault, Method tabCompleter) {
+        SubCommandInfo(Object instance, String name, String permission, boolean isField, Method method, Field field, CommandReceiver fieldValue, boolean isDefault, Method tabCompleter) {
             if (name == null && !isDefault) throw new IllegalArgumentException();
             if (isField && !(method == null && field != null && fieldValue != null))
                 throw new IllegalArgumentException();
@@ -459,6 +467,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
             if (isField && tabCompleter != null) {
                 throw new IllegalArgumentException();
             }
+            this.instance = instance;
             this.name = name;
             this.permission = permission;
             this.isField = isField;
@@ -476,7 +485,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
             if (isField) {
                 fieldValue.acceptCommand(sender, args);
             } else {
-                method.invoke(CommandReceiver.this, sender, args);
+                method.invoke(instance, sender, args);
             }
         }
 
@@ -489,7 +498,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
                 return fieldValue.acceptTabComplete(sender, args);
             } else if (tabCompleter != null) {
                 try {
-                    return (List<String>) tabCompleter.invoke(CommandReceiver.this, sender, args);
+                    return (List<String>) tabCompleter.invoke(instance, sender, args);
                 } catch (ReflectiveOperationException ex) {
                     return null;
                 }

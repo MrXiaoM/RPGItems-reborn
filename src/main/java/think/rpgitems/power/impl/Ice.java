@@ -105,6 +105,7 @@ public class Ice extends BasePower {
                             }
                         }
                         cancel();
+                        BlockData iceBlock = Material.PACKED_ICE.createBlockData();
                         final HashMap<Location, BlockData> changedBlocks = new HashMap<>();
                         for (int x = -1; x < 2; x++) {
                             for (int y = -1; y < 3; y++) {
@@ -114,7 +115,9 @@ public class Ice extends BasePower {
                                     if (!b.getType().isSolid() &&
                                                 !(b.getType() == Material.PLAYER_HEAD || b.getType() == Material.PLAYER_WALL_HEAD)) {
                                         changedBlocks.put(b.getLocation(), b.getBlockData());
-                                        b.setType(Material.PACKED_ICE);
+                                        for (Player p : player.getWorld().getPlayers()) {
+                                            p.sendBlockChange(b.getLocation(), iceBlock);
+                                        }
                                     }
                                 }
                             }
@@ -122,7 +125,7 @@ public class Ice extends BasePower {
 
                         // ice block remove timer
                         (new BukkitRunnable() {
-                            Random random = new Random();
+                            final Random random = new Random();
 
                             @Override
                             public void run() {
@@ -132,12 +135,13 @@ public class Ice extends BasePower {
                                         return;
                                     }
                                     int index = random.nextInt(changedBlocks.size());
-                                    BlockData data = changedBlocks.values().toArray(new BlockData[0])[index];
                                     Location position = changedBlocks.keySet().toArray(new Location[0])[index];
-                                    changedBlocks.remove(position);
-                                    Block c = position.getBlock();
-                                    position.getWorld().playEffect(position, Effect.STEP_SOUND, c.getType());
-                                    c.setBlockData(data);
+                                    BlockData data = changedBlocks.remove(position);
+                                    position.getWorld().playEffect(position, Effect.STEP_SOUND, Material.PACKED_ICE);
+
+                                    for (Player p : player.getWorld().getPlayers()) {
+                                        p.sendBlockChange(position, data);
+                                    }
                                 }
 
                             }

@@ -21,6 +21,7 @@ import org.bukkit.persistence.PersistentDataType;
 import think.rpgitems.AdminCommands;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.event.ItemsLoadedEvent;
 import think.rpgitems.power.UnknownExtensionException;
 import think.rpgitems.power.UnknownPowerException;
 import think.rpgitems.support.WGSupport;
@@ -160,6 +161,7 @@ public class ItemManager {
         setBackupsDir(mkbkdir());
         load(getItemsDir(), plugin.cfg.itemShowLoaded ? Bukkit.getConsoleSender() : null);
         groupById.values().forEach(ItemGroup::refresh);
+        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(new ItemsLoadedEvent()));
     }
 
     public static boolean load(File file, CommandSender sender) {
@@ -275,6 +277,7 @@ public class ItemManager {
     }
 
     public static void save() {
+        if (plugin.cfg.readonly) return;
         for (RPGItem item : itemByName.values()) {
             save(item);
         }
@@ -309,6 +312,7 @@ public class ItemManager {
     }
 
     public static void save(RPGItem item) {
+        if (plugin.cfg.readonly) return;
         String itemName = item.getName();
         File itemFile = item.getFile() == null ? createFile(getItemsDir(), item.getName(), "-item", true) : item.getFile();
         boolean exist = itemFile.exists();
@@ -361,6 +365,7 @@ public class ItemManager {
     }
 
     public static void save(ItemGroup itemGroup) {
+        if (plugin.cfg.readonly) return;
         String itemName = itemGroup.getName();
         File itemFile = itemGroup.getFile() == null ? createFile(getItemsDir(), itemGroup.getName(), "-group", true) : itemGroup.getFile();
         String cfgStr = "";
@@ -620,6 +625,8 @@ public class ItemManager {
     }
 
     public static RPGItem cloneItem(RPGItem item, String name) {
+        if (plugin.cfg.readonly)
+            return null;
         if (itemByName.containsKey(name))
             return null;
         int free = nextUid();

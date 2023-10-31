@@ -6,7 +6,7 @@ LangUtils is needed and no longer need to install NyaaCore.
 
 ## Fork
 
-This is a personal fork. Only the branch `1.16` is supported. I add [LoreUpdateEvent](/src/main/java/think/rpgitems/event/LoreUpdateEvent.java) so it is friendly to *SoulBinding-kind* plugins. 
+This is a personal fork. Only the branch `1.19` is supported. I add [LoreUpdateEvent](/src/main/java/think/rpgitems/event/LoreUpdateEvent.java) so it is friendly to *SoulBinding-kind* plugins. 
 ```grovvy
 repositories {
     mavenCentral()

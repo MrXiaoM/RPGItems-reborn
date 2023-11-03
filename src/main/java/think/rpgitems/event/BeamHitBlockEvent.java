@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
-import think.rpgitems.power.impl.Beam;
 
 public class BeamHitBlockEvent extends Event {
     public static final HandlerList handlerList = new HandlerList();

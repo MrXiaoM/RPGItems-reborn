@@ -43,9 +43,7 @@ public class TemplateCommands extends RPGCommandReceiver {
         RPGItem rpgItem = ItemManager.getItem(itemName).orElseThrow(BadCommandException::new);
         List<String> badPlaceHolders = checkPlaceHolder(rpgItem, placeHolder);
         if (!badPlaceHolders.isEmpty()){
-            badPlaceHolders.forEach(s ->{
-                sendBadMsg(sender, s);
-            });
+            badPlaceHolders.forEach(s -> sendBadMsg(sender, s));
             return;
         }
         rpgItem.setIsTemplate(true);
@@ -87,7 +85,7 @@ public class TemplateCommands extends RPGCommandReceiver {
                         rpgItem.updateFromTemplate(target);
                     } catch (UnknownPowerException e) {
                         e.printStackTrace();
-                        sender.sendMessage("error applying template: " + e.toString());
+                        sender.sendMessage("error applying template: " + e);
                     }
                     toUpdate.add(rpgItem);
                 });
@@ -134,9 +132,7 @@ public class TemplateCommands extends RPGCommandReceiver {
             }
             List<String> badPlaceHolders = checkPlaceHolder(rpgItem, toAdd);
             if (!badPlaceHolders.isEmpty()){
-                badPlaceHolders.forEach(s ->{
-                    sendBadMsg(sender, s);
-                });
+                badPlaceHolders.forEach(s -> sendBadMsg(sender, s));
                 return;
             }
             toAdd.forEach(s -> {
@@ -183,9 +179,7 @@ public class TemplateCommands extends RPGCommandReceiver {
                 return;
             }
             new Message("").append(I18n.getInstance(sender).format("command.template.placeholder.itemName", name)).send(sender);
-            rpgItem.getTemplatePlaceholders().forEach(placeholderHolder -> {
-                new Message("").append(I18n.getInstance(sender).format("command.template.placeholder.info", placeholderHolder)).send(sender);
-            });
+            rpgItem.getTemplatePlaceholders().forEach(placeholderHolder -> new Message("").append(I18n.getInstance(sender).format("command.template.placeholder.info", placeholderHolder)).send(sender));
         }
 
         @Override

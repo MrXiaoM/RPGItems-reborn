@@ -42,7 +42,7 @@ public class HexColorUtils {
     }
 
     private static String replaceColor(final String input, final Set<ChatColor> supported, boolean rgb) {
-        StringBuffer legacyBuilder = new StringBuffer();
+        StringBuilder legacyBuilder = new StringBuilder();
         Matcher legacyMatcher = REPLACE_ALL_PATTERN.matcher(input);
         legacyLoop:
         while (legacyMatcher.find()) {
@@ -62,7 +62,7 @@ public class HexColorUtils {
         legacyMatcher.appendTail(legacyBuilder);
 
         if (rgb) {
-            StringBuffer rgbBuilder = new StringBuffer();
+            StringBuilder rgbBuilder = new StringBuilder();
             Matcher rgbMatcher = REPLACE_ALL_RGB_PATTERN.matcher(legacyBuilder.toString());
             while (rgbMatcher.find()) {
                 boolean isEscaped = (rgbMatcher.group(1) != null);

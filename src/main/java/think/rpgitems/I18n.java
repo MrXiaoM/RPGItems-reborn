@@ -2,7 +2,6 @@ package think.rpgitems;
 
 import cat.nyaa.nyaacore.LanguageRepository;
 import cat.nyaa.nyaacore.utils.HexColorUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.IllegalFormatConversionException;
 import java.util.Map;
@@ -88,7 +88,7 @@ public class I18n extends LanguageRepository {
         if (plugin == null || codeName == null || targetMap == null) throw new IllegalArgumentException();
         InputStream stream = plugin.getResource("lang/" + codeName + ".yml");
         if (stream != null) {
-            YamlConfiguration section = YamlConfiguration.loadConfiguration(new InputStreamReader(stream, Charset.forName("UTF8")));
+            YamlConfiguration section = YamlConfiguration.loadConfiguration(new InputStreamReader(stream, StandardCharsets.UTF_8));
             loadLanguageSection(targetMap, section, "", ignoreInternal, ignoreNormal);
         }
     }

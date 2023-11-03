@@ -39,7 +39,6 @@ public class XorCondition extends BaseCondition<Void> {
         return isCritical;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public PowerResult<Void> check(Player player, ItemStack stack, Map<PropertyHolder, PowerResult<?>> context) {
         Set<String> conditions = new HashSet<>(getConditions());

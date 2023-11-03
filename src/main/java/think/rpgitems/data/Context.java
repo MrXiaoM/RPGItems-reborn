@@ -82,7 +82,7 @@ public class Context {
     }
 
     public void putExpiringSeconds(UUID context, String key, Object obj, int expiringSeconds) {
-        put(context, key, obj, getCurrentMillis() + expiringSeconds * 10);
+        put(context, key, obj, getCurrentMillis() + expiringSeconds * 10L);
     }
 
     public void cleanTemp(UUID context) {
@@ -97,7 +97,7 @@ public class Context {
         }
     }
 
-    public class ExpiringMap<K, V> implements Map<K, V> {
+    public static class ExpiringMap<K, V> implements Map<K, V> {
         private final int aliveAge;
         private final HashMap<K, Long> birth = new HashMap<>();
         private final HashMap<K, V> inner;
@@ -187,7 +187,6 @@ public class Context {
             return this.cleanup(null, value, null) == null;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public V get(Object key) {
             Pair<K, V> cleanup = this.cleanup(key, null, null);

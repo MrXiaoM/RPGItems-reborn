@@ -28,7 +28,6 @@ public class ArmorStandUtil {
         return summon;
     }
 
-    @SuppressWarnings("deprecation")
     private static ArmorStand summon(Location location) {
         ArmorStand armorStand;
         armorStand = location.getWorld().spawn(location, ArmorStand.class, (e) -> {

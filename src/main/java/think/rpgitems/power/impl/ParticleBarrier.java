@@ -190,7 +190,6 @@ public class ParticleBarrier extends BasePower {
             return fire(player, stack);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
@@ -215,7 +214,6 @@ public class ParticleBarrier extends BasePower {
             return ParticleBarrier.this;
         }
 
-        @SuppressWarnings("deprecation")
         private void barrier(Player source, LivingEntity target) {
             getBarriers().put(target.getUniqueId(), getBarrierHealth());
             getBarrierSources().put(target.getUniqueId(), source.getUniqueId());
@@ -268,7 +266,6 @@ public class ParticleBarrier extends BasePower {
             }.runTaskTimer(RPGItems.plugin, 0, 1L);
         }
 
-        @SuppressWarnings("deprecation")
         private ArmorStand makeAs(Location loc) {
             return loc.getWorld().spawn(loc, ArmorStand.class, as -> {
                 as.setCanPickupItems(false);

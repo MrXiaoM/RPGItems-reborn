@@ -75,7 +75,6 @@ public class FireballPower extends BasePower {
         }
 
         @Override
-        @SuppressWarnings("deprecation")
         public PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();

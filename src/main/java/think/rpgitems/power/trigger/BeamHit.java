@@ -6,10 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
-import think.rpgitems.power.Pimpl;
 import think.rpgitems.power.PowerBeamHit;
 import think.rpgitems.power.PowerResult;
-import think.rpgitems.power.impl.Beam;
 
 public class BeamHit<TEvent extends Event, TResult, TReturn> extends Trigger<TEvent, PowerBeamHit, TResult, TReturn> {
 
@@ -19,14 +17,11 @@ public class BeamHit<TEvent extends Event, TResult, TReturn> extends Trigger<TEv
 
     @Override
     public PowerResult<TResult> run(PowerBeamHit powerBeamHit, Player player, ItemStack i, TEvent event) {
-        if (event instanceof BeamHitBlockEvent){
-            BeamHitBlockEvent event1 = ((BeamHitBlockEvent) event);
+        if (event instanceof BeamHitBlockEvent event1){
             return (PowerResult<TResult>) powerBeamHit.hitBlock(player, i, event1.getLocation(), event1);
-        }else if (event instanceof BeamHitEntityEvent){
-            BeamHitEntityEvent event1 = (BeamHitEntityEvent) event;
+        }else if (event instanceof BeamHitEntityEvent event1){
             return (PowerResult<TResult>) powerBeamHit.hitEntity(player, i, event1.getEntity(), event1.getDamage(), event1);
-        }else if (event instanceof BeamEndEvent){
-            BeamEndEvent event1 = (BeamEndEvent) event;
+        }else if (event instanceof BeamEndEvent event1){
             return (PowerResult<TResult>) powerBeamHit.beamEnd(player, i, event1.getLocation(), event1);
         }else {
             return PowerResult.fail();

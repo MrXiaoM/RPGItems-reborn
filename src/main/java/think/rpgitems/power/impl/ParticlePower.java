@@ -22,6 +22,7 @@ import think.rpgitems.power.*;
 import think.rpgitems.utils.cast.CastUtils;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Optional;
 
 import static think.rpgitems.power.Utils.checkCooldown;
@@ -473,10 +474,8 @@ public class ParticlePower extends BasePower {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
             PlayLocation playLocation = getPlayLocation();
-            switch (playLocation){
-                case SELF:
-                    location = player.getLocation();
-                    break;
+            if (Objects.requireNonNull(playLocation) == PlayLocation.SELF) {
+                location = player.getLocation();
             }
             return fire(location);
         }

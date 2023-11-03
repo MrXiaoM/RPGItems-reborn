@@ -54,11 +54,13 @@ public class WhereClause {
     public String appendWhereClause(String sql, List<Object> positionalParameterHolder, ObjectModifier columnTypeMapping) {
         if (columns.size() > 0) {
             sql += " WHERE";
+            StringBuilder sqlBuilder = new StringBuilder(sql);
             for (int idx = 0; idx < columns.size(); idx++) {
-                if (idx > 0) sql += " AND";
-                sql += " " + columns.get(idx) + comparators.get(idx) + "?";
+                if (idx > 0) sqlBuilder.append(" AND");
+                sqlBuilder.append(" ").append(columns.get(idx)).append(comparators.get(idx)).append("?");
                 positionalParameterHolder.add(columnTypeMapping.getTypeConvertorForColumn(columns.get(idx)).toSqlType(javaObjects.get(idx)));
             }
+            sql = sqlBuilder.toString();
         }
         return sql;
     }

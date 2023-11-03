@@ -171,7 +171,7 @@ public class ProjectilePower extends BasePower {
     }
 
     enum FiringLocation {
-        SELF, TARGET;
+        SELF, TARGET
     }
 
     private Cache<UUID, Integer> burstTask = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).concurrencyLevel(2).build();
@@ -333,26 +333,17 @@ public class ProjectilePower extends BasePower {
          */
         @Override
         public Optional<Class<? extends Projectile>> set(String type) {
-            switch (type) {
-                case "skull":
-                    return Optional.of(WitherSkull.class);
-                case "fireball":
-                    return Optional.of(Fireball.class);
-                case "smallfireball":
-                    return Optional.of(SmallFireball.class);
-                case "arrow":
-                    return Optional.of(Arrow.class);
-                case "llamaspit":
-                    return Optional.of(LlamaSpit.class);
-                case "shulkerbullet":
-                    return Optional.of(ShulkerBullet.class);
-                case "dragonfireball":
-                    return Optional.of(DragonFireball.class);
-                case "trident":
-                    return Optional.of(Trident.class);
-                default:
-                    return Optional.of(Snowball.class);
-            }
+            return switch (type) {
+                case "skull" -> Optional.of(WitherSkull.class);
+                case "fireball" -> Optional.of(Fireball.class);
+                case "smallfireball" -> Optional.of(SmallFireball.class);
+                case "arrow" -> Optional.of(Arrow.class);
+                case "llamaspit" -> Optional.of(LlamaSpit.class);
+                case "shulkerbullet" -> Optional.of(ShulkerBullet.class);
+                case "dragonfireball" -> Optional.of(DragonFireball.class);
+                case "trident" -> Optional.of(Trident.class);
+                default -> Optional.of(Snowball.class);
+            };
         }
     }
 
@@ -475,7 +466,6 @@ public class ProjectilePower extends BasePower {
             handleProjectile(v, projectile);
         }
 
-        @SuppressWarnings("deprecation")
         private void handleProjectile(Vector v, org.bukkit.entity.Projectile projectile) {
             projectile.setPersistent(false);
             projectile.setGravity(isGravity());

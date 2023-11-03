@@ -2,7 +2,6 @@ package cat.nyaa.nyaacore.cmdreceiver;
 
 import cat.nyaa.nyaacore.ILocalizer;
 import cat.nyaa.nyaacore.LanguageRepository;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -105,8 +104,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
     }
 
     public static ItemStack getItemInHand(CommandSender se) {
-        if (se instanceof Player) {
-            Player p = (Player) se;
+        if (se instanceof Player p) {
             if (p.getInventory() != null) {
                 ItemStack i = p.getInventory().getItemInMainHand();
                 if (i != null && i.getType() != Material.AIR) {
@@ -120,8 +118,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
     }
 
     public static ItemStack getItemInOffHand(CommandSender se) {
-        if (se instanceof Player) {
-            Player p = (Player) se;
+        if (se instanceof Player p) {
             if (p.getInventory() != null) {
                 ItemStack i = p.getInventory().getItemInOffHand();
                 if (i != null && i.getType() != Material.AIR) {
@@ -390,7 +387,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
             if (defaultSubCommand != null) ret = defaultSubCommand.callTabComplete(sender, args);
             if (ret == null) ret = new ArrayList<>();
             final String cmd_prefix = cmd;
-            List<String> subcommands = subCommands.keySet().stream().filter(s -> s.startsWith(cmd_prefix)).sorted().collect(Collectors.toList());
+            List<String> subcommands = subCommands.keySet().stream().filter(s -> s.startsWith(cmd_prefix)).sorted().toList();
             ret.addAll(subcommands);
             return ret;
         } else {

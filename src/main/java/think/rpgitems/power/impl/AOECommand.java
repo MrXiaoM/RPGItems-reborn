@@ -2,7 +2,6 @@ package think.rpgitems.power.impl;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -16,8 +15,6 @@ import think.rpgitems.event.BeamHitEntityEvent;
 import think.rpgitems.power.*;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -191,7 +188,7 @@ public class AOECommand extends Command {
             int r = getR();
             List<LivingEntity> nearbyEntities = getNearbyEntities(getPower(), player.getLocation(), player, r).stream()
                     .filter(entity1 -> entity1 instanceof LivingEntity)
-                    .map(entity1 ->  ((LivingEntity) entity))
+                    .map(entity1 -> entity)
                     .collect(Collectors.toList());
 
             return fire(player, stack, nearbyEntities).with(damage);

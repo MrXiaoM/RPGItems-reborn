@@ -2,7 +2,6 @@ package think.rpgitems.power.propertymodifier;
 
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.item.RPGItem;
-import think.rpgitems.power.Pimpl;
 import think.rpgitems.power.Power;
 
 public class RgiParameter<T> {

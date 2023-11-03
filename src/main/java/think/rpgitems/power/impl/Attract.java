@@ -87,7 +87,7 @@ public class Attract extends BasePower {
     }
 
     public enum FiringLocation{
-        SELF, TARGET;
+        SELF, TARGET
     }
 
 

@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static think.rpgitems.Events.*;
-import static think.rpgitems.Events.DAMAGE_SOURCE_ITEM;
 
 @Meta(defaultTrigger = {"PROJECTILE_HIT"}, generalInterface = {
         PowerLeftClick.class,

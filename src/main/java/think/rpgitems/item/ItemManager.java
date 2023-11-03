@@ -518,7 +518,7 @@ public class ItemManager {
         Optional<Integer> itemUuid = cat.nyaa.nyaacore.utils.ItemTagUtils.getInt(item, NBT_ITEM_UUID);
         Optional<Boolean> isModel = cat.nyaa.nyaacore.utils.ItemTagUtils.getBoolean(item, NBT_IS_MODEL);
 
-        if (!uid.isPresent()) {
+        if (uid.isEmpty()) {
             return Optional.empty();
         }
         if (ignoreModel && isModel.orElse(false)) {
@@ -579,7 +579,7 @@ public class ItemManager {
             PersistentDataContainer itemMeta = getTag(tagContainer, TAG_META);
             int uid = getInt(itemMeta, TAG_ITEM_UID);
             Optional<RPGItem> opt = ItemManager.getItem(uid);
-            if (!opt.isPresent()) return null;
+            if (opt.isEmpty()) return null;
             RPGItem rpgItem = opt.get();
             ItemInfo itemInfo = new ItemInfo(rpgItem);
             if (rpgItem.getMaxDurability() > 0) {
@@ -730,7 +730,7 @@ public class ItemManager {
                         .replace("\\", "_b")
                         .replace("*", "_a")
                         .replace("\"", "_o")
-                        .replace("\'", "_i")
+                        .replace("'", "_i")
                         .replace("?", "_q")
                         .replace("<", "_l")
                         .replace(">", "_g")

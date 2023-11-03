@@ -3,7 +3,6 @@ package think.rpgitems.power;
 import org.bukkit.NamespacedKey;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
-import think.rpgitems.item.RPGItem;
 
 public class UnknownPowerException extends Exception {
     private NamespacedKey key;

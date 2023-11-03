@@ -44,11 +44,11 @@ abstract class BaseTypedTable<T> implements ITypedTable<T> {
 
     @Override
     public void insert(T object) {
-        String sql = String.format("INSERT INTO %s(%s) VALUES(?", getTableName(), getJavaTypeModifier().getColumnNamesString());
-        for (int i = 1; i < getJavaTypeModifier().getColNames().size(); i++) sql += ",?";
-        sql += ")";
+        StringBuilder sql = new StringBuilder(String.format("INSERT INTO %s(%s) VALUES(?", getTableName(), getJavaTypeModifier().getColumnNamesString()));
+        for (int i = 1; i < getJavaTypeModifier().getColNames().size(); i++) sql.append(",?");
+        sql.append(")");
         Map<String, Object> objMap = getJavaTypeModifier().getColumnObjectMap(object);
-        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql.toString())) {
             for (int i = 1; i <= getJavaTypeModifier().getColNames().size(); i++) {
                 String colName = getJavaTypeModifier().getColNames().get(i - 1);
                 if (!objMap.containsKey(colName) || objMap.get(colName) == null) {
@@ -74,7 +74,7 @@ abstract class BaseTypedTable<T> implements ITypedTable<T> {
                 stmt.setObject(x, obj);
                 x++;
             }
-            List<T> results = new ArrayList<T>();
+            List<T> results = new ArrayList<>();
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     T obj = getJavaTypeModifier().getObjectFromResultSet(rs);
@@ -157,15 +157,15 @@ abstract class BaseTypedTable<T> implements ITypedTable<T> {
         }
 
         List<Object> parameters = new ArrayList<>();
-        String sql = "UPDATE " + getTableName() + " SET ";
+        StringBuilder sql = new StringBuilder("UPDATE " + getTableName() + " SET ");
         for (int i = 0; i < updatedColumns.size(); i++) {
-            if (i > 0) sql += ",";
-            sql += updatedColumns.get(i) + "=?";
+            if (i > 0) sql.append(",");
+            sql.append(updatedColumns.get(i)).append("=?");
             parameters.add(newValues.get(updatedColumns.get(i)));
         }
 
-        sql = where.appendWhereClause(sql, parameters, getJavaTypeModifier());
-        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+        sql = new StringBuilder(where.appendWhereClause(sql.toString(), parameters, getJavaTypeModifier()));
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql.toString())) {
             int idx = 1;
             for (Object o : parameters) {
                 if (o == null) {
@@ -177,7 +177,7 @@ abstract class BaseTypedTable<T> implements ITypedTable<T> {
             }
             stmt.execute();
         } catch (SQLException ex) {
-            throw new RuntimeException(sql, ex);
+            throw new RuntimeException(sql.toString(), ex);
         }
     }
 

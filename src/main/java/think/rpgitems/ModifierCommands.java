@@ -18,7 +18,6 @@ import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.propertymodifier.Modifier;
 import think.rpgitems.utils.ItemTagUtils;
-import think.rpgitems.utils.ItemTagUtils.SubItemTagContainer;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -62,18 +61,16 @@ public class ModifierCommands extends RPGCommandReceiver {
     public List<String> addCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1:
-                completeStr.addAll(Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList()));
-                break;
-            case 2:
-                completeStr.addAll(PowerManager.getModifiers().keySet().stream().map(s -> PowerManager.hasExtension() ? s : s.getKey()).map(Object::toString).collect(Collectors.toList()));
-                break;
-            default:
+            case 1 -> completeStr.addAll(Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).toList());
+            case 2 ->
+                    completeStr.addAll(PowerManager.getModifiers().keySet().stream().map(s -> PowerManager.hasExtension() ? s : s.getKey()).map(Object::toString).toList());
+            default -> {
                 arguments.next();
                 String mod = arguments.next();
                 NamespacedKey namespacedKey = PowerManager.parseKey(mod);
                 Class<? extends Modifier> modifier = PowerManager.getModifier(namespacedKey);
                 return resolveProperties(sender, null, modifier, namespacedKey, arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
+            }
         }
         return filtered(arguments, completeStr);
     }
@@ -159,20 +156,19 @@ public class ModifierCommands extends RPGCommandReceiver {
     public List<String> propCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1:
+            case 1 -> {
                 completeStr.add("HAND");
-                completeStr.addAll(Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList()));
-                break;
-            case 2: {
+                completeStr.addAll(Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).toList());
+            }
+            case 2 -> {
                 String baseStr = arguments.top();
                 Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, arguments, baseStr);
                 PersistentDataContainer container = rootContainer.getValue();
                 SubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
                 List<Modifier> modifiers = RPGItem.getModifiers(modifierContainer);
-                completeStr.addAll(modifiers.stream().map(Modifier::id).collect(Collectors.toList()));
-                break;
+                completeStr.addAll(modifiers.stream().map(Modifier::id).toList());
             }
-            default: {
+            default -> {
                 String baseStr = arguments.top();
                 Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, arguments, baseStr);
                 PersistentDataContainer container = rootContainer.getValue();
@@ -231,7 +227,7 @@ public class ModifierCommands extends RPGCommandReceiver {
         List<Modifier> modifiers = RPGItem.getModifiers(modifierContainer);
         String next = args.nextString();
         OptionalInt index = IntStream.range(0, modifiers.size()).filter(i -> modifiers.get(i).id().equals((next))).findFirst();
-        if (!index.isPresent()) {
+        if (index.isEmpty()) {
             throw new BadCommandException("message.modifier.unknown", next);
         }
         return Pair.of(index.getAsInt(), modifiers.get(index.getAsInt()));
@@ -283,7 +279,7 @@ public class ModifierCommands extends RPGCommandReceiver {
                                                     .stream()
                                                     .filter(i -> i.getKey().contains(nameSearch))
                                                     .sorted(Comparator.comparing(NamespacedKey::getKey))
-                                                    .collect(Collectors.toList());
+                                                    .toList();
         if (modifiers.size() == 0) {
             msgs(sender, "message.modifier.not_found", nameSearch);
             return;
@@ -293,7 +289,7 @@ public class ModifierCommands extends RPGCommandReceiver {
         int page = maxPage.getValue();
         int max = maxPage.getKey();
         stream = stream
-                         .skip((page - 1) * perPage)
+                         .skip((long) (page - 1) * perPage)
                          .limit(perPage);
         sender.sendMessage(ChatColor.AQUA + "Modifiers: " + page + " / " + max);
 

@@ -56,7 +56,6 @@ public class Arrows extends BasePower {
             return fire(player, stack);
         }
 
-        @SuppressWarnings("deprecation")
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();

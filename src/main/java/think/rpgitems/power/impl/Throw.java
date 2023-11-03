@@ -1,7 +1,6 @@
 package think.rpgitems.power.impl;
 
 import cat.nyaa.nyaacore.utils.NmsUtils;
-import cat.nyaa.nyaacore.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -15,14 +14,11 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import think.rpgitems.RPGItems;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import static think.rpgitems.power.Utils.checkAndSetCooldown;
 
@@ -130,7 +126,7 @@ public class Throw extends BasePower {
             Entity entity = player.getWorld().spawnEntity(loc, EntityType.valueOf(getEntityName()));
             String s = getEntityData().replaceAll("\\{player}", player.getName()).replaceAll("\\{playerUUID}", player.getUniqueId().toString());
 
-            NmsUtils.setEntityTag(entity, (String) s);
+            NmsUtils.setEntityTag(entity, s);
             entity.setRotation(loc.getYaw(), loc.getPitch());
             UUID uuid = entity.getUniqueId();
             Entity e = Bukkit.getEntity(uuid);

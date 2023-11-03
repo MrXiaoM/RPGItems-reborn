@@ -10,16 +10,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import think.rpgitems.power.Getter;
-import think.rpgitems.power.Setter;
-import think.rpgitems.utils.WeightedPair;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
-
-import static think.rpgitems.power.Utils.weightedRandomPick;
 
 public class CastUtils {
     public static CastLocation rayTrace(LivingEntity from, Location fromLocation, Vector towards, double range) {

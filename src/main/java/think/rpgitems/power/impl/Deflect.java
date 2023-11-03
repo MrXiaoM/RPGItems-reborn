@@ -143,11 +143,10 @@ public class Deflect extends BasePower {
             if (!(target.getInventory().getItemInMainHand().equals(stack) || target.getInventory().getItemInOffHand().equals(stack))) {
                 return PowerResult.noop();
             }
-            if (!(event instanceof EntityDamageByEntityEvent)) {
+            if (!(event instanceof EntityDamageByEntityEvent byEntityEvent)) {
                 return PowerResult.noop();
             }
-            EntityDamageByEntityEvent byEntityEvent = (EntityDamageByEntityEvent) event;
-            if (!(byEntityEvent.getDamager() instanceof Projectile)) {
+            if (!(byEntityEvent.getDamager() instanceof Projectile p)) {
                 return PowerResult.noop();
             }
             boolean activated = System.currentTimeMillis() / 50 < getTime().getOrDefault(target.getUniqueId(), 0L);
@@ -161,9 +160,7 @@ public class Deflect extends BasePower {
 
             if (!getItem().consumeDurability(stack, getDeflectCost())) return PowerResult.cost();
 
-            Projectile p = (Projectile) byEntityEvent.getDamager();
-            if (!(p.getShooter() instanceof LivingEntity)) return PowerResult.noop();
-            LivingEntity source = (LivingEntity) p.getShooter();
+            if (!(p.getShooter() instanceof LivingEntity source)) return PowerResult.noop();
             Vector relativePosition = target.getEyeLocation().toVector();
             relativePosition.subtract(source.getEyeLocation().toVector());
             if (getAngleBetweenVectors(target.getEyeLocation().getDirection(), relativePosition.multiply(-1)) < getFacing()
@@ -172,22 +169,19 @@ public class Deflect extends BasePower {
                 target.getLocation().getWorld().playSound(target.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1.0f, 3.0f);
                 Projectile t = target.launchProjectile(p.getClass());
                 Events.registerRPGProjectile(t.getEntityId(), getItem().getUid());
-                if (p instanceof TippedArrow) {
-                    TippedArrow tippedArrowP = (TippedArrow) p;
+                if (p instanceof TippedArrow tippedArrowP) {
                     TippedArrow tippedArrowT = (TippedArrow) t;
                     tippedArrowT.setBasePotionData(tippedArrowP.getBasePotionData());
                     tippedArrowP.getCustomEffects().forEach(potionEffect -> tippedArrowT.addCustomEffect(potionEffect, true));
                 }
-                if (p instanceof Arrow) {
-                    Arrow arrowP = (Arrow) p;
+                if (p instanceof Arrow arrowP) {
                     Arrow arrowT = (Arrow) t;
                     arrowT.setDamage(arrowP.getDamage());
                     arrowT.setCritical(arrowP.isCritical());
                     arrowT.setKnockbackStrength(arrowP.getKnockbackStrength());
                     arrowT.setPickupStatus(arrowP.getPickupStatus());
                 }
-                if (p instanceof Trident) {
-                    Trident tridentP = (Trident) p;
+                if (p instanceof Trident tridentP) {
                     Trident tridentT = (Trident) t;
                     TridentUtils.setTridentItemStack(tridentP, TridentUtils.getTridentItemStack(tridentT));
                 }

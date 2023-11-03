@@ -82,7 +82,6 @@ public class PowerManager {
                 all.put(key, clazz);
                 powers.put(key, clazz);
             } else {
-                return;
             }
         } catch (Throwable e) {
             RPGItems.plugin.getLogger().log(Level.WARNING, "Failed to add power {0}", clazz);
@@ -154,13 +153,13 @@ public class PowerManager {
 
     private static Map<String, Pair<Method, PropertyInstance>> scanProperties(Class<? extends PropertyHolder> cls) {
         RPGItems.logger.finest( "Scanning class " + cls.toGenericString());
-        List<Method> methods = Arrays.stream(cls.getMethods()).collect(Collectors.toList());
+        List<Method> methods = Arrays.stream(cls.getMethods()).toList();
         List<Pair<Field, Property>> collect = getAllFields(cls)
                                                       .stream()
                                                       .map(field -> Pair.of(field, field.getAnnotation(Property.class)))
                                                       .filter(pair -> pair.getValue() != null)
                                                       .sorted(Comparator.comparingInt(p -> p.getValue().order()))
-                                                      .collect(Collectors.toList());
+                                                      .toList();
 
         int requiredOrder = collect.stream()
                                    .map(Pair::getValue)
@@ -187,7 +186,7 @@ public class PowerManager {
                                                                                                                           )
                                                                                                      )
                                                                                                      .reduce((a, b) -> {
-                                                                                                         throw new IllegalArgumentException("Duplicated property gettor found:" + p.getKey() + " " + name + " " + a.toString() + " " + b.toString());
+                                                                                                         throw new IllegalArgumentException("Duplicated property gettor found:" + p.getKey() + " " + name + " " + a + " " + b);
                                                                                                      })
                                                                                                      .orElseThrow(() -> new IllegalArgumentException("No property getter found: " + p.getKey() + " " + name)),
                                                   PropertyInstance.from(p.getKey(), p.getValue(), p.getValue().order() < requiredOrder));
@@ -380,7 +379,7 @@ public class PowerManager {
     public static <T extends Pimpl> T adaptPower(Pimpl pimpl, Class<T> specified) {
         List<Class<? extends Pimpl>> generals = Arrays.asList(getMeta(pimpl.getPower().getNamespacedKey()).generalInterface());
         Set<Class<? extends Pimpl>> statics = Power.getStaticInterfaces(pimpl.getClass());
-        List<Class<? extends Pimpl>> preferences = generals.stream().filter(statics::contains).collect(Collectors.toList());
+        List<Class<? extends Pimpl>> preferences = generals.stream().filter(statics::contains).toList();
 
         for (Class<? extends Pimpl> general : preferences) {
             if (adapters.contains(general, specified)) {

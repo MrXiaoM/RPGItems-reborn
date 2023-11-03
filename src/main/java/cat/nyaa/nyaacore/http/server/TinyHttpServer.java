@@ -124,7 +124,6 @@ public final class TinyHttpServer {
             port = r.nextInt(1000) + 1 + port;
             if (port > 65535) {
                 port = 7000;
-                continue;
             }
         } while (!available(port) || port == not);
         return port;

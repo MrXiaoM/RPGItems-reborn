@@ -1,7 +1,6 @@
 package think.rpgitems.item;
 
 import cat.nyaa.nyaacore.utils.ItemTagUtils;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -21,7 +20,7 @@ public class ItemStackWrapper {
             throw new NullPointerException();
         }
         Optional<String> itemUuid = ItemTagUtils.getString(itemStack, NBT_ITEM_UUID);
-        if (!itemUuid.isPresent()){
+        if (itemUuid.isEmpty()){
             return new ItemStackWrapper(itemStack);
         }
         return wrapperMap.computeIfAbsent(itemUuid.get(), (u) -> new ItemStackWrapper(itemStack));
@@ -40,8 +39,7 @@ public class ItemStackWrapper {
     @Override
     public boolean equals(Object obj) {
         Optional<String> toCmpUuid;
-        if ((obj instanceof ItemStack)){
-            ItemStack toCmp = (ItemStack) obj;
+        if ((obj instanceof ItemStack toCmp)){
             toCmpUuid = ItemTagUtils.getString(toCmp, NBT_ITEM_UUID);
         }else if(obj instanceof ItemStackWrapper){
             toCmpUuid = ((ItemStackWrapper) obj).itemUuid;
@@ -50,7 +48,7 @@ public class ItemStackWrapper {
         }
 
         if (itemUuid.isPresent()){
-            if (!toCmpUuid.isPresent()){
+            if (toCmpUuid.isEmpty()){
                 return false;
             }
             String uuid = itemUuid.get();

@@ -25,7 +25,6 @@ public class WikiCommand extends RPGCommandReceiver {
         super(plugin, i18n);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @SubCommand(isDefaultCommand = true)
     public void genWiki(CommandSender sender, Arguments args) throws IOException {
         String lc = args.next();
@@ -118,7 +117,7 @@ public class WikiCommand extends RPGCommandReceiver {
         catalogs.put("trigger", new StringBuilder("# Triggers\n\n"));
         catalogs.put("modifier", new StringBuilder("# Modifiers\n\n"));
 
-        for (Map.Entry<Class<? extends PropertyHolder>, Map<String, Pair<Method, PropertyInstance>>> entry : allProperties.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getCanonicalName(), String::compareToIgnoreCase)).collect(Collectors.toList())) {
+        for (Map.Entry<Class<? extends PropertyHolder>, Map<String, Pair<Method, PropertyInstance>>> entry : allProperties.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getCanonicalName(), String::compareToIgnoreCase)).toList()) {
             Class<? extends PropertyHolder> clazz = entry.getKey();
             Map<String, Pair<Method, PropertyInstance>> properties = entry.getValue();
             PropertyHolder instance = Trigger.class.isAssignableFrom(clazz) ? Trigger.values().stream().filter(p -> p.getClass().equals(clazz)).findAny().get() : PowerManager.instantiate(clazz);
@@ -128,9 +127,9 @@ public class WikiCommand extends RPGCommandReceiver {
             StringBuilder propertiesDesc = new StringBuilder();
             Meta meta = PowerManager.getMeta(clazz);
             String powerDesc = PowerManager.getDescription(locale.toString(), namespacedKey, null);
-            Path file = wikiDir.toPath().resolve(instance.getName() + "-" + locale.toString() + ".md");
+            Path file = wikiDir.toPath().resolve(instance.getName() + "-" + locale + ".md");
 
-            String catalogEntry = "* [" + localizedName + " " + "(" + namespacedKey.toString() + ")](./" + file.getFileName().toString().replace(".md", "") + ")\n";
+            String catalogEntry = "* [" + localizedName + " " + "(" + namespacedKey + ")](./" + file.getFileName().toString().replace(".md", "") + ")\n";
             catalogEntry += "  " + powerDesc + "\n";
             RPGItems.logger.log(Level.INFO, "Generating wiki for " + instance.getPropertyHolderType() + " " + instance.getLocalizedName(locale));
 
@@ -199,7 +198,7 @@ public class WikiCommand extends RPGCommandReceiver {
                     }
                 }
             }
-            for (Map.Entry<String, Pair<Method, PropertyInstance>> propertyEntry : properties.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toList())) {
+            for (Map.Entry<String, Pair<Method, PropertyInstance>> propertyEntry : properties.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
                 String name = propertyEntry.getKey();
                 PropertyInstance property = propertyEntry.getValue().getValue();
 
@@ -260,14 +259,14 @@ public class WikiCommand extends RPGCommandReceiver {
 
             fullTemplate = fullTemplate.replace("${description}", powerDesc == null ? I18n.getInstance(sender).format("message.power.no_description") : powerDesc);
             fullTemplate = fullTemplate.replace("${properties}", propertiesDesc.toString());
-            java.nio.file.Files.write(file, fullTemplate.getBytes(StandardCharsets.UTF_8));
+            java.nio.file.Files.writeString(file, fullTemplate);
         }
-        catalogs.entrySet().forEach(e -> {
+        catalogs.forEach((key, value) -> {
             try {
-                Path catalogFile = wikiDir.toPath().resolve(e.getKey() + "-" + locale.toString() + ".md");
-                Files.write(catalogFile, e.getValue().toString().getBytes(StandardCharsets.UTF_8));
+                Path catalogFile = wikiDir.toPath().resolve(key + "-" + locale + ".md");
+                Files.write(catalogFile, value.toString().getBytes(StandardCharsets.UTF_8));
             } catch (IOException ex) {
-                RPGItems.logger.log(Level.WARNING, "Error saving wiki catalog" + e.getKey(), ex);
+                RPGItems.logger.log(Level.WARNING, "Error saving wiki catalog" + key, ex);
             }
         });
 

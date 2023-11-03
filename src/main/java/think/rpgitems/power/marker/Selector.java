@@ -10,7 +10,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
@@ -191,7 +190,6 @@ public class Selector extends BaseMarker {
                     result.getKey().add(gameMode1);
                 }
             }catch (Exception e){
-                continue;
             }
         }
         return result;
@@ -315,7 +313,7 @@ public class Selector extends BaseMarker {
         }).collect(Collectors.toSet());
 
         return tags.containsAll(mustHave)
-                       && tags.stream().noneMatch(t -> mustNotHave.contains(t));
+                       && tags.stream().noneMatch(mustNotHave::contains);
     }
 
     public static boolean matchTeam(Entity e, Scoreboard s, Pair<Set<String>, Set<String>> teamLimit) {

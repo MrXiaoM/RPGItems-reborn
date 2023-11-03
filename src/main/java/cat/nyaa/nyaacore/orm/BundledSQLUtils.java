@@ -54,7 +54,7 @@ public final class BundledSQLUtils {
         try {
             if (rs == null) return new ArrayList<>();
             ObjectModifier<T> table = ObjectModifier.fromClass(cls);
-            List<T> results = new ArrayList<T>();
+            List<T> results = new ArrayList<>();
             while (rs.next()) {
                 T obj = table.getObjectFromResultSet(rs);
                 results.add(obj);

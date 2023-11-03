@@ -15,14 +15,14 @@ public class RangedDoubleValue {
         return ranges.size();
     }
 
-    Double totalLength = null;
+    volatile Double totalLength = null;
 
     public double getTotalLength(){
         if (totalLength == null){
             synchronized (this) {
                 if(totalLength == null){
                     totalLength = ranges.stream()
-                            .mapToDouble(pair -> length(pair))
+                            .mapToDouble(this::length)
                             .sum();
                 }
             }

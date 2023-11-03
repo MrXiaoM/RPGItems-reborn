@@ -58,12 +58,12 @@ public class Arguments {
     // As an exception, key:`val` will be interpreted as `key:val`
     public static Arguments parseChecked(String[] rawArg, CommandSender sender) throws ArgumentParsingException {
         if (rawArg.length == 0) return new Arguments(sender);
-        String cmd = rawArg[0];
+        StringBuilder cmd = new StringBuilder(rawArg[0]);
         for (int i = 1; i < rawArg.length; i++)
-            cmd += " " + rawArg[i];
+            cmd.append(" ").append(rawArg[i]);
 
         List<String> cmdList = new ArrayList<>();
-        String tmp = "";
+        StringBuilder tmp = new StringBuilder();
         ParserState state = ParserState.EXPECT_ARG;
         for (int i = 0; i <= cmd.length(); i++) {
             Character chr = i < cmd.length() ? cmd.charAt(i) : null;
@@ -78,22 +78,22 @@ public class Arguments {
                     } else if (chr == '`') {
                         state = ParserState.IN_BACKTICK;
                     } else if (chr == ':') {
-                        tmp += chr;
+                        tmp.append(chr);
                         state = ParserState.IN_UNQUOTE_AFTER_COLON;
                     } else {
-                        tmp += chr;
+                        tmp.append(chr);
                         state = ParserState.IN_UNQUOTE_BEFORE_COLON;
                     }
                 }
                 case IN_UNQUOTE_BEFORE_COLON -> {
                     if (chr == null || chr == ' ') {
-                        cmdList.add(tmp);
-                        tmp = "";
+                        cmdList.add(tmp.toString());
+                        tmp = new StringBuilder();
                         state = ParserState.EXPECT_ARG;
                     } else if (chr == '\\' || chr == '"' || chr == '`') {
-                        throw new ArgumentParsingException(cmd, i, "cannot escape/quote here");
+                        throw new ArgumentParsingException(cmd.toString(), i, "cannot escape/quote here");
                     } else if (chr == ':') {
-                        tmp += chr;
+                        tmp.append(chr);
                         if (next_char == null) {
                             state = ParserState.IN_UNQUOTE_AFTER_COLON;
                         } else if (next_char == '"') {
@@ -106,70 +106,70 @@ public class Arguments {
                             state = ParserState.IN_UNQUOTE_AFTER_COLON;
                         }
                     } else {
-                        tmp += chr;
+                        tmp.append(chr);
                     }
                 }
                 case IN_UNQUOTE_AFTER_COLON -> {
                     if (chr == null || chr == ' ') {
-                        cmdList.add(tmp);
-                        tmp = "";
+                        cmdList.add(tmp.toString());
+                        tmp = new StringBuilder();
                         state = ParserState.EXPECT_ARG;
                     } else if (chr == '\\' || chr == '"' || chr == '`') {
-                        throw new ArgumentParsingException(cmd, i, "cannot escape/quote here");
+                        throw new ArgumentParsingException(cmd.toString(), i, "cannot escape/quote here");
                     } else {
-                        tmp += chr;
+                        tmp.append(chr);
                     }
                 }
                 case IN_BACKTICK -> {
                     if (chr == null) {
-                        throw new ArgumentParsingException(cmd, i, "Unfinished backtick");
+                        throw new ArgumentParsingException(cmd.toString(), i, "Unfinished backtick");
                     } else if (chr == '\\') {
                         state = ParserState.IN_BACKTICK_ESCAPE;
                     } else if (chr == '`') {
                         if (next_char != null && next_char != ' ') {
-                            throw new ArgumentParsingException(cmd, i, "Backtick cannot stop here");
+                            throw new ArgumentParsingException(cmd.toString(), i, "Backtick cannot stop here");
                         }
-                        cmdList.add(tmp);
-                        tmp = "";
+                        cmdList.add(tmp.toString());
+                        tmp = new StringBuilder();
                         state = ParserState.EXPECT_ARG;
                     } else {
-                        tmp += chr;
+                        tmp.append(chr);
                     }
                 }
                 case IN_BACKTICK_ESCAPE -> {
                     if (chr == null) {
-                        throw new ArgumentParsingException(cmd, i, "Unfinished escape");
+                        throw new ArgumentParsingException(cmd.toString(), i, "Unfinished escape");
                     } else if (chr == '\\' || chr == '`') {
-                        tmp += chr;
+                        tmp.append(chr);
                         state = ParserState.IN_BACKTICK;
                     } else {
-                        throw new ArgumentParsingException(cmd, i, "Invalid escape char in backtick block");
+                        throw new ArgumentParsingException(cmd.toString(), i, "Invalid escape char in backtick block");
                     }
                 }
                 case IN_QUOTE -> {
                     if (chr == null) {
-                        throw new ArgumentParsingException(cmd, i, "Unfinished double quote");
+                        throw new ArgumentParsingException(cmd.toString(), i, "Unfinished double quote");
                     } else if (chr == '\\') {
                         state = ParserState.IN_QUOTE_ESCAPE;
                     } else if (chr == '"') {
                         if (next_char != null && next_char != ' ') {
-                            throw new ArgumentParsingException(cmd, i, "Double quote cannot stop here");
+                            throw new ArgumentParsingException(cmd.toString(), i, "Double quote cannot stop here");
                         }
-                        cmdList.add(tmp);
-                        tmp = "";
+                        cmdList.add(tmp.toString());
+                        tmp = new StringBuilder();
                         state = ParserState.EXPECT_ARG;
                     } else {
-                        tmp += chr;
+                        tmp.append(chr);
                     }
                 }
                 case IN_QUOTE_ESCAPE -> {
                     if (chr == null) {
-                        throw new ArgumentParsingException(cmd, i, "Unfinished escape");
+                        throw new ArgumentParsingException(cmd.toString(), i, "Unfinished escape");
                     } else if (chr == '\\' || chr == '"') {
-                        tmp += chr;
+                        tmp.append(chr);
                         state = ParserState.IN_QUOTE;
                     } else {
-                        throw new ArgumentParsingException(cmd, i, "Invalid escape char in double quote block");
+                        throw new ArgumentParsingException(cmd.toString(), i, "Invalid escape char in double quote block");
                     }
                 }
             }
@@ -185,15 +185,15 @@ public class Arguments {
         try {
             return Enum.valueOf(cls, str);
         } catch (IllegalArgumentException ex) {
-            String vals = "";
+            StringBuilder vals = new StringBuilder();
             List<String> l = new ArrayList<>();
             for (T k : cls.getEnumConstants()) {
                 l.add(k.name());
             }
             l.sort(Comparator.naturalOrder());
-            for (String k : l) vals += "\n" + k;
+            for (String k : l) vals.append("\n").append(k);
 
-            throw new BadCommandException("internal.error.bad_enum", cls.getName(), vals);
+            throw new BadCommandException("internal.error.bad_enum", cls.getName(), vals.toString());
         }
     }
 

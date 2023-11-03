@@ -205,9 +205,7 @@ public class RPGItem {
 
         setDisplayName(display);
         List<String> desc = s.getStringList("description");
-        for (int i = 0; i < desc.size(); i++) {
-            desc.set(i, ColorHelper.parseColor(desc.get(i)));
-        }
+        desc.replaceAll(ColorHelper::parseColor);
         setDescription(desc);
         setDamageMin(s.getInt("damageMin"));
         setDamageMax(s.getInt("damageMax"));
@@ -485,9 +483,7 @@ public class RPGItem {
         s.set("DamageType", getDamageType());
         s.set("attributemode", attributeMode.name());
         ArrayList<String> descriptionConv = new ArrayList<>(getDescription());
-        for (int i = 0; i < descriptionConv.size(); i++) {
-            descriptionConv.set(i, descriptionConv.get(i).replaceAll("" + COLOR_CHAR, "&"));
-        }
+        descriptionConv.replaceAll(s1 -> s1.replaceAll("" + COLOR_CHAR, "&"));
         s.set("description", descriptionConv);
         s.set("item", getItem().toString());
         s.set("ignoreWorldGuard", isIgnoreWorldGuard());
@@ -665,11 +661,7 @@ public class RPGItem {
             return;
         }
 
-        if (isCustomItemModel() || hasMarker(Unbreakable.class)) {
-            meta.setUnbreakable(true);
-        } else {
-            meta.setUnbreakable(false);
-        }
+        meta.setUnbreakable(isCustomItemModel() || hasMarker(Unbreakable.class));
         meta.removeItemFlags(meta.getItemFlags().toArray(new ItemFlag[0]));
 
         if (getCustomModelData() != -1) {
@@ -698,7 +690,7 @@ public class RPGItem {
         try {
             ItemTagUtils.setInt(item, NBT_UID, uid);
             if (RPGItems.plugin.cfg.itemStackUuid) {
-                if (!ItemTagUtils.getString(item, NBT_ITEM_UUID).isPresent()) {
+                if (ItemTagUtils.getString(item, NBT_ITEM_UUID).isEmpty()) {
                     UUID uuid = UUID.randomUUID();
                     ItemTagUtils.setString(item, NBT_ITEM_UUID, uuid.toString());
                 }
@@ -747,28 +739,21 @@ public class RPGItem {
                 double ratio = (double) durability / (double) maxDurability;
                 BarFormat barFormat = getBarFormat();
                 switch (barFormat) {
-                    case NUMERIC_BIN:
-                    case NUMERIC_BIN_MINUS_ONE:
-                    case NUMERIC_HEX:
-                    case NUMERIC_HEX_MINUS_ONE:
-                    case NUMERIC:
-                    case NUMERIC_MINUS_ONE: {
-                        out.append(ChatColor.GREEN.toString()).append(boxChar).append(" ");
+                    case NUMERIC_BIN, NUMERIC_BIN_MINUS_ONE, NUMERIC_HEX, NUMERIC_HEX_MINUS_ONE, NUMERIC, NUMERIC_MINUS_ONE -> {
+                        out.append(ChatColor.GREEN).append(boxChar).append(" ");
                         out.append(ratio < 0.1 ? ChatColor.RED : ratio < 0.3 ? ChatColor.YELLOW : ChatColor.GREEN);
                         out.append(formatBar(durability, maxDurability, barFormat));
                         out.append(ChatColor.RESET).append(" / ").append(ChatColor.AQUA);
                         out.append(formatBar(maxDurability, maxDurability, barFormat));
                         out.append(ChatColor.GREEN).append(boxChar);
-                        break;
                     }
-                    case DEFAULT: {
+                    case DEFAULT -> {
                         int boxCount = tooltipWidth / 7;
                         int mid = (int) ((double) boxCount * (ratio));
                         for (int i = 0; i < boxCount; i++) {
                             out.append(i < mid ? ChatColor.GREEN : i == mid ? ChatColor.YELLOW : ChatColor.RED);
                             out.append(boxChar);
                         }
-                        break;
                     }
                 }
                 if (lore.isEmpty() || !lore.get(lore.size() - 1).contains(boxChar + ""))
@@ -781,23 +766,28 @@ public class RPGItem {
 
     private String formatBar(int durability, int maxDurability, BarFormat barFormat) {
         switch (barFormat) {
-            case NUMERIC:
+            case NUMERIC -> {
                 return String.valueOf(durability);
-            case NUMERIC_MINUS_ONE:
+            }
+            case NUMERIC_MINUS_ONE -> {
                 return String.valueOf(durability - 1);
-            case NUMERIC_HEX:
+            }
+            case NUMERIC_HEX -> {
                 int hexLen = String.format("%X", maxDurability).length();
                 return String.format(String.format("0x%%0%dX", hexLen), durability);
-            case NUMERIC_HEX_MINUS_ONE:
+            }
+            case NUMERIC_HEX_MINUS_ONE -> {
                 int hexLenM1 = String.format("%X", maxDurability - 1).length();
                 return String.format(String.format("0x%%0%dX", hexLenM1), durability - 1);
-            case NUMERIC_BIN:
+            }
+            case NUMERIC_BIN -> {
                 int binLen = Integer.toBinaryString(maxDurability).length();
                 return String.format(String.format("0b%%%ds", binLen), Integer.toBinaryString(durability)).replace(' ', '0');
-            case NUMERIC_BIN_MINUS_ONE:
+            }
+            case NUMERIC_BIN_MINUS_ONE -> {
                 int binLenM1 = Integer.toBinaryString(maxDurability - 1).length();
                 return String.format(String.format("0b%%%ds", binLenM1), Integer.toBinaryString(durability - 1)).replace(' ', '0');
-
+            }
         }
         throw new UnsupportedOperationException();
     }
@@ -807,7 +797,7 @@ public class RPGItem {
         List<LoreFilter> patterns = getMarker(LoreFilter.class).stream()
                                                                .filter(p -> !Strings.isNullOrEmpty(p.regex))
                                                                .map(LoreFilter::compile)
-                                                               .collect(Collectors.toList());
+                                                               .toList();
         if (patterns.isEmpty()) return Collections.emptyList();
         if (!i.hasItemMeta() || !Objects.requireNonNull(i.getItemMeta()).hasLore()) return Collections.emptyList();
         for (String str : Objects.requireNonNull(i.getItemMeta().getLore())) {
@@ -1010,15 +1000,15 @@ public class RPGItem {
 
     public static List<Modifier> getModifiers(ItemStack stack) {
         Optional<String> opt = ItemTagUtils.getString(stack, NBT_ITEM_UUID);
-        if (!opt.isPresent()){
+        if (opt.isEmpty()){
             Optional<RPGItem> rpgItemOpt = ItemManager.toRPGItemByMeta(stack);
-            if (!rpgItemOpt.isPresent()){
+            if (rpgItemOpt.isEmpty()){
                 return Collections.emptyList();
             }
             RPGItem rpgItem = rpgItemOpt.get();
             rpgItem.updateItem(stack);
             Optional<String> opt1 = ItemTagUtils.getString(stack, NBT_ITEM_UUID);
-            if (!opt1.isPresent()) {
+            if (opt1.isEmpty()) {
                 return Collections.emptyList();
             }
             opt = opt1;
@@ -1056,7 +1046,7 @@ public class RPGItem {
 
     public static List<Modifier> getModifiers(SubItemTagContainer tag, UUID key) {
         Optional<UUID> uuid = Optional.ofNullable(key);
-        if (!uuid.isPresent()){
+        if (uuid.isEmpty()){
             uuid = Optional.of(UUID.randomUUID());
         }
 
@@ -1099,15 +1089,15 @@ public class RPGItem {
 
     private <T> PowerResult<T> checkConditions(Player player, ItemStack i, Pimpl pimpl, List<Condition<?>> conds, Map<PropertyHolder, PowerResult<?>> context) {
         Set<String> ids = pimpl.getPower().getConditions();
-        List<Condition<?>> conditions = conds.stream().filter(p -> ids.contains(p.id())).collect(Collectors.toList());
-        List<Condition<?>> failed = conditions.stream().filter(p -> p.isStatic() ? !context.get(p).isOK() : !p.check(player, i, context).isOK()).collect(Collectors.toList());
+        List<Condition<?>> conditions = conds.stream().filter(p -> ids.contains(p.id())).toList();
+        List<Condition<?>> failed = conditions.stream().filter(p -> p.isStatic() ? !context.get(p).isOK() : !p.check(player, i, context).isOK()).toList();
         if (failed.isEmpty()) return null;
         return failed.stream().anyMatch(Condition::isCritical) ? PowerResult.abort() : PowerResult.condition();
     }
 
     private Map<Condition<?>, PowerResult<?>> checkStaticCondition(Player player, ItemStack i, List<Condition<?>> conds) {
         Set<String> ids = powers.stream().flatMap(p -> p.getConditions().stream()).collect(Collectors.toSet());
-        List<Condition<?>> statics = conds.stream().filter(Condition::isStatic).filter(p -> ids.contains(p.id())).collect(Collectors.toList());
+        List<Condition<?>> statics = conds.stream().filter(Condition::isStatic).filter(p -> ids.contains(p.id())).toList();
         Map<Condition<?>, PowerResult<?>> result = new LinkedHashMap<>();
         for (Condition<?> c : statics) {
             result.put(c, c.check(player, i, Collections.unmodifiableMap(result)));
@@ -1153,7 +1143,7 @@ public class RPGItem {
                      .parallelStream()
                      .filter(e -> trigger.getClass().isInstance(e.getValue()))
                      .sorted(Comparator.comparing(en -> en.getValue().getPriority()))
-                     .filter(e -> e.getValue().check(player, i, event)).forEach(e -> this.power(player, i, event, e.getValue(), context));
+                     .filter(e -> e.getValue().check(player, i, event)).forEachOrdered(e -> this.power(player, i, event, e.getValue(), context));
     }
 
     public <TEvent extends Event, TPower extends Pimpl, TResult, TReturn> TReturn power(Player player, ItemStack i, TEvent event, Trigger<TEvent, TPower, TResult, TReturn> trigger) {
@@ -1286,9 +1276,7 @@ public class RPGItem {
         set(meta, TAG_IS_MODEL, true);
         try {
             ItemTagUtils.setBoolean(itemStack, NBT_IS_MODEL, true);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
         meta.commit();
@@ -1616,7 +1604,7 @@ public class RPGItem {
     public Map<String, List<PlaceholderHolder>> checkDuplicatePlaceholderIds(){
         Map<String, List<PlaceholderHolder>> ids = new HashMap<>();
         getPlaceholdersStream()
-                .map(ph -> ((PlaceholderHolder) ph))
+                .map(ph -> ph)
                 .forEach(placeholder -> {
                     String placeholderId = placeholder.getPlaceholderId();
                     if("".equals(placeholderId)){
@@ -1850,9 +1838,7 @@ public class RPGItem {
 
     private void rebuildPlaceholder() {
         placeholders.clear();
-        getPlaceholdersStream().forEach(placeholderHolder -> {
-            placeholders.put(placeholderHolder.getPlaceholderId(), placeholderHolder);
-        });
+        getPlaceholdersStream().forEach(placeholderHolder -> placeholders.put(placeholderHolder.getPlaceholderId(), placeholderHolder));
     }
 
     public List<String> getTemplatePlaceholders() {
@@ -1900,11 +1886,11 @@ public class RPGItem {
                 Class<?> type = propertyInstance.field().getType();
                 List<Modifier> playerModifiers = getModifiers(player);
                 List<Modifier> stackModifiers = getModifiers(stack);
-                List<Modifier> modifiers = Stream.concat(playerModifiers.stream(), stackModifiers.stream()).sorted(Comparator.comparing(Modifier::priority)).collect(Collectors.toList());
+                List<Modifier> modifiers = Stream.concat(playerModifiers.stream(), stackModifiers.stream()).sorted(Comparator.comparing(Modifier::priority)).toList();
                 // Numeric modifiers
                 if (type == int.class || type == Integer.class || type == float.class || type == Float.class || type == double.class || type == Double.class) {
 
-                    @SuppressWarnings("unchecked") List<Modifier<Double>> numberModifiers = modifiers.stream().filter(m -> (m.getModifierTargetType() == Double.class) && m.match(orig, propertyInstance)).map(m -> (Modifier<Double>) m).collect(Collectors.toList());
+                    @SuppressWarnings("unchecked") List<Modifier<Double>> numberModifiers = modifiers.stream().filter(m -> (m.getModifierTargetType() == Double.class) && m.match(orig, propertyInstance)).map(m -> (Modifier<Double>) m).toList();
                     Number value = (Number) methodProxy.invoke(orig, args);
                     double origValue = value.doubleValue();
                     for (Modifier<Double> numberModifier : numberModifiers) {
@@ -2374,7 +2360,7 @@ public class RPGItem {
     }
 
     public enum AttributeMode {
-        FULL_UPDATE, PARTIAL_UPDATE;
+        FULL_UPDATE, PARTIAL_UPDATE
     }
 
     public enum BarFormat {

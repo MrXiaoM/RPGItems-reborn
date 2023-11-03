@@ -195,9 +195,8 @@ public class Events implements Listener {
                 }
                 RPGItem rItem = ItemManager.getItem(rpgProjectiles.get(entity.getEntityId())).orElse(null);
 
-                if (rItem == null || !(entity.getShooter() instanceof Player))
+                if (rItem == null || !(entity.getShooter() instanceof Player player))
                     return;
-                Player player = (Player) entity.getShooter();
                 if (player.isOnline() && !player.isDead()) {
                     ItemStack item = player.getInventory().getItemInMainHand();
                     RPGItem hItem = ItemManager.toRPGItem(item).orElse(null);
@@ -396,80 +395,33 @@ public class Events implements Listener {
     }
 
     private boolean isPlacable(Material im) {
-        switch(im){
-            case ARMOR_STAND:
-            case MINECART:
-            case CHEST_MINECART:
-            case COMMAND_BLOCK_MINECART:
-            case FURNACE_MINECART:
-            case TNT_MINECART:
-            case HOPPER_MINECART:
-            case END_CRYSTAL:
-            case PRISMARINE_CRYSTALS:
-            case BUCKET:
-            case LAVA_BUCKET:
-            case WATER_BUCKET:
-            case COD_BUCKET:
-            case PUFFERFISH_BUCKET:
-            case SALMON_BUCKET:
-            case TROPICAL_FISH_BUCKET:
-            case SADDLE:
-            case LEAD:
-            case BOWL:
-
-            return true;
-        }
-        return false;
+        return switch (im) {
+            case ARMOR_STAND, MINECART, CHEST_MINECART, COMMAND_BLOCK_MINECART, FURNACE_MINECART, TNT_MINECART, HOPPER_MINECART, END_CRYSTAL, PRISMARINE_CRYSTALS, BUCKET, LAVA_BUCKET, WATER_BUCKET, COD_BUCKET, PUFFERFISH_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET, SADDLE, LEAD, BOWL ->
+                    true;
+            default -> false;
+        };
     }
 
     private boolean isTools(Material im) {
-        switch(im){
+        return switch (im) {
             //<editor-fold>
-            case BOW:
-            case CROSSBOW:
-            case DIAMOND_AXE:
-            case GOLDEN_AXE:
-            case IRON_AXE:
-            case STONE_AXE:
-            case WOODEN_AXE:
-            case DIAMOND_PICKAXE:
-            case GOLDEN_PICKAXE:
-            case IRON_PICKAXE:
-            case STONE_PICKAXE:
-            case WOODEN_PICKAXE:
-            case DIAMOND_HOE:
-            case GOLDEN_HOE:
-            case IRON_HOE:
-            case STONE_HOE:
-            case WOODEN_HOE:
-            case DIAMOND_SHOVEL:
-            case GOLDEN_SHOVEL:
-            case IRON_SHOVEL:
-            case STONE_SHOVEL:
-            case WOODEN_SHOVEL:
-            case FISHING_ROD:
-            case SHEARS:
-            case LEAD:
-            case FLINT_AND_STEEL:
+            case BOW, CROSSBOW, DIAMOND_AXE, GOLDEN_AXE, IRON_AXE, STONE_AXE, WOODEN_AXE, DIAMOND_PICKAXE, GOLDEN_PICKAXE, IRON_PICKAXE, STONE_PICKAXE, WOODEN_PICKAXE, DIAMOND_HOE, GOLDEN_HOE, IRON_HOE, STONE_HOE, WOODEN_HOE, DIAMOND_SHOVEL, GOLDEN_SHOVEL, IRON_SHOVEL, STONE_SHOVEL, WOODEN_SHOVEL, FISHING_ROD, SHEARS, LEAD, FLINT_AND_STEEL ->
                 //</editor-fold>
-                return true;
-        }
-        return false;
+                    true;
+            default -> false;
+        };
     }
 
     public boolean isItemConsumer(Block im) {
         if (im == null)return false;
-        switch (im.getType()) {
+        return switch (im.getType()) {
             // <editor-fold defaultstate="collapsed" desc="isInteractable">
-            case COMPOSTER:
-            case JUKEBOX:
-            case FLOWER_POT:
+            case COMPOSTER, JUKEBOX, FLOWER_POT ->
 
                 // </editor-fold>
-                return true;
-            default:
-                return false;
-        }
+                    true;
+            default -> false;
+        };
     }
 
     @EventHandler
@@ -530,8 +482,7 @@ public class Events implements Listener {
     public void onOffhandInventoryClick(InventoryClickEvent e) {
         if (e.getInventory().getType() != InventoryType.CRAFTING || e.getSlotType() != InventoryType.SlotType.QUICKBAR || e.getSlot() != 40)
             return;
-        if (!(e.getWhoClicked() instanceof Player)) return;
-        Player player = (Player) e.getWhoClicked();
+        if (!(e.getWhoClicked() instanceof Player player)) return;
         ItemStack currentIs = e.getCurrentItem();
         ItemStack cursorIs = e.getCursor();
         RPGItem currentItem = ItemManager.toRPGItem(currentIs).orElse(null);
@@ -613,10 +564,9 @@ public class Events implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerPickup(EntityPickupItemEvent e) {
-        if (!(e.getEntity() instanceof Player)) {
+        if (!(e.getEntity() instanceof final Player p)) {
             return;
         }
-        final Player p = (Player) e.getEntity();
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -647,8 +597,7 @@ public class Events implements Listener {
         ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(item));
         if (switchCooldown.contains(player.getUniqueId())) return;
         ItemStack[] armorContents = player.getInventory().getArmorContents();
-        for (int i = 0; i < armorContents.length; i++) {
-            ItemStack stack = armorContents[i];
+        for (ItemStack stack : armorContents) {
             ItemManager.toRPGItem(stack).ifPresent(rpgItem -> rpgItem.updateItem(stack));
         }
         ItemStack offhandItem = player.getInventory().getItemInOffHand();
@@ -750,7 +699,7 @@ public class Events implements Listener {
         Optional<Double> overridingDamage = LightContext.getTemp(player.getUniqueId(), OVERRIDING_DAMAGE);
         Optional<ItemStack> sourceItem = LightContext.getTemp(player.getUniqueId(), DAMAGE_SOURCE_ITEM);
 
-        if (!overridingDamage.isPresent()) {
+        if (overridingDamage.isEmpty()) {
             overridingDamage = Optional.ofNullable(Context.instance().getDouble(player.getUniqueId(), OVERRIDING_DAMAGE));
         }
 
@@ -785,7 +734,7 @@ public class Events implements Listener {
 
         double originDamage = e.getDamage();
         double damage = originDamage;
-        if (rItem != null && !overridingDamage.isPresent()) {
+        if (rItem != null && overridingDamage.isEmpty()) {
             damage = rItem.meleeDamage(player, originDamage, item, entity);
         } else if (overridingDamage.isPresent()) {
             damage = overridingDamage.get();
@@ -816,12 +765,11 @@ public class Events implements Listener {
             return;
         }
         RPGItem rItem = ItemManager.getItem(projectileID).orElse(null);
-        if (rItem == null || !(projectile.getShooter() instanceof Player))
+        if (rItem == null || !(projectile.getShooter() instanceof Player player))
             return;
         if (!((Player) projectile.getShooter()).isOnline()) {
             return;
         }
-        Player player = (Player) projectile.getShooter();
         ItemStack item = player.getInventory().getItemInMainHand();
         RPGItem hItem = ItemManager.toRPGItem(item).orElse(null);
 
@@ -888,8 +836,7 @@ public class Events implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerHit(EntityDamageEvent e) {
-        if (e.getEntity() instanceof Player) {
-            Player player = (Player) e.getEntity();
+        if (e.getEntity() instanceof Player player) {
             ItemStack[] armour = player.getInventory().getArmorContents();
             boolean hasRPGItem = false;
             double damage = e.getDamage();
@@ -924,10 +871,9 @@ public class Events implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerHitTaken(EntityDamageEvent ev) {
-        if (ev.getEntity() instanceof Player) {
+        if (ev.getEntity() instanceof Player entity) {
             ev.setDamage(playerHitTaken((Player) ev.getEntity(), ev));
             double finalDamage = ev.getFinalDamage();
-            Player entity = (Player)ev.getEntity();
             if (finalDamage >= entity.getHealth()){
                 triggerRescue(entity, ev);
             }
@@ -955,8 +901,7 @@ public class Events implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void onPlayerHurt(EntityDamageByEntityEvent ev) {
-        if (ev.getEntity() instanceof Player) {
-            Player e = (Player) ev.getEntity();
+        if (ev.getEntity() instanceof Player e) {
             for (ItemStack item : e.getInventory().getContents()) {
                 RPGItem ri = ItemManager.toRPGItem(item).orElse(null);
                 if (ri == null) continue;

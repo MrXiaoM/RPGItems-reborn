@@ -74,7 +74,7 @@ public class WGHandler extends Handler {
                     String[] split = k.split("\\.", 2);
                     String worldName = split[0];
                     String regionName = split[1];
-                    boolean flag = Boolean.valueOf(v.toString());
+                    boolean flag = Boolean.parseBoolean(v.toString());
                     org.bukkit.World bukkitWorld = Bukkit.getServer().getWorld(worldName);
                     if (bukkitWorld == null) return;
                     World world = BukkitAdapter.adapt(bukkitWorld);

@@ -113,7 +113,7 @@ public class AOEDamage extends BasePower {
     }
 
     public enum FiringLocation{
-        SELF, TARGET;
+        SELF, TARGET
     }
 
     /**

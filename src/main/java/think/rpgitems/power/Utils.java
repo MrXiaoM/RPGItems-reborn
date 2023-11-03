@@ -2,7 +2,6 @@ package think.rpgitems.power;
 
 import cat.nyaa.nyaacore.Message;
 import cat.nyaa.nyaacore.Pair;
-import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -112,7 +111,7 @@ public class Utils {
             }
         }
         List<LivingEntity> entity = new ArrayList<>();
-        entities.sort(Comparator.comparing(Map.Entry::getValue));
+        entities.sort(Map.Entry.comparingByValue());
         entities.forEach((k) -> entity.add(k.getKey()));
         return entity;
     }
@@ -319,7 +318,7 @@ public class Utils {
         if (hitNormal.getZ() < 0) {
             return new Vector(bb.getCenterX(), bb.getCenterY(), bb.getMaxZ());
         }
-        throw new IllegalArgumentException("hitNormal: " + hitNormal.toString());
+        throw new IllegalArgumentException("hitNormal: " + hitNormal);
     }
 
     // Sweep a in the direction of v against b, returns non null & info if there was a hit
@@ -485,7 +484,7 @@ public class Utils {
                 char c = str.charAt(index + 1);
                 ChatColor style = ChatColor.getByChar(c);
                 if (style == null) continue;
-                if (style.isColor()) return style.toString() + (format == null ? "" : format);
+                if (style.isColor()) return style + (format == null ? "" : format);
                 if (style.isFormat() && format == null) format = style.toString();
             }
         }
@@ -512,7 +511,7 @@ public class Utils {
             if (st != null) {
                 try {
                     Optional<Object> v = Setter.from(power, st.value()).set(value);
-                    if (!v.isPresent()) return;
+                    if (v.isEmpty()) return;
                     field.set(power, v.get());
                 } catch (IllegalArgumentException e) {
                     new Message(i18n.format(st.message(), value)).send(sender);
@@ -675,7 +674,7 @@ public class Utils {
                     throw new AdminCommands.CommandException("message.error.invalid_option", value, field.getName(), String.join(", ", acc));
             } else {
                 String[] valueStrs = value.split(",");
-                List<String> values = Arrays.stream(valueStrs).filter(s -> !s.isEmpty()).map(String::trim).collect(Collectors.toList());
+                List<String> values = Arrays.stream(valueStrs).filter(s -> !s.isEmpty()).map(String::trim).toList();
                 if (values.stream().filter(s -> !s.isEmpty()).anyMatch(v -> !acc.contains(v))) {
                     throw new AdminCommands.CommandException("message.error.invalid_option", value, field.getName(), String.join(", ", acc));
                 }
@@ -935,8 +934,7 @@ public class Utils {
     }
 
     public static boolean isUtilArmorStand(Entity livingEntity) {
-        if (livingEntity instanceof ArmorStand) {
-            ArmorStand arm = (ArmorStand) livingEntity;
+        if (livingEntity instanceof ArmorStand arm) {
             return arm.isMarker() && !arm.isVisible();
         }
         return false;

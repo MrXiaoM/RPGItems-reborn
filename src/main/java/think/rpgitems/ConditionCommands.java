@@ -52,13 +52,10 @@ public class ConditionCommands extends RPGCommandReceiver {
     public List<String> addCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1:
-                completeStr.addAll(ItemManager.itemNames());
-                break;
-            case 2:
-                completeStr.addAll(PowerManager.getConditions().keySet().stream().map(s -> PowerManager.hasExtension() ? s : s.getKey()).map(Object::toString).collect(Collectors.toList()));
-                break;
-            default:
+            case 1 -> completeStr.addAll(ItemManager.itemNames());
+            case 2 ->
+                    completeStr.addAll(PowerManager.getConditions().keySet().stream().map(s -> PowerManager.hasExtension() ? s : s.getKey()).map(Object::toString).toList());
+            default -> {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 String last = arguments.getRawArgs()[arguments.getRawArgs().length - 1];
                 String conditionKey = arguments.nextString();
@@ -66,6 +63,7 @@ public class ConditionCommands extends RPGCommandReceiver {
                 if (keyClass != null) {
                     return resolveProperties(sender, item, keyClass.getValue(), keyClass.getKey(), last, arguments, true);
                 }
+            }
         }
         return filtered(arguments, completeStr);
     }
@@ -113,7 +111,7 @@ public class ConditionCommands extends RPGCommandReceiver {
                 break;
             case 2:
                 RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream.range(0, item.getConditions().size()).mapToObj(i -> i + "-" + item.getConditions().get(i).getNamespacedKey()).collect(Collectors.toList()));
+                completeStr.addAll(IntStream.range(0, item.getConditions().size()).mapToObj(i -> i + "-" + item.getConditions().get(i).getNamespacedKey()).toList());
                 break;
             default:
                 item = getItem(arguments.nextString(), sender);
@@ -207,13 +205,11 @@ public class ConditionCommands extends RPGCommandReceiver {
     public List<String> removeCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1:
-                completeStr.addAll(ItemManager.itemNames());
-                break;
-            case 2:
+            case 1 -> completeStr.addAll(ItemManager.itemNames());
+            case 2 -> {
                 RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream.range(0, item.getConditions().size()).mapToObj(i -> i + "-" + item.getConditions().get(i).getNamespacedKey()).collect(Collectors.toList()));
-                break;
+                completeStr.addAll(IntStream.range(0, item.getConditions().size()).mapToObj(i -> i + "-" + item.getConditions().get(i).getNamespacedKey()).toList());
+            }
         }
         return filtered(arguments, completeStr);
     }
@@ -257,7 +253,7 @@ public class ConditionCommands extends RPGCommandReceiver {
                                                      .stream()
                                                      .filter(i -> i.getKey().contains(nameSearch))
                                                      .sorted(Comparator.comparing(NamespacedKey::getKey))
-                                                     .collect(Collectors.toList());
+                                                     .toList();
         if (conditions.size() == 0) {
             msgs(sender, "message.condition.not_found", nameSearch);
             return;
@@ -267,7 +263,7 @@ public class ConditionCommands extends RPGCommandReceiver {
         int page = maxPage.getValue();
         int max = maxPage.getKey();
         stream = stream
-                         .skip((page - 1) * perPage)
+                         .skip((long) (page - 1) * perPage)
                          .limit(perPage);
         sender.sendMessage(ChatColor.AQUA + "Conditions: " + page + " / " + max);
 

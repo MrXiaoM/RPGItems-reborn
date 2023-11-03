@@ -13,9 +13,7 @@ public final class ConcurrentUtils {
     public static <P, Q> void runAsyncTask(Plugin plugin, P parameter, Function<P, Q> asyncTask, Consumer<Q> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             final Q ret = asyncTask.apply(parameter);
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                callback.accept(ret);
-            });
+            Bukkit.getScheduler().runTask(plugin, () -> callback.accept(ret));
         });
     }
 
@@ -24,8 +22,6 @@ public final class ConcurrentUtils {
      */
     @Deprecated
     public static <P> void runAsyncTask(Plugin plugin, P parameter, Consumer<P> asyncTask) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            asyncTask.accept(parameter);
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> asyncTask.accept(parameter));
     }
 }

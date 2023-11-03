@@ -37,7 +37,6 @@ public class OrCondition extends BaseCondition<Map.Entry<PropertyHolder, PowerRe
         return isCritical;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public PowerResult<Map.Entry<PropertyHolder, PowerResult<?>>> check(Player player, ItemStack stack, Map<PropertyHolder, PowerResult<?>> context) {
         Set<String> conditions = new HashSet<>(getConditions());

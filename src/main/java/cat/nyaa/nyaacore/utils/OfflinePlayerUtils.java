@@ -30,7 +30,7 @@ public class OfflinePlayerUtils {
     private static final String UNDASHED = "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})";
     private static final String DASHED = "$1-$2-$3-$4-$5";
     private static final TypeToken<List<Map<String, Object>>> typeTokenListMap =
-            new TypeToken<List<Map<String, Object>>>() {
+            new TypeToken<>() {
             };
     private static ConcurrentMap<String, OfflinePlayer> playerCache;
     private static ConcurrentMap<UUID, String> nameCache;

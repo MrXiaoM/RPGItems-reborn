@@ -56,7 +56,7 @@ public class SlotCondition extends BaseCondition<Void> {
     public PowerResult<Void> check(Player player, ItemStack stack, Map<PropertyHolder, PowerResult<?>> context) {
 
         Optional<RPGItem> rpgItem = ItemManager.toRPGItem(stack);
-        if (!rpgItem.isPresent()){
+        if (rpgItem.isEmpty()){
             Bukkit.getLogger().log(Level.FINER, "item is not a RGI, this shouldn't happen");
             return PowerResult.fail();
         }
@@ -84,32 +84,20 @@ public class SlotCondition extends BaseCondition<Void> {
         MAIN_HAND, OFF_HAND;
 
         public boolean eval(PlayerInventory inventory, ItemStack stack) {
-            switch (this) {
-                case HELMET:
-                    return checkHelmet(inventory, stack);
-                case CHESTPLATE:
-                    return checkChestPlate(inventory, stack);
-                case LEGGINGS:
-                    return checkLeggings(inventory, stack);
-                case BOOTS:
-                    return checkBoots(inventory, stack);
-                case ARMOR:
-                    return checkHelmet(inventory, stack) || checkChestPlate(inventory, stack) ||
-                            checkLeggings(inventory, stack) || checkBoots(inventory, stack);
-                case HAND:
-                    return checkMainHand(inventory, stack) && checkOffHand(inventory, stack);
-                case BACKPACK:
-                    return checkBackpack(inventory, stack);
-                case BELT:
-                    return checkBelts(inventory, stack);
-                case INVENTORY:
-                    return checkBelts(inventory, stack) || checkBackpack(inventory, stack);
-                case MAIN_HAND:
-                    return checkMainHand(inventory, stack);
-                case OFF_HAND:
-                    return checkOffHand(inventory, stack);
-            }
-            return false;
+            return switch (this) {
+                case HELMET -> checkHelmet(inventory, stack);
+                case CHESTPLATE -> checkChestPlate(inventory, stack);
+                case LEGGINGS -> checkLeggings(inventory, stack);
+                case BOOTS -> checkBoots(inventory, stack);
+                case ARMOR -> checkHelmet(inventory, stack) || checkChestPlate(inventory, stack) ||
+                        checkLeggings(inventory, stack) || checkBoots(inventory, stack);
+                case HAND -> checkMainHand(inventory, stack) && checkOffHand(inventory, stack);
+                case BACKPACK -> checkBackpack(inventory, stack);
+                case BELT -> checkBelts(inventory, stack);
+                case INVENTORY -> checkBelts(inventory, stack) || checkBackpack(inventory, stack);
+                case MAIN_HAND -> checkMainHand(inventory, stack);
+                case OFF_HAND -> checkOffHand(inventory, stack);
+            };
         }
 
         private boolean checkBelts(PlayerInventory inventory, ItemStack stack) {
@@ -178,11 +166,10 @@ public class SlotCondition extends BaseCondition<Void> {
             Optional<RPGItem> itemUsed = ItemManager.toRPGItem(stack);
             Optional<RPGItem> stackItem = ItemManager.toRPGItem(itemStack);
             if (itemUsed.isPresent()) {
-                if (!stackItem.isPresent()) {
+                if (stackItem.isEmpty()) {
                     return false;
                 }
-                if (!itemUsed.get().equals(stackItem.get()))
-                    return false;
+                return itemUsed.get().equals(stackItem.get());
             }
             return true;
         }

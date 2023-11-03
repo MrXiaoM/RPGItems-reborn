@@ -166,12 +166,10 @@ public class PropertyHelper {
     public static Collection<? extends String> resolveProperties(Class<? extends ISerializable> iSerializableClass) {
         List<String> list = new ArrayList<>();
         Field[] f = iSerializableClass.getDeclaredFields();
-        if (f.length > 0) {
-            for (Field field : f) {
-                ISerializable.Serializable ann = field.getAnnotation(ISerializable.Serializable.class);
-                if (ann != null) {
-                    list.add(field.getName() + ":");
-                }
+        for (Field field : f) {
+            ISerializable.Serializable ann = field.getAnnotation(ISerializable.Serializable.class);
+            if (ann != null) {
+                list.add(field.getName() + ":");
             }
         }
         Class<?> superclass = iSerializableClass.getSuperclass();

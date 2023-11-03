@@ -25,7 +25,7 @@ public class Ticker extends BukkitRunnable {
             ItemStack[] armour = player.getInventory().getArmorContents();
             for (ItemStack part : armour) {
                 Optional<RPGItem> item = ItemManager.toRPGItem(part);
-                if (!item.isPresent())
+                if (item.isEmpty())
                     continue;
                 RPGItem rgi = item.get();
                 rgi.power(player, part, null, BaseTriggers.TICK);

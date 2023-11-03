@@ -4,7 +4,6 @@ import cat.nyaa.nyaacore.Pair;
 import cat.nyaa.nyaacore.cmdreceiver.Arguments;
 import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
 import org.bukkit.ChatColor;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
@@ -15,7 +14,6 @@ import think.rpgitems.power.UnknownExtensionException;
 import think.rpgitems.power.trigger.Trigger;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -106,7 +104,7 @@ public class TriggerCommands extends RPGCommandReceiver {
                 break;
             case 2:
                 RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream.range(0, item.getTriggers().size()).mapToObj(String::valueOf).collect(Collectors.toList()));
+                completeStr.addAll(IntStream.range(0, item.getTriggers().size()).mapToObj(String::valueOf).toList());
                 break;
             default:
                 item = getItem(arguments.nextString(), sender);
@@ -160,13 +158,11 @@ public class TriggerCommands extends RPGCommandReceiver {
     public List<String> removeCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1:
-                completeStr.addAll(ItemManager.itemNames());
-                break;
-            case 2:
+            case 1 -> completeStr.addAll(ItemManager.itemNames());
+            case 2 -> {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 completeStr.addAll(item.getTriggers().keySet());
-                break;
+            }
         }
         return filtered(arguments, completeStr);
     }
@@ -202,7 +198,7 @@ public class TriggerCommands extends RPGCommandReceiver {
         int page = maxPage.getValue();
         int max = maxPage.getKey();
         stream = stream
-                         .skip((page - 1) * perPage)
+                         .skip((long) (page - 1) * perPage)
                          .limit(perPage);
         sender.sendMessage(ChatColor.AQUA + "Markers: " + page + " / " + max);
 

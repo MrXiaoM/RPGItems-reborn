@@ -227,7 +227,7 @@ public class Teleport extends BasePower {
 
         @Override
         public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
-            return fire(player, stack, () -> entity.getLocation()).with(damage);
+            return fire(player, stack, entity::getLocation).with(damage);
         }
 
         @Override

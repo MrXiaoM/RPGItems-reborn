@@ -218,7 +218,7 @@ public class Beam extends BasePower {
     public boolean castOff = false;
 
     private static Set<Material> transp = Stream.of(Material.values())
-            .filter(material -> material.isBlock())
+            .filter(Material::isBlock)
             .filter(material -> !material.isSolid() || !material.isOccluding())
             .collect(Collectors.toSet());
 
@@ -675,12 +675,12 @@ public class Beam extends BasePower {
             Expression eval = new Expression(speedBias).with("x", new Expression.LazyNumber() {
                 @Override
                 public BigDecimal eval() {
-                    return BigDecimal.valueOf(spawnedLength.get() / ((double) length));
+                    return BigDecimal.valueOf(spawnedLength.get() / length);
                 }
 
                 @Override
                 public String getString() {
-                    return String.valueOf(spawnedLength.get() / ((double) length));
+                    return String.valueOf(spawnedLength.get() / length);
                 }
             }).with("t", new Expression.LazyNumber() {
                 @Override
@@ -712,7 +712,6 @@ public class Beam extends BasePower {
         private void makeBounce(Block block, Vector towards, Vector step, Location lastLocation) {
             RayTraceResult rayTraceResult = block.rayTrace(lastLocation, step, towards.length() * 2, FluidCollisionMode.NEVER);
             if (rayTraceResult == null) {
-                return;
             } else {
                 BlockFace hitBlockFace = rayTraceResult.getHitBlockFace();
                 if (hitBlockFace == null) return;
@@ -819,10 +818,10 @@ public class Beam extends BasePower {
             double length = Double.isNaN(offsetLength) ? 0.1 : Math.max(offsetLength, 10);
             Collection<Entity> candidates = from.getWorld().getNearbyEntities(loc, length, length, length);
             List<Entity> collect = candidates.stream()
-                    .filter(entity -> (entity instanceof LivingEntity) && (!isUtilArmorStand((LivingEntity) entity)) && (canHitSelf || !entity.equals(from)) && !entity.isDead() && !hitMob.contains(entity.getUniqueId()))
+                    .filter(entity -> (entity instanceof LivingEntity) && (!isUtilArmorStand(entity)) && (canHitSelf || !entity.equals(from)) && !entity.isDead() && !hitMob.contains(entity.getUniqueId()))
                     .filter(entity -> canHit(loc, entity))
                     .limit(Math.max(pierce, 1))
-                    .collect(Collectors.toList());
+                    .toList();
             if (!collect.isEmpty()) {
                 Entity entity = collect.get(0);
                 if (entity instanceof LivingEntity) {
@@ -1011,22 +1010,19 @@ public class Beam extends BasePower {
                         .collect(Collectors.toList())
                 , fromLocation.toVector(), homingAngle, direction).stream()
                 .filter(livingEntity -> {
-                    switch (homingTarget) {
-                        case MOBS:
-                            return !(livingEntity instanceof Player);
-                        case PLAYERS:
-                            return livingEntity instanceof Player && !((Player) livingEntity).getGameMode().equals(GameMode.SPECTATOR);
-                        case ALL:
-                            return !(livingEntity instanceof Player) || !((Player) livingEntity).getGameMode().equals(GameMode.SPECTATOR);
-                    }
-                    return true;
+                    return switch (homingTarget) {
+                        case MOBS -> !(livingEntity instanceof Player);
+                        case PLAYERS ->
+                                livingEntity instanceof Player && !((Player) livingEntity).getGameMode().equals(GameMode.SPECTATOR);
+                        case ALL ->
+                                !(livingEntity instanceof Player) || !((Player) livingEntity).getGameMode().equals(GameMode.SPECTATOR);
+                    };
                 }).collect(Collectors.toList());
     }
 
     enum Mode {
         BEAM,
         PROJECTILE,
-        ;
     }
 
     enum Target {
@@ -1038,7 +1034,7 @@ public class Beam extends BasePower {
     }
 
     enum FiringLocation{
-        SELF, TARGET;
+        SELF, TARGET
     }
 
     public enum Behavior {
@@ -1167,7 +1163,7 @@ public class Beam extends BasePower {
         Queue<RoundedConeInfo> infos = new LinkedList<>();
         for (int i = 0; i < burstCount; i++) {
             int steps = Math.max(amount, 1);
-            double phiStep = 360 / steps;
+            double phiStep = 360.0 / steps;
             double thetaStep = beam.getCone() * 2 / steps;
             for (int j = 0; j < amount; j++) {
                 RoundedConeInfo roundedConeInfo = internalCone(beam);

@@ -100,26 +100,14 @@ public class Attachments extends BasePower {
             PlayerInventory inventory = player.getInventory();
             if (getAllowedSlots() != null) {
                 for (EquipmentSlot allowedSlot : getAllowedSlots()) {
-                    switch (allowedSlot) {
-                        case HAND:
-                            itemStack = inventory.getItemInMainHand();
-                            break;
-                        case OFF_HAND:
-                            itemStack = inventory.getItemInOffHand();
-                            break;
-                        case FEET:
-                            itemStack = inventory.getBoots();
-                            break;
-                        case LEGS:
-                            itemStack = inventory.getLeggings();
-                            break;
-                        case CHEST:
-                            itemStack = inventory.getChestplate();
-                            break;
-                        case HEAD:
-                            itemStack = inventory.getHelmet();
-                            break;
-                    }
+                    itemStack = switch (allowedSlot) {
+                        case HAND -> inventory.getItemInMainHand();
+                        case OFF_HAND -> inventory.getItemInOffHand();
+                        case FEET -> inventory.getBoots();
+                        case LEGS -> inventory.getLeggings();
+                        case CHEST -> inventory.getChestplate();
+                        case HEAD -> inventory.getHelmet();
+                    };
                     if (attach(player, stack, event, itemStack, allow)) {
                         num += 1;
                     }
@@ -155,7 +143,7 @@ public class Attachments extends BasePower {
             if (itemStack == null) return false;
             if (itemStack.equals(stack)) return false;
             Optional<RPGItem> optItem = ItemManager.toRPGItem(itemStack);
-            if (!optItem.isPresent()) return false;
+            if (optItem.isEmpty()) return false;
             RPGItem item = optItem.get();
             if (allow != null && !allow.contains(item)) return false;
             item.power(player, itemStack, event, BaseTriggers.ATTACHMENT, Pair.of(stack, event));

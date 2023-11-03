@@ -81,7 +81,7 @@ public class Stuck extends BasePower {
                 @EventHandler
                 void onEntityTeleport(EntityTeleportEvent e) {
                     try {
-                        if (stucked.get(e.getEntity().getUniqueId(), () -> Long.MIN_VALUE) >= (System.currentTimeMillis() - getDuration() * 50)) {
+                        if (stucked.get(e.getEntity().getUniqueId(), () -> Long.MIN_VALUE) >= (System.currentTimeMillis() - getDuration() * 50L)) {
                             e.setCancelled(true);
                         }
                     } catch (ExecutionException ex) {
@@ -92,7 +92,7 @@ public class Stuck extends BasePower {
                 @EventHandler
                 void onPlayerTeleport(PlayerTeleportEvent e) {
                     try {
-                        if (stucked.get(e.getPlayer().getUniqueId(), () -> Long.MIN_VALUE) >= (System.currentTimeMillis() - getDuration() * 50)) {
+                        if (stucked.get(e.getPlayer().getUniqueId(), () -> Long.MIN_VALUE) >= (System.currentTimeMillis() - getDuration() * 50L)) {
                             if (e.getCause() != PlayerTeleportEvent.TeleportCause.COMMAND) {
                                 e.getPlayer().sendMessage(I18n.formatDefault("message.stuck"));
                                 e.setCancelled(true);

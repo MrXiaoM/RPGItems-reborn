@@ -138,6 +138,7 @@ public class Deflect extends BasePower {
     public class Impl implements PowerHitTaken, PowerRightClick, PowerLeftClick, PowerPlain, PowerBowShoot {
 
         @Override
+        @SuppressWarnings({"removation"})
         public PowerResult<Double> takeHit(Player target, ItemStack stack, double damage, EntityDamageEvent event) {
             if (!(target.getInventory().getItemInMainHand().equals(stack) || target.getInventory().getItemInOffHand().equals(stack))) {
                 return PowerResult.noop();
@@ -191,7 +192,8 @@ public class Deflect extends BasePower {
                     TridentUtils.setTridentItemStack(tridentP, TridentUtils.getTridentItemStack(tridentT));
                 }
                 t.setGravity(p.hasGravity());
-                t.setBounce(p.doesBounce());
+                // `bounce` does not do anything
+                // t.setBounce(p.doesBounce());
                 t.setShooter(target);
                 Events.autoRemoveProjectile(t.getEntityId());
                 p.eject();

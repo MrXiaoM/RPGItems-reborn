@@ -54,7 +54,7 @@ public class TimerManager extends FileConfigure {
 
     @Override
     protected JavaPlugin getPlugin() {
-        return plugin.getPlugin();
+        return NyaaCoreLoader.getPlugin();
     }
 
     /**

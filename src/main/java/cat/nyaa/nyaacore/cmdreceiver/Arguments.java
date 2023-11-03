@@ -15,12 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class Arguments {
-
     private List<String> parsedArguments = new ArrayList<>();
     private int index = 0;
     private CommandSender sender;
     private String[] rawArgs;
-
     private Arguments() {
     }
 
@@ -44,53 +42,138 @@ public class Arguments {
     }
 
     public static Arguments parse(String[] rawArg, CommandSender sender) {
+        try {
+            return parseChecked(rawArg, sender);
+        } catch (ArgumentParsingException ex) {
+            return null;
+        }
+    }
+
+    // Arguments are seperated by 1 or more whitespaces.
+    // Arguments containing whitespaces can be surrounded in backticks or double quotes.
+    // Quotes in quotes can be escaped using backslash.
+    // Cannot escape backticks in double quotes, and vice versa.
+    // Escape backslash using backslash.
+    // Quotation must cover the whole argument.
+    // As an exception, key:`val` will be interpreted as `key:val`
+    public static Arguments parseChecked(String[] rawArg, CommandSender sender) throws ArgumentParsingException {
         if (rawArg.length == 0) return new Arguments(sender);
         String cmd = rawArg[0];
         for (int i = 1; i < rawArg.length; i++)
             cmd += " " + rawArg[i];
 
         List<String> cmdList = new ArrayList<>();
-        boolean escape = false, quote = false;
         String tmp = "";
-        for (int i = 0; i < cmd.length(); i++) {
-            char chr = cmd.charAt(i);
-            if (escape) {
-                if (chr == '\\' || chr == '`') tmp += chr;
-                else return null; // bad escape char
-                escape = false;
-            } else if (chr == '\\') {
-                escape = true;
-            } else if (chr == '`') {
-                if (quote) {
-                    if (i + 1 == cmd.length() || cmd.charAt(i + 1) == ' ') {
+        ParserState state = ParserState.EXPECT_ARG;
+        for (int i = 0; i <= cmd.length(); i++) {
+            Character chr = i < cmd.length() ? cmd.charAt(i) : null;
+            Character next_char = i + 1 < cmd.length() ? cmd.charAt(i + 1) : null;
+
+            switch (state) {
+                case EXPECT_ARG -> {
+                    if (chr == null || chr == ' ') {
+
+                    } else if (chr == '"') {
+                        state = ParserState.IN_QUOTE;
+                    } else if (chr == '`') {
+                        state = ParserState.IN_BACKTICK;
+                    } else if (chr == ':') {
+                        tmp += chr;
+                        state = ParserState.IN_UNQUOTE_AFTER_COLON;
+                    } else {
+                        tmp += chr;
+                        state = ParserState.IN_UNQUOTE_BEFORE_COLON;
+                    }
+                }
+                case IN_UNQUOTE_BEFORE_COLON -> {
+                    if (chr == null || chr == ' ') {
                         cmdList.add(tmp);
                         tmp = "";
-                        i++;
-                        quote = false;
-                    } else {
-                        return null; //bad quote end
-                    }
-                } else {
-                    if (tmp.length() > 0) {
-                        if (!tmp.matches("[a-zA-Z_]+[0-9a-zA-Z_]*:")) {//as a key:`value` pair
-                            return null; // bad quote start
+                        state = ParserState.EXPECT_ARG;
+                    } else if (chr == '\\' || chr == '"' || chr == '`') {
+                        throw new ArgumentParsingException(cmd, i, "cannot escape/quote here");
+                    } else if (chr == ':') {
+                        tmp += chr;
+                        if (next_char == null) {
+                            state = ParserState.IN_UNQUOTE_AFTER_COLON;
+                        } else if (next_char == '"') {
+                            state = ParserState.IN_QUOTE;
+                            i++;
+                        } else if (next_char == '`') {
+                            state = ParserState.IN_BACKTICK;
+                            i++;
+                        } else {
+                            state = ParserState.IN_UNQUOTE_AFTER_COLON;
                         }
+                    } else {
+                        tmp += chr;
                     }
-                    quote = true;
                 }
-            } else if (chr == ' ') {
-                if (quote) {
-                    tmp += ' ';
-                } else if (tmp.length() > 0) {
-                    cmdList.add(tmp);
-                    tmp = "";
+                case IN_UNQUOTE_AFTER_COLON -> {
+                    if (chr == null || chr == ' ') {
+                        cmdList.add(tmp);
+                        tmp = "";
+                        state = ParserState.EXPECT_ARG;
+                    } else if (chr == '\\' || chr == '"' || chr == '`') {
+                        throw new ArgumentParsingException(cmd, i, "cannot escape/quote here");
+                    } else {
+                        tmp += chr;
+                    }
                 }
-            } else {
-                tmp += chr;
+                case IN_BACKTICK -> {
+                    if (chr == null) {
+                        throw new ArgumentParsingException(cmd, i, "Unfinished backtick");
+                    } else if (chr == '\\') {
+                        state = ParserState.IN_BACKTICK_ESCAPE;
+                    } else if (chr == '`') {
+                        if (next_char != null && next_char != ' ') {
+                            throw new ArgumentParsingException(cmd, i, "Backtick cannot stop here");
+                        }
+                        cmdList.add(tmp);
+                        tmp = "";
+                        state = ParserState.EXPECT_ARG;
+                    } else {
+                        tmp += chr;
+                    }
+                }
+                case IN_BACKTICK_ESCAPE -> {
+                    if (chr == null) {
+                        throw new ArgumentParsingException(cmd, i, "Unfinished escape");
+                    } else if (chr == '\\' || chr == '`') {
+                        tmp += chr;
+                        state = ParserState.IN_BACKTICK;
+                    } else {
+                        throw new ArgumentParsingException(cmd, i, "Invalid escape char in backtick block");
+                    }
+                }
+                case IN_QUOTE -> {
+                    if (chr == null) {
+                        throw new ArgumentParsingException(cmd, i, "Unfinished double quote");
+                    } else if (chr == '\\') {
+                        state = ParserState.IN_QUOTE_ESCAPE;
+                    } else if (chr == '"') {
+                        if (next_char != null && next_char != ' ') {
+                            throw new ArgumentParsingException(cmd, i, "Double quote cannot stop here");
+                        }
+                        cmdList.add(tmp);
+                        tmp = "";
+                        state = ParserState.EXPECT_ARG;
+                    } else {
+                        tmp += chr;
+                    }
+                }
+                case IN_QUOTE_ESCAPE -> {
+                    if (chr == null) {
+                        throw new ArgumentParsingException(cmd, i, "Unfinished escape");
+                    } else if (chr == '\\' || chr == '"') {
+                        tmp += chr;
+                        state = ParserState.IN_QUOTE;
+                    } else {
+                        throw new ArgumentParsingException(cmd, i, "Invalid escape char in double quote block");
+                    }
+                }
             }
         }
-        if (tmp.length() > 0) cmdList.add(tmp);
-        if (escape || quote) return null;
 
         Arguments ret = new Arguments(sender);
         ret.parsedArguments = cmdList;
@@ -162,11 +245,11 @@ public class Arguments {
         }
     }
 
-    public Integer nextInt(Integer defaultVal){
+    public Integer nextInt(Integer defaultVal) {
         int curIndex = index;
-        try{
+        try {
             return nextInt();
-        }catch (Throwable e){
+        } catch (Throwable e) {
             index = curIndex;
             return defaultVal;
         }
@@ -183,11 +266,11 @@ public class Arguments {
         }
     }
 
-    public Long nextLong(Long defaultVal){
+    public Long nextLong(Long defaultVal) {
         int curIndex = index;
-        try{
+        try {
             return nextLong();
-        }catch (Throwable e){
+        } catch (Throwable e) {
             index = curIndex;
             return defaultVal;
         }
@@ -206,11 +289,11 @@ public class Arguments {
         }
     }
 
-    public Double nextDouble(Double defaultVal){
+    public Double nextDouble(Double defaultVal) {
         int curIndex = index;
-        try{
+        try {
             return nextDouble();
-        }catch (Throwable e){
+        } catch (Throwable e) {
             index = curIndex;
             return defaultVal;
         }
@@ -223,11 +306,11 @@ public class Arguments {
         return str;
     }
 
-    public String nextString(String defaultVal){
+    public String nextString(String defaultVal) {
         int curIndex = index;
-        try{
+        try {
             return nextString();
-        }catch (Throwable e){
+        } catch (Throwable e) {
             index = curIndex;
             return defaultVal;
         }
@@ -248,11 +331,11 @@ public class Arguments {
         }
     }
 
-    public Double nextDouble(String pattern, Double defaultVal){
+    public Double nextDouble(String pattern, Double defaultVal) {
         int curIndex = index;
-        try{
+        try {
             return nextDouble(pattern);
-        }catch (Throwable e){
+        } catch (Throwable e) {
             index = curIndex;
             return defaultVal;
         }
@@ -264,11 +347,11 @@ public class Arguments {
         return parseEnum(cls, str);
     }
 
-    public <T extends Enum<T>> T nextEnum(Class<T> cls, T defaultVal){
+    public <T extends Enum<T>> T nextEnum(Class<T> cls, T defaultVal) {
         int curIndex = index;
-        try{
+        try {
             return nextEnum(cls);
-        }catch (Throwable e){
+        } catch (Throwable e) {
             index = curIndex;
             return defaultVal;
         }
@@ -280,11 +363,11 @@ public class Arguments {
         return Boolean.parseBoolean(str);
     }
 
-    public Boolean nextBoolean(Boolean defaultVal){
+    public Boolean nextBoolean(Boolean defaultVal) {
         int curIndex = index;
-        try{
+        try {
             return nextBoolean();
-        }catch (Throwable e){
+        } catch (Throwable e) {
             index = curIndex;
             return defaultVal;
         }
@@ -316,11 +399,11 @@ public class Arguments {
         return p;
     }
 
-    public Player nextPlayer(Player defaultVal){
+    public Player nextPlayer(Player defaultVal) {
         int curIndex = index;
-        try{
+        try {
             return nextPlayer();
-        }catch (Throwable e){
+        } catch (Throwable e) {
             index = curIndex;
             return defaultVal;
         }
@@ -363,11 +446,11 @@ public class Arguments {
         return p;
     }
 
-    public Entity nextEntity(Entity defaultVal){
+    public Entity nextEntity(Entity defaultVal) {
         int curIndex = index;
-        try{
+        try {
             return nextEntity();
-        }catch (Throwable e){
+        } catch (Throwable e) {
             index = curIndex;
             return defaultVal;
         }
@@ -401,9 +484,6 @@ public class Arguments {
         return this;
     }
 
-    // Note: all `arg*()` functions will rearrange argument order
-    // and mess up indexes. Thus, it's not recommended to use together with `at()` function
-
     /**
      * fetch an named argument from remaining list
      * if multiple arguments, the first one will be returned
@@ -428,6 +508,9 @@ public class Arguments {
         index++;
         return value;
     }
+
+    // Note: all `arg*()` functions will rearrange argument order
+    // and mess up indexes. Thus, it's not recommended to use together with `at()` function
 
     /**
      * get named argument as string
@@ -477,5 +560,15 @@ public class Arguments {
 
     public int length() {
         return parsedArguments.size();
+    }
+
+    private enum ParserState {
+        EXPECT_ARG,
+        IN_UNQUOTE_BEFORE_COLON,
+        IN_UNQUOTE_AFTER_COLON,
+        IN_BACKTICK,
+        IN_BACKTICK_ESCAPE,
+        IN_QUOTE,
+        IN_QUOTE_ESCAPE
     }
 }

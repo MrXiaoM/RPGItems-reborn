@@ -147,7 +147,7 @@ public class Translocator extends BasePower {
             return Translocator.this;
         }
 
-        @SuppressWarnings("deprecation")
+        @SuppressWarnings({"deprecation"})
         @Override
         public PowerResult<Boolean> swapToOffhand(Player player, ItemStack stack, PlayerSwapHandItemsEvent event) {
             if (!checkCooldown(getPower(), player, 0, true, true)) return PowerResult.ok(false);
@@ -155,7 +155,8 @@ public class Translocator extends BasePower {
             SpectralArrow arrow = player.launchProjectile(SpectralArrow.class, player.getLocation().getDirection().multiply(getSpeed()));
             arrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
             arrow.setPersistent(false);
-            arrow.setBounce(true);
+            // `bounce` does not do anything
+            // arrow.setBounce(true);
             arrow.setSilent(true);
             arrow.setInvulnerable(true);
             translocatorPlayerMap.put(arrow.getUniqueId(), player.getUniqueId());

@@ -5,6 +5,7 @@ plugins {
     id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
     id 'com.github.johnrengelman.shadow' version '5.1.0'
     id 'org.ajoberstar.grgit' version '3.0.0'
+    id 'io.papermc.paperweight.userdev' version '1.3.9'
 }
 
 
@@ -48,10 +49,10 @@ if (!mainBranch) {
     mavenVersion = releasing ? version : "$majorVersion.$minorVersion$branchAddon-SNAPSHOT"
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 17
+targetCompatibility = 17
 
-configurations.all {
+configurations.configureEach {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
@@ -59,14 +60,12 @@ repositories {
     // mavenLocal()
     jcenter()
     mavenCentral()
-    maven { url "https://mvn.lumine.io/repository/maven-public/" }
     maven { name 'NyaaCat'; url 'https://ci.nyaacat.com/maven/' }
     maven { name 'Aikar'; url 'https://repo.aikar.co/content/groups/aikar/' }
     maven { name 'Spigot'; url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { name 'Sonatype'; url 'https://oss.sonatype.org/content/groups/public' }
-    maven { name 'sk89q'; url 'https://maven.sk89q.com/artifactory/repo/' }
+    maven { name "papermc"; url "https://papermc.io/repo/repository/maven-public/" }
     maven { name 'vault-repo'; url 'https://jitpack.io' }
-    maven { name 'aikar';     url 'https://repo.aikar.co/content/groups/aikar/' }
 }
 
 shadowJar {
@@ -74,8 +73,8 @@ shadowJar {
 }
 
 dependencies {
-    api "org.spigotmc:spigot-api:$minecraftVersion-R0.1-SNAPSHOT"
-    api "org.spigotmc:spigot:$minecraftVersion-R0.1-SNAPSHOT" // lumine
+    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:$minecraftVersion-R0.1-SNAPSHOT")
+
     compileOnly "cat.nyaa:nyaautils:8.0-SNAPSHOT"
 
     compileOnly 'io.netty:netty-all:4.1.25.Final' // netty is shadowed inside spigot jar
@@ -87,12 +86,15 @@ dependencies {
     shadow 'com.udojava:EvalEx:2.1'
     api 'co.aikar:taskchain-bukkit:3.7.2'
     shadow "co.aikar:taskchain-bukkit:3.7.2"
+    api 'commons-lang:commons-lang:2.6'
+    shadow 'commons-lang:commons-lang:2.6'
 
     implementation('com.sk89q.worldguard:worldguard-core:7.0.4-SNAPSHOT')
     implementation('com.sk89q.worldguard:worldguard-bukkit:7.0.4-SNAPSHOT') {
         exclude group: 'io.papermc', module: 'paperlib'
         exclude group: 'org.bstats', module: 'bstats-bukkit'
         exclude group: 'org.bukkit', module: 'bukkit'
+        exclude group: 'org.spigotmc', module: 'spigot-api'
     }
     compileOnly('com.meowj:LangUtils:2.4-SNAPSHOT')
     compileOnly('net.milkbowl.vault:VaultAPI:1.7') { transitive = false }  // soft dep
@@ -114,6 +116,10 @@ tasks.withType(ProcessResources) {
         filter(ReplaceTokens, tokens: ['GIT_BRANCH': branch, 'GIT_HASH': commitHash], beginToken: '{', endToken: '}')
         include 'lang/'
     }
+}
+
+reobfJar{
+    outputJar.set(layout.buildDirectory.file("libs/${archivesBaseName}-mc${minecraftVersion}-${project.version}.jar"))
 }
 
 jar {

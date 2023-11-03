@@ -1,2 +1,9 @@
-include 'generator'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url "https://repo.papermc.io/repository/maven-public/" }
+    }
+}
 
+rootProject.name = "RPGItems-reloaded"
+include 'generator'

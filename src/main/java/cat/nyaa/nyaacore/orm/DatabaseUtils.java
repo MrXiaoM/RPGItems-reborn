@@ -2,7 +2,6 @@ package cat.nyaa.nyaacore.orm;
 
 import cat.nyaa.nyaacore.orm.backends.BackendConfig;
 import cat.nyaa.nyaacore.orm.backends.IConnectedDatabase;
-import cat.nyaa.nyaacore.orm.backends.MysqlDatabase;
 import cat.nyaa.nyaacore.orm.backends.SQLiteDatabase;
 import org.bukkit.plugin.Plugin;
 
@@ -20,7 +19,7 @@ public class DatabaseUtils {
         if ("sqlite".equalsIgnoreCase(cfg.provider)) {
             return new SQLiteDatabase(newJdbcConnection(plugin, cfg));
         } else if ("mysql".equalsIgnoreCase(cfg.provider)) {
-            return new MysqlDatabase(newJdbcConnection(plugin, cfg));
+            throw new RuntimeException("NyaaCore ORM MySQL backend is not implemented");
         } else {
             throw new IllegalArgumentException("Invalid provider: " + cfg.provider);
         }

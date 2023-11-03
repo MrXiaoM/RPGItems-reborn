@@ -1,10 +1,10 @@
 package cat.nyaa.nyaacore.utils;
 
-import net.minecraft.server.v1_16_R3.Vec3D;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -37,8 +37,8 @@ public class RayTraceUtils {
         Vector end = start.clone().add(player.getEyeLocation().getDirection().multiply(distance));
         for (Entity e : player.getWorld().getNearbyEntities(player.getEyeLocation(), distance, distance, distance, predicate)) {
             if (e instanceof LivingEntity && e instanceof CraftEntity && e.isValid()) {
-                net.minecraft.server.v1_16_R3.Entity nmsEntity = ((CraftEntity) e).getHandle();
-                Optional<Vec3D> hit = nmsEntity.getBoundingBox().b(toVec3DInternal(start), toVec3DInternal(end));
+                net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) e).getHandle();
+                Optional<Vec3> hit = nmsEntity.getBoundingBox().clip(toVec3DInternal(start), toVec3DInternal(end));
                 if (hit.isPresent()) {
                     result.add((LivingEntity) e);
                 }
@@ -51,8 +51,8 @@ public class RayTraceUtils {
         return toVec3DInternal(v);
     }
 
-    private static Vec3D toVec3DInternal(Vector v) {
-        return new Vec3D(v.getX(), v.getY(), v.getZ());
+    private static Vec3 toVec3DInternal(Vector v) {
+        return new Vec3(v.getX(), v.getY(), v.getZ());
     }
 
     public static Predicate<Entity> isAPlayer() {
@@ -94,7 +94,7 @@ public class RayTraceUtils {
     public static Entity getTargetEntity(LivingEntity entity, float maxDistance) {
         RayTraceResult r = entity.getWorld().rayTraceEntities(entity.getEyeLocation(), entity.getEyeLocation().getDirection(), maxDistance,
                 e -> e != null &&
-                        (e instanceof LivingEntity || e.getType() == EntityType.ITEM_FRAME) &&
+                        (e instanceof LivingEntity || e.getType() == EntityType.ITEM_FRAME || e.getType() == EntityType.GLOW_ITEM_FRAME) &&
                         !(e instanceof LivingEntity && !((LivingEntity) e).isCollidable()) &&
                         e.getUniqueId() != entity.getUniqueId() &&
                         !(e instanceof Player && ((Player) e).getGameMode() == GameMode.SPECTATOR));

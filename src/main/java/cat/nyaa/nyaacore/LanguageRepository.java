@@ -1,26 +1,24 @@
 package cat.nyaa.nyaacore;
 
 import cat.nyaa.nyaacore.utils.HexColorUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
-import think.rpgitems.RPGItems;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.IllegalFormatConversionException;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * To be extended by each plugin
  * So plugins share the internal language section while maintaining their own sections
  * <p>
  * When NyaaCore loading:
- * Every language available in {@link LanguageRepository#AVAILABLE_INTERNAL_LANGUAGES} is loaded into internalMap
+ * Every language available in LanguageRepository#AVAILABLE_INTERNAL_LANGUAGES is loaded into internalMap
  * And only the internal section is loaded. Then the internalMap remains unchanged unless restart server.
  * When plugin loading:
  * 0. Clear map. So that loading is also reloading
@@ -35,72 +33,40 @@ import java.util.Map;
  * 2. Look up in internalMap of given language
  * 3. Look up in internalMap of DEFAULT_LANGUAGE
  * 4. Report a missing key
- * <p>
- * Use -Dnyaautils.i18n.refreshLangFiles=true to force loading languages from jar.
  */
 public abstract class LanguageRepository implements ILocalizer {
     /**
-     * Use English as default &amp; fallback language
+     * Use English as fallback language
      */
     public static final String DEFAULT_LANGUAGE = "en_US";
-    public static final String[] AVAILABLE_INTERNAL_LANGUAGES = {"en_US", "zh_CN"};
-    /**
-     * Internal language map is loaded and should only be loaded by {@link NyaaCoreLoader#onLoad()}
-     * Once it's loaded, it cannot be reloaded or modified.
-     * The internal map will be shared across all plugins using {@link LanguageRepository}
-     */
-    private final static Map<String, Map<String, String>> internalMap = new HashMap<>();
-    private static RPGItems corePlugin = null;
     /**
      * Per-plugin language map used by {@link LanguageRepository}
-     * This map has a higher priority than {@link this#internalMap}
      * So it's possible to overwrite some internal language keys here.
+     * Map[languageTag, Map[key, value]]
      */
-    private final Map<String, String> map = new HashMap<>();
+    private final Map<String, Map<String, String>> map = new HashMap<>();
+
+    public static Set<String> getAllLanguages() {
+        return Arrays.stream(Locale.getAvailableLocales()).map(Locale::toLanguageTag).map(s -> s.replace('-', '_')).collect(Collectors.toSet());
+    }
 
     // helper function to load language map
-    private static void loadResourceMap(Plugin plugin, String codeName,
-                                        Map<String, String> targetMap, boolean ignoreInternal, boolean ignoreNormal) {
-        if (plugin == null || codeName == null || targetMap == null) throw new IllegalArgumentException();
-        InputStream stream = plugin.getResource("lang/" + codeName + ".yml");
+    private static void loadResourceMap(Plugin plugin, String langTag, Map<String, String> targetMap) {
+        if (plugin == null || langTag == null || targetMap == null) throw new IllegalArgumentException();
+        InputStream stream = plugin.getResource("lang/" + langTag + ".yml");
         if (stream != null) {
             YamlConfiguration section = YamlConfiguration.loadConfiguration(new InputStreamReader(stream, StandardCharsets.UTF_8));
-            loadLanguageSection(targetMap, section, "", ignoreInternal, ignoreNormal);
+            loadLanguageSection(targetMap, section, "");
         }
     }
 
     // helper function to load language map
-    private static void loadLocalMap(Plugin plugin, String codeName,
-                                     Map<String, String> targetMap, boolean ignoreInternal, boolean ignoreNormal) {
+    private static void loadLocalMap(Plugin plugin, String codeName, Map<String, String> targetMap) {
         if (plugin == null || codeName == null || targetMap == null) throw new IllegalArgumentException();
-        if (Boolean.parseBoolean(System.getProperty("nyaautils.i18n.refreshLangFiles", "false"))) return;
         File langFile = new File(plugin.getDataFolder(), codeName + ".yml");
         if (langFile.exists() && langFile.isFile()) {
             YamlConfiguration section = YamlConfiguration.loadConfiguration(langFile);
-            loadLanguageSection(targetMap, section, "", ignoreInternal, ignoreNormal);
-        }
-    }
-
-    /**
-     * Load the internal map
-     * should only be called once from {@link NyaaCoreLoader#onLoad()}
-     *
-     * @param plugin the NyaaCore plugin
-     */
-    public static void initInternalMap(RPGItems plugin) {
-        if (internalMap.size() != 0 || corePlugin != null) {
-            plugin.getLogger().warning("Multiple internalMap initiation");
-            return;
-        }
-        corePlugin = plugin;
-        for (String codeName : AVAILABLE_INTERNAL_LANGUAGES) {
-            Map<String, String> map = new HashMap<>();
-            internalMap.put(codeName, map);
-            loadResourceMap(plugin, DEFAULT_LANGUAGE, map, false, true);
-            loadLocalMap(plugin, DEFAULT_LANGUAGE, map, false, true);
-            loadResourceMap(plugin, codeName, map, false, true);
-            loadLocalMap(plugin, codeName, map, false, true);
-            plugin.getLogger().info(String.format("NyaaCore internalMap loaded: %s", codeName));
+            loadLanguageSection(targetMap, section, "");
         }
     }
 
@@ -109,26 +75,17 @@ public abstract class LanguageRepository implements ILocalizer {
      * overwrite existing items
      * The '&' will be transformed to color code.
      *
-     * @param section        source section
-     * @param prefix         used in recursion to determine the proper prefix
-     * @param ignoreInternal ignore keys prefixed with `internal'
-     * @param ignoreNormal   ignore keys not prefixed with `internal'
+     * @param section source section
+     * @param prefix  used in recursion to determine the proper prefix
      */
-    private static void loadLanguageSection(Map<String, String> map, ConfigurationSection section, String prefix, boolean ignoreInternal, boolean ignoreNormal) {
+    private static void loadLanguageSection(Map<String, String> map, ConfigurationSection section, String prefix) {
         if (map == null || section == null || prefix == null) return;
         for (String key : section.getKeys(false)) {
             String path = prefix + key;
             if (section.isString(key)) {
-                if (path.startsWith("internal") && ignoreInternal) continue;
-                if (!path.startsWith("internal") && ignoreNormal) continue;
                 map.put(path, HexColorUtils.hexColored(section.getString(key)));
-            } else if (section.isList(key)) {
-                if (path.startsWith("internal") && ignoreInternal) continue;
-                if (!path.startsWith("internal") && ignoreNormal) continue;
-                String s = String.join("\n&r", section.getStringList(key));
-                map.put(path, HexColorUtils.hexColored(s));
             } else if (section.isConfigurationSection(key)) {
-                loadLanguageSection(map, section.getConfigurationSection(key), path + ".", ignoreInternal, ignoreNormal);
+                loadLanguageSection(map, section.getConfigurationSection(key), path + ".");
             }
         }
     }
@@ -144,6 +101,7 @@ public abstract class LanguageRepository implements ILocalizer {
     /**
      * @return the language to be loaded into {@link #map}
      */
+    @Deprecated
     protected abstract String getLanguage();
 
     /**
@@ -151,34 +109,39 @@ public abstract class LanguageRepository implements ILocalizer {
      * Based on {@link #getPlugin()} and {@link #getLanguage()}
      */
     public void load() {
-        String codeName = getLanguage();
-        Plugin plugin = getPlugin();
-        if (codeName == null) codeName = DEFAULT_LANGUAGE;
-        map.clear();
-        // load languages
-        loadResourceMap(corePlugin, DEFAULT_LANGUAGE, map, true, false);
-        loadLocalMap(corePlugin, DEFAULT_LANGUAGE, map, true, false);
-        loadResourceMap(corePlugin, codeName, map, true, false);
-        loadLocalMap(corePlugin, codeName, map, true, false);
-
-        loadResourceMap(getPlugin(), DEFAULT_LANGUAGE, map, false, false);
-        loadLocalMap(getPlugin(), DEFAULT_LANGUAGE, map, false, false);
-        loadResourceMap(getPlugin(), codeName, map, false, false);
-        loadLocalMap(getPlugin(), codeName, map, false, false);
-
-        // save (probably) modified language file back to disk
-        File localLangFile = new File(plugin.getDataFolder(), codeName + ".yml");
-        try {
-            YamlConfiguration yaml = new YamlConfiguration();
-            for (String key : map.keySet()) {
-                yaml.set(key, map.get(key));
+        this.map.clear();
+        for (String langTag : getAllLanguages()) {
+            Map<String, String> map = new HashMap<>();
+            if (NyaaCoreLoader.getInstance() != null) {
+                loadResourceMap(NyaaCoreLoader.getPlugin(), langTag, map);
+                loadLocalMap(NyaaCoreLoader.getPlugin(), langTag, map);
             }
-            yaml.save(localLangFile);
-        } catch (IOException ex) {
-            plugin.getLogger().warning("Cannot save language file: " + codeName + ".yml");
+            if (getPlugin() != null) {
+                loadResourceMap(getPlugin(), langTag, map);
+                loadLocalMap(getPlugin(), langTag, map);
+            }
+            if (!map.isEmpty()) {
+                Bukkit.getConsoleSender().sendMessage(String.format("Loaded language: %s, %d entries.", langTag, map.size()));
+                this.map.put(langTag, map);
+            }
         }
+    }
 
-        plugin.getLogger().info(getFormatted("internal.info.using_language", codeName));
+    /**
+     * Get raw value of the language key. Fallback if possible.
+     * Return NULL if not found.
+     */
+    private String getRaw(String key) {
+        String val = null;
+        if (map.containsKey(getLanguage())) {
+            val = map.get(getLanguage()).get(key);
+        }
+        if (val == null) {
+            if (map.containsKey(DEFAULT_LANGUAGE)) {
+                val = map.get(DEFAULT_LANGUAGE).get(key);
+            }
+        }
+        return val;
     }
 
     /**
@@ -186,13 +149,7 @@ public abstract class LanguageRepository implements ILocalizer {
      */
     @Override
     public String getFormatted(String key, Object... para) {
-        String val = map.get(key);
-        if (val == null && key.startsWith("internal.") && internalMap.containsKey(getLanguage())) {
-            val = internalMap.get(getLanguage()).get(key);
-        }
-        if (val == null && key.startsWith("internal.")) {
-            val = internalMap.get(DEFAULT_LANGUAGE).get(key);
-        }
+        String val = getRaw(key);
         if (val == null) {
             getPlugin().getLogger().warning("Missing language key: " + key);
             StringBuilder keyBuilder = new StringBuilder("MISSING_LANG<" + key + ">");
@@ -244,13 +201,7 @@ public abstract class LanguageRepository implements ILocalizer {
      * @return substituted language item
      */
     public String getSubstituted(String key, Map<?, ?> paraMap) {
-        String val = map.get(key);
-        if (val == null && key.startsWith("internal.") && internalMap.containsKey(getLanguage())) {
-            val = internalMap.get(getLanguage()).get(key);
-        }
-        if (val == null && key.startsWith("internal.")) {
-            val = internalMap.get(DEFAULT_LANGUAGE).get(key);
-        }
+        String val = getRaw(key);
         if (val == null) {
             getPlugin().getLogger().warning("Missing language key: " + key);
             StringBuilder keyBuilder = new StringBuilder("MISSING_LANG<" + key + ">");
@@ -268,28 +219,24 @@ public abstract class LanguageRepository implements ILocalizer {
 
     @Override
     public boolean hasKey(String key) {
-        if (map.containsKey(key) || internalMap.get(DEFAULT_LANGUAGE).containsKey(key)) return true;
-        return internalMap.containsKey(getLanguage()) && internalMap.get(getLanguage()).containsKey(key);
+        return getRaw(key) != null;
     }
 
     public static class InternalOnlyRepository extends LanguageRepository {
-
-        private final Plugin plugin;
         private final String lang;
 
-        public InternalOnlyRepository(Plugin plugin, String lang) {
-            this.plugin = plugin;
+        public InternalOnlyRepository(String lang) {
             this.lang = lang;
+            load();
         }
 
         public InternalOnlyRepository(Plugin plugin) {
-            this.plugin = plugin;
             this.lang = DEFAULT_LANGUAGE;
         }
 
         @Override
         protected Plugin getPlugin() {
-            return plugin;
+            return null;
         }
 
         @Override
@@ -307,6 +254,12 @@ public abstract class LanguageRepository implements ILocalizer {
         public boolean hasKey(String key) {
             if (!key.startsWith("internal.")) return false;
             return super.hasKey(key);
+        }
+
+        @Override
+        public String getSubstituted(String key, Map<?, ?> paraMap) {
+            if (!key.startsWith("internal.")) throw new IllegalArgumentException("Not an internal language key");
+            return super.getSubstituted(key, paraMap);
         }
     }
 }

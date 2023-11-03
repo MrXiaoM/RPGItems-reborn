@@ -212,7 +212,7 @@ public class ItemManager {
             }
 
             if (sender == null || sender instanceof ConsoleCommandSender) {
-                Bukkit.getOperators().forEach(message::send);
+                Bukkit.getOperators().forEach(message::sendTo);
             }
         }
         return false;

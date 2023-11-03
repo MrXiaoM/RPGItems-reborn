@@ -1,7 +1,5 @@
 package cat.nyaa.nyaacore;
 
-import cat.nyaa.nyaacore.component.IMessageQueue;
-import cat.nyaa.nyaacore.component.NyaaComponent;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import cat.nyaa.nyaacore.utils.LocaleUtils;
 import net.md_5.bungee.api.ChatMessageType;
@@ -41,44 +39,53 @@ public class Message {
 
     public static String getItemJsonStripped(ItemStack item) {
         ItemStack cloned = item.clone();
-        if (cloned.hasItemMeta() && cloned.getItemMeta() instanceof BookMeta) {
-            return ItemStackUtils.itemToJson(removeBookContent(cloned));
-        }
-        if (cloned.hasItemMeta() && cloned.getItemMeta() instanceof BlockStateMeta) {
-            BlockStateMeta blockStateMeta = (BlockStateMeta) cloned.getItemMeta();
-            if (blockStateMeta.hasBlockState() && blockStateMeta.getBlockState() instanceof InventoryHolder) {
-                InventoryHolder inventoryHolder = (InventoryHolder) blockStateMeta.getBlockState();
-                ArrayList<ItemStack> items = new ArrayList<>();
-                for (int i = 0; i < inventoryHolder.getInventory().getSize(); i++) {
-                    ItemStack itemStack = inventoryHolder.getInventory().getItem(i);
-                    if (itemStack != null && itemStack.getType() != Material.AIR) {
-                        if (items.size() < 5) {
-                            if (itemStack.hasItemMeta()) {
-                                if (itemStack.getItemMeta().hasLore()) {
-                                    ItemMeta meta = itemStack.getItemMeta();
-                                    meta.setLore(new ArrayList<>());
-                                    itemStack.setItemMeta(meta);
-                                }
-                                if (itemStack.getItemMeta() instanceof BookMeta) {
-                                    itemStack = removeBookContent(itemStack);
-                                }
-                            }
-                            items.add(itemStack);
-                        } else {
-                            items.add(new ItemStack(Material.STONE));
-                        }
-                    }
-                }
-                inventoryHolder.getInventory().clear();
-                for (int i = 0; i < items.size(); i++) {
-                    inventoryHolder.getInventory().setItem(i, items.get(i));
-                }
-                blockStateMeta.setBlockState((BlockState) inventoryHolder);
-                cloned.setItemMeta(blockStateMeta);
-                return ItemStackUtils.itemToJson(cloned);
+        if (cloned.hasItemMeta()) {
+            var meta = cloned.getItemMeta();
+            if(meta instanceof BookMeta) {
+                return ItemStackUtils.itemToJson(removeBookContent(cloned));
+            }
+            if (meta != null) {
+                cloned.setItemMeta(filterItemMeta(meta));
             }
         }
         return ItemStackUtils.itemToJson(cloned);
+    }
+
+
+    public static ItemMeta filterItemMeta(ItemMeta itemMeta) {
+        var cloned = itemMeta.clone();
+        if(!(cloned instanceof BlockStateMeta blockStateMeta))return cloned;
+        if(!(blockStateMeta.getBlockState() instanceof InventoryHolder inventoryHolder))return cloned;
+        ArrayList<ItemStack> items = new ArrayList<>();
+
+        for (int i = 0; i < inventoryHolder.getInventory().getSize(); i++) {
+            ItemStack itemStack = inventoryHolder.getInventory().getItem(i);
+            if (itemStack != null && itemStack.getType() != Material.AIR) {
+                if (items.size() < 5) {
+                    if (itemStack.hasItemMeta()) {
+                        if (itemStack.getItemMeta().hasLore()) {
+                            ItemMeta meta = itemStack.getItemMeta();
+                            meta.setLore(new ArrayList<>());
+                            itemStack.setItemMeta(meta);
+                        }
+                        if (itemStack.getItemMeta() instanceof BookMeta) {
+                            itemStack = removeBookContent(itemStack);
+                        }
+                    }
+                    items.add(itemStack);
+                } else {
+                    items.add(new ItemStack(Material.STONE));
+                }
+            }
+        }
+
+        inventoryHolder.getInventory().clear();
+        for (int i = 0; i < items.size(); i++) {
+            inventoryHolder.getInventory().setItem(i, items.get(i));
+        }
+        blockStateMeta.setBlockState((BlockState) inventoryHolder);
+        return blockStateMeta;
+
     }
 
     /**
@@ -137,7 +144,7 @@ public class Message {
         for (int i = 0; i < items.length; i++) {
             ItemStack clone = items[i].clone();
             boolean hasCustomName = clone.hasItemMeta() && clone.getItemMeta().hasDisplayName();
-            BaseComponent cmp = hasCustomName ? new TextComponent(clone.getItemMeta().getDisplayName()) : LocaleUtils.getNameComponent(clone);
+            BaseComponent cmp = hasCustomName ? new TextComponent(TextComponent.fromLegacyText(clone.getItemMeta().getDisplayName())) : LocaleUtils.getNameComponent(clone);
             cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new BaseComponent[]{new TextComponent(getItemJsonStripped(clone))}));
             varMap.put(String.format("{amount:%d}", i), new TextComponent(Integer.toString(clone.getAmount())));
             varMap.put(String.format("{itemName:%d}", i), cmp);
@@ -182,41 +189,17 @@ public class Message {
         return this;
     }
 
+    public void sendTo(OfflinePlayer p) {
+        if (p instanceof Player) {
+            send((Player) p);
+        }
+    }
+
     public Message send(CommandSender p) {
         if (p instanceof Player) {
             return send((Player) p);
         } else {
             p.sendMessage(this.inner.toLegacyText());
-            return this;
-        }
-    }
-
-    /**
-     * Send this to an player. If he's offline, add this to his message queue.
-     *
-     * @param p recipient
-     * @return this
-     */
-    public Message send(OfflinePlayer p) {
-        if (p.isOnline()) {
-            return send(p.getPlayer(), false);
-        } else {
-            return send(p, true);
-        }
-    }
-
-    /**
-     * @param p              recipient
-     * @param queuedIfOnline whether to add this to message queue if player is online
-     * @return this
-     */
-    public Message send(OfflinePlayer p, boolean queuedIfOnline) {
-        if (queuedIfOnline || !p.isOnline()) {
-            NyaaComponent.get(IMessageQueue.class).send(p, this);
-        }
-        if (p.isOnline()) {
-            return send(p.getPlayer());
-        } else {
             return this;
         }
     }

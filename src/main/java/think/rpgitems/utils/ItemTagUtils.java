@@ -12,10 +12,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 import think.rpgitems.RPGItems;
 import think.rpgitems.power.PowerManager;
 import think.rpgitems.power.Utils;
 
+import java.io.IOException;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -378,6 +380,21 @@ public final class ItemTagUtils {
         @Override
         public PersistentDataAdapterContext getAdapterContext() {
             return self.getAdapterContext();
+        }
+
+        @Override
+        public boolean has(@NotNull NamespacedKey key) {
+            return self.has(key);
+        }
+
+        @Override
+        public byte @NotNull [] serializeToBytes() throws IOException {
+            return self.serializeToBytes();
+        }
+
+        @Override
+        public void readFromBytes(byte @NotNull [] bytes, boolean clear) throws IOException {
+            self.readFromBytes(bytes, clear);
         }
 
         public void commit() {

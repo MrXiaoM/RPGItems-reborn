@@ -2,7 +2,7 @@
 
 The RPGItems2 plugin continued from [TheCreeperOfRedstone/RPG-Items-2](https://github.com/TheCreeperOfRedstone/RPG-Items-2)
 
-LangUtils is needed and no longer need to install NyaaCore.
+[LangUtils 2.7.x](https://ci.nyaacat.com/maven/com/meowj/LangUtils/2.7-SNAPSHOT/) is needed and no longer need to install NyaaCore.
 
 ## Fork
 
@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'top.mrxiaom:rpgitems:3.11.6:all'
+    implementation 'top.mrxiaom:rpgitems:3.12.0:all'
 }
 
 ```
@@ -39,11 +39,13 @@ class MyEventListener implements Listener {
 
 * LoreUpdateEvent
 * LoreUpdateEvent.Post (aim at edit NBT)
+* ItemsLoadedEvent
 * Gradient color support
 * More friendly and developer comfortably help command
 * More friendly Chinese translation with color
 * Read-only mode
 * BungeeCord notice read-only server to reload
+* Register sub-command into `/rpgitem`
 
 ## Accessible
 

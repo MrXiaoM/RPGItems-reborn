@@ -61,7 +61,7 @@ public enum Preset {
                     .map(Enum::name).collect(Collectors.toList());
             case ENCHANTMENT ->
                     Arrays.stream(Enchantment.values()).map(e -> e.getKey().toString()).collect(Collectors.toList());
-            case NONE, default -> throw new IllegalStateException();
+            case NONE -> throw new IllegalStateException();
         };
     }
 

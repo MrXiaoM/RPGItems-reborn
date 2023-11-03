@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'top.mrxiaom:rpgitems:3.12HEAD-0:dev-all'
+    implementation 'top.mrxiaom:rpgitems:3.12.0:all'
 }
 
 ```

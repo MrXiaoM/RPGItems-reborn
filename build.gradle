@@ -25,11 +25,12 @@ Commit commit = repo.head()
 String commitHash = commit.abbreviatedId
 
 String branch = System.getenv("BRANCH_NAME") == null ? repo.branch.current().name      : System.getenv("BRANCH_NAME")
-String buildNumber = findProperty("BUILD_NUMBER") == null ? commitHash.substring(0,6) : findProperty("BUILD_NUMBER")
-String jdDirectory = System.getenv("JAVADOCS_DIR") == null ? null                      : System.getenv("JAVADOCS_DIR")
 
 boolean mainBranch = minecraftMajorVersion == branch
 boolean releasing = commit.shortMessage.contains("[release]")
+
+String buildNumber = findProperty("BUILD_NUMBER") == null ? (releasing ? '0' : commitHash.substring(0,6)) : findProperty("BUILD_NUMBER")
+String jdDirectory = System.getenv("JAVADOCS_DIR") == null ? null                      : System.getenv("JAVADOCS_DIR")
 
 group = 'top.mrxiaom'
 archivesBaseName = "RPGItems-reloaded-mc$minecraftVersion"
@@ -37,17 +38,15 @@ version = "$majorVersion.$minorVersion.$buildNumber"
 
 String mavenVersion = releasing ? version : "$majorVersion.$minorVersion-SNAPSHOT"
 
-println("version: $version")
-println("isReleasing: $releasing")
-if (!releasing) {
-    println("mavenVersion: $mavenVersion")
-}
-
 if (!mainBranch) {
     String branchAddon = branch.replace(minecraftMajorVersion, "")
-    version = "$majorVersion.$minorVersion$branchAddon-$buildNumber"
+    version = "$majorVersion.$minorVersion$branchAddon.$buildNumber"
     mavenVersion = releasing ? version : "$majorVersion.$minorVersion$branchAddon-SNAPSHOT"
 }
+
+println("version: $version")
+println("isReleasing: $releasing")
+println("mavenVersion: $mavenVersion")
 
 sourceCompatibility = 17
 targetCompatibility = 17
@@ -66,10 +65,6 @@ repositories {
     maven { name 'Sonatype'; url 'https://oss.sonatype.org/content/groups/public' }
     maven { name "papermc"; url "https://papermc.io/repo/repository/maven-public/" }
     maven { name 'vault-repo'; url 'https://jitpack.io' }
-}
-
-shadowJar {
-    configurations = [project.configurations.shadow]
 }
 
 dependencies {
@@ -106,7 +101,7 @@ dependencies {
     }
 }
 
-tasks.withType(ProcessResources) {
+tasks.withType(ProcessResources).configureEach {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     from(sourceSets.main.resources.srcDirs) {
         expand('version': project.version)
@@ -118,17 +113,18 @@ tasks.withType(ProcessResources) {
     }
 }
 
-reobfJar{
-    outputJar.set(layout.buildDirectory.file("libs/${archivesBaseName}-mc${minecraftVersion}-${project.version}.jar"))
+reobfJar {
+    outputJar.set(layout.buildDirectory.file("libs/${archivesBaseName}-${project.version}-all.jar"))
 }
 
 jar {
     archiveClassifier.set('core')
-    dependsOn shadowJar
+    dependsOn reobfJar
 }
 
 shadowJar {
     archiveClassifier.set('release')
+    version = project.version
     // relocate 'net.sf.cglib', 'cat.nyaa.cglib'
     configurations = [project.configurations.shadow]
 }
@@ -171,7 +167,7 @@ if (jdDirectory != null) {
 
 javadoc {
     (options as StandardJavadocDocletOptions).with {
-        links 'https://docs.oracle.com/javase/8/docs/api/'
+        links 'https://docs.oracle.com/javase/17/docs/api/'
         links 'https://hub.spigotmc.org/javadocs/spigot/'
         links 'https://ci.md-5.net/job/BungeeCord/ws/chat/target/apidocs/'
         links 'https://netty.io/4.1/api/'
@@ -205,7 +201,10 @@ publishing {
             version "$mavenVersion"
 
             artifact apiJar
-            artifact shadowJar
+            artifact(reobfJar.outputJar.get()) {
+                classifier "all"
+                extension "jar"
+            }
             artifact sourcesJar
             artifact javadocJar
 

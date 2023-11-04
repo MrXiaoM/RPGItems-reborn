@@ -48,11 +48,36 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
     List<Plugin> managedPlugins = new ArrayList<>();
     public Configuration cfg;
     private final NyaaCoreLoader nyaaCoreLoader = new NyaaCoreLoader(this);
-    //constructors are used in tests.
-    public RPGItems() {
-        super();
+
+
+    public static int getVersion() {
+        return version;
     }
-    //constructors are used in tests.
+
+    public static int getSerial() {
+        return serial;
+    }
+
+    public static String getPluginMCVersion() {
+        return pluginMCVersion;
+    }
+
+    public static String getServerMCVersion() {
+        return serverMCVersion;
+    }
+
+    @SuppressWarnings({"unchecked", "JavaReflectionInvocation"})
+    private static <T> T getWrapper(final PowerPlain obj, final Class<T> implInterface, final String delegateMethod) {
+        InvocationHandler invocationHandler = (proxy, method, args) -> {
+            if (!method.getName().equals(delegateMethod)) {
+                return obj.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(obj, args);
+            } else {
+                return obj.getClass().getDeclaredMethod("fire", Player.class, ItemStack.class).invoke(obj, args[0], args[1]);
+            }
+        };
+        return (T) Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class[]{implInterface}, invocationHandler);
+    }
+
     @Override
     public void onLoad() {
         plugin = this;
@@ -83,22 +108,22 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         cfg.load();
         cfg.enabledLanguages.forEach(lang -> new I18n(this, lang));
         cfg.enabledLanguages.forEach(lang ->
-                                             PowerManager.addDescriptionResolver(RPGItems.plugin, lang, (power, property) -> {
-                                                 I18n i18n = I18n.getInstance(lang);
-                                                 if (property == null) {
-                                                     String powerKey = "properties." + power.getKey() + ".main_description";
-                                                     return i18n.format(powerKey);
-                                                 }
-                                                 String key = "properties." + power.getKey() + "." + property;
-                                                 if (i18n.hasKey(key)) {
-                                                     return i18n.format(key);
-                                                 }
-                                                 String baseKey = "properties.base." + property;
-                                                 if (i18n.hasKey(baseKey)) {
-                                                     return i18n.format(baseKey);
-                                                 }
-                                                 return null;
-                                             }));
+                PowerManager.addDescriptionResolver(RPGItems.plugin, lang, (power, property) -> {
+                    I18n i18n = I18n.getInstance(lang);
+                    if (property == null) {
+                        String powerKey = "properties." + power.getKey() + ".main_description";
+                        return i18n.getFormatted(powerKey);
+                    }
+                    String key = "properties." + power.getKey() + "." + property;
+                    if (i18n.hasKey(key)) {
+                        return i18n.getFormatted(key);
+                    }
+                    String baseKey = "properties.base." + property;
+                    if (i18n.hasKey(baseKey)) {
+                        return i18n.getFormatted(baseKey);
+                    }
+                    return null;
+                }));
         loadPowers();
         saveDefaultConfig();
         Font.load();
@@ -207,22 +232,6 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
             }
         }
     }
-    public static int getVersion() {
-        return version;
-    }
-
-    public static int getSerial() {
-        return serial;
-    }
-
-    public static String getPluginMCVersion() {
-        return pluginMCVersion;
-    }
-
-    public static String getServerMCVersion() {
-        return serverMCVersion;
-    }
-
     private class ServerLoadListener implements Listener {
         @EventHandler
         public void onServerLoad(ServerLoadEvent event) {
@@ -246,17 +255,5 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         ItemManager.unload();
         managedPlugins.forEach(Bukkit.getPluginManager()::disablePlugin);
         nyaaCoreLoader.onDisable();
-    }
-
-    @SuppressWarnings({"unchecked", "JavaReflectionInvocation"})
-    private static <T> T getWrapper(final PowerPlain obj, final Class<T> implInterface, final String delegateMethod) {
-        InvocationHandler invocationHandler = (proxy, method, args) -> {
-            if (!method.getName().equals(delegateMethod)) {
-                return obj.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(obj, args);
-            } else {
-                return obj.getClass().getDeclaredMethod("fire", Player.class, ItemStack.class).invoke(obj, args[0], args[1]);
-            }
-        };
-        return (T) Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class[]{implInterface}, invocationHandler);
     }
 }

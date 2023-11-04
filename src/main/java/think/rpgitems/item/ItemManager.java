@@ -45,6 +45,8 @@ import static think.rpgitems.power.Utils.rethrow;
 import static think.rpgitems.utils.ItemTagUtils.*;
 
 public class ItemManager {
+    private static final long OFFSET_BASIS = 2166136261L;// 32位offset basis
+    private static final long PRIME = 16777619; // 32位prime
     private static HashMap<Integer, RPGItem> itemById = new HashMap<>();
     private static HashMap<String, RPGItem> itemByName = new HashMap<>();
     private static HashMap<Integer, ItemGroup> groupById = new HashMap<>();
@@ -55,6 +57,10 @@ public class ItemManager {
     private static File itemsDir;
     private static File backupsDir;
     private static boolean extendedLock = true;
+    private static final Cache<Long, ItemMeta> metaCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .initialCapacity(1024)
+            .build();
 
     public static boolean hasName(String name) {
         return itemByName.containsKey(name) || groupByName.containsKey(name);
@@ -205,10 +211,11 @@ public class ItemManager {
             }
 
             Message message = new Message(I18n.formatDefault("message.error.loading", file.getPath(), e.getLocalizedMessage()));
-            if (sender != null) {
-                message.send(sender);
-            } else {
+            if (sender == null) {
+                Bukkit.getOperators().forEach(t -> message.send((CommandSender) t));
                 message.send(Bukkit.getConsoleSender());
+            } else {
+                message.send(sender);
             }
 
             if (sender == null || sender instanceof ConsoleCommandSender) {
@@ -503,11 +510,6 @@ public class ItemManager {
         return toRPGItem(item, true);
     }
 
-    private static Cache<Long, ItemMeta> metaCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(10, TimeUnit.MINUTES)
-            .initialCapacity(1024)
-            .build();
-
     public static Optional<RPGItem> toRPGItem(ItemStack item, boolean ignoreModel) {
         if (item == null || item.getType() == Material.AIR)
             return Optional.empty();
@@ -553,9 +555,6 @@ public class ItemManager {
         }
         return Optional.empty();
     }
-
-    private static final long OFFSET_BASIS = 2166136261L;// 32位offset basis
-    private static final long PRIME = 16777619; // 32位prime
 
     public static long hash(byte[] src) {
         long hash = OFFSET_BASIS;

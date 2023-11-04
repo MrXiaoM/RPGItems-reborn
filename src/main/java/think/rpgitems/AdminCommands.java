@@ -42,6 +42,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.FileVisitResult;
@@ -1487,7 +1488,7 @@ public class AdminCommands extends RPGCommandReceiver {
     }
 
     private void publishGist(CommandSender sender, Arguments args, Set<String> itemNames) {
-        List<Pair<String, RPGItem>> items = itemNames.stream().map(i -> Pair.of(i, getItem(i, sender))).toList();
+        List<Pair<String, RPGItem>> items = itemNames.stream().map(i -> Pair.of(i, getItem(i, sender))).collect(Collectors.toList());
         Optional<Pair<String, RPGItem>> unknown = items.stream().filter(p -> p.getValue() == null).findFirst();
         if (unknown.isPresent()) {
             throw new BadCommandException("message.error.item", unknown.get().getKey());
@@ -1519,7 +1520,7 @@ public class AdminCommands extends RPGCommandReceiver {
             try {
                 String id = NetworkUtils.publishGist(result, token, description, isPublish);
                 Bukkit.getScheduler().runTask(plugin, () -> msgs(sender, "message.export.gist.ed", id));
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException | URISyntaxException | IOException e) {
                 plugin.getLogger().log(Level.WARNING, "Error exporting gist", e);
                 Bukkit.getScheduler().runTask(plugin, () -> msgs(sender, "message.export.gist.failed"));
             } catch (TimeoutException e) {
@@ -1532,23 +1533,19 @@ public class AdminCommands extends RPGCommandReceiver {
     }
 
     private void downloadGist(CommandSender sender, Arguments args, String id) {
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
-        new Message(I18n.getInstance(sender).format("message.import.gist.ing")).send(sender);
+        new Message(I18n.getInstance(sender).getFormatted("message.import.gist.ing")).send(sender);
         String token = args.argString("token", plugin.cfg.githubToken);
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Map<String, String> gist;
             try {
                 gist = NetworkUtils.downloadGist(id, token);
                 Bukkit.getScheduler().runTask(plugin, () -> loadItems(sender, gist, args));
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException | URISyntaxException | IOException e) {
                 plugin.getLogger().log(Level.WARNING, "Error importing gist", e);
-                Bukkit.getScheduler().runTask(plugin, () -> new Message(I18n.getInstance(sender).format("message.import.gist.failed")).send(sender));
+                Bukkit.getScheduler().runTask(plugin, () -> new Message(I18n.getInstance(sender).getFormatted("message.import.gist.failed")).send(sender));
             } catch (TimeoutException e) {
                 plugin.getLogger().log(Level.WARNING, "Timeout importing gist", e);
-                Bukkit.getScheduler().runTask(plugin, () -> new Message(I18n.getInstance(sender).format("message.import.gist.timeout")).send(sender));
+                Bukkit.getScheduler().runTask(plugin, () -> new Message(I18n.getInstance(sender).getFormatted("message.import.gist.timeout")).send(sender));
             } catch (BadCommandException e) {
                 sender.sendMessage(e.getLocalizedMessage());
             }
@@ -1556,25 +1553,21 @@ public class AdminCommands extends RPGCommandReceiver {
     }
 
     private void downloadUrl(CommandSender sender, Arguments args, String url) {
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
-        new Message(I18n.getInstance(sender).format("message.import.url.ing")).send(sender);
+        new Message(I18n.getInstance(sender).getFormatted("message.import.url.ing")).send(sender);
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 Map<String, String> itemConf = NetworkUtils.downloadUrl(url);
                 Bukkit.getScheduler().runTask(plugin, () -> loadItems(sender, itemConf, args));
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException | URISyntaxException | IOException e) {
                 plugin.getLogger().log(Level.WARNING, "Error importing url", e);
-                Bukkit.getScheduler().runTask(plugin, () -> new Message(I18n.getInstance(sender).format("message.import.url.failed")).send(sender));
+                Bukkit.getScheduler().runTask(plugin, () -> new Message(I18n.getInstance(sender).getFormatted("message.import.url.failed")).send(sender));
             } catch (TimeoutException e) {
                 plugin.getLogger().log(Level.WARNING, "Timeout importing url", e);
-                Bukkit.getScheduler().runTask(plugin, () -> new Message(I18n.getInstance(sender).format("message.import.url.timeout")).send(sender));
+                Bukkit.getScheduler().runTask(plugin, () -> new Message(I18n.getInstance(sender).getFormatted("message.import.url.timeout")).send(sender));
             } catch (BadCommandException e) {
                 sender.sendMessage(e.getLocalizedMessage());
             }
-            throw new NotImplementedException(url);
+            throw new UnsupportedOperationException(url);
         });
     }
 

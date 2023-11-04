@@ -7,6 +7,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.udojava.evalex.Expression;
 import com.udojava.evalex.LazyFunction;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -46,12 +48,12 @@ import java.util.stream.Stream;
 
 public class Utils {
     public static final String INVALID_TARGET = "RGI_INVALID_TARGET";
-
-    private static LoadingCache<String, List<String>> permissionCache = CacheBuilder
-                                                                                .newBuilder()
-                                                                                .concurrencyLevel(1)
-                                                                                .maximumSize(1000)
-                                                                                .build(CacheLoader.from(Utils::parsePermission));
+    private static final Pattern VALID_KEY = Pattern.compile("[a-z0-9/._-]+");
+    private static final LoadingCache<String, List<String>> permissionCache = CacheBuilder
+            .newBuilder()
+            .concurrencyLevel(1)
+            .maximumSize(1000)
+            .build(CacheLoader.from(Utils::parsePermission));
 
     private static List<String> parsePermission(String str) {
         return Arrays.asList(str.split(";"));
@@ -111,7 +113,7 @@ public class Utils {
             }
         }
         List<LivingEntity> entity = new ArrayList<>();
-        entities.sort(Map.Entry.comparingByValue());
+        entities.sort(Comparator.comparing(Map.Entry::getValue));
         entities.forEach((k) -> entity.add(k.getKey()));
         return entity;
     }
@@ -149,7 +151,7 @@ public class Utils {
         Set<AngledEntity> newEntities = new TreeSet<>();
         float relativeAngle = 0;
         for (LivingEntity e : entities) {
-            if (isUtilArmorStand(e))continue;
+            if (isUtilArmorStand(e)) continue;
             org.bukkit.util.Vector relativePosition = e.getEyeLocation().toVector();
             relativePosition.subtract(startPos);
             relativeAngle = getAngleBetweenVectors(direction, relativePosition);
@@ -159,30 +161,6 @@ public class Utils {
         }
         return newEntities.stream().map(AngledEntity::getEntity).collect(Collectors.toList());
     }
-
-    private static class AngledEntity implements Comparable<AngledEntity>{
-        double angle;
-        LivingEntity entity;
-
-        public AngledEntity(double angle, LivingEntity entity){
-            this.angle = angle;
-            this.entity = entity;
-        }
-
-        public LivingEntity getEntity() {
-            return entity;
-        }
-
-        public double getAngle() {
-            return angle;
-        }
-
-        @Override
-        public int compareTo(AngledEntity o) {
-            return Double.compare(angle, o.angle);
-        }
-    }
-
 
     /**
      * Gets angle between vectors.
@@ -226,9 +204,13 @@ public class Utils {
             if (showWarn) {
                 I18n i18n = I18n.getInstance(player.getLocale());
                 if (showPower) {
-                    player.sendMessage(i18n.format("message.cooldown.power", ((double) (cooldown - nowTime)) / 50d / 20d, power.getItem().getDisplayName(), power.getLocalizedName(player)));
+                    String message = i18n.getFormatted("message.cooldown.power", ((double) (cooldown - nowTime)) / 50d / 20d, power.getItem().getDisplayName(), power.getLocalizedName(player));
+                    if (player.hasPermission("rpgitems.actionbar.cooldown")) player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+                    else player.sendMessage(message);
                 } else {
-                    player.sendMessage(i18n.format("message.cooldown.general", ((double) (cooldown - nowTime)) / 50d / 20d, power.getItem().getDisplayName()));
+                    String message = i18n.getFormatted("message.cooldown.general", ((double) (cooldown - nowTime)) / 50d / 20d, power.getItem().getDisplayName());
+                    if (player.hasPermission("rpgitems.actionbar.cooldown")) player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+                    else player.sendMessage(message);
                 }
             }
             return false;
@@ -492,8 +474,6 @@ public class Utils {
         return (format == null ? "" : format);
     }
 
-    private static final Pattern VALID_KEY = Pattern.compile("[a-z0-9/._-]+");
-
     @SuppressWarnings({"unchecked", "deprecation"})
     public static void setPowerPropertyUnchecked(CommandSender sender, PropertyHolder power, Field field, String value) {
         String locale = RPGItems.plugin.cfg.language;
@@ -511,10 +491,10 @@ public class Utils {
             if (st != null) {
                 try {
                     Optional<Object> v = Setter.from(power, st.value()).set(value);
-                    if (v.isEmpty()) return;
+                    if (!v.isPresent()) return;
                     field.set(power, v.get());
                 } catch (IllegalArgumentException e) {
-                    new Message(i18n.format(st.message(), value)).send(sender);
+                    new Message(i18n.getFormatted(st.message(), value)).send(sender);
                 }
             } else {
                 if (field.getType().equals(int.class) || field.getType().equals(Integer.class)) {
@@ -674,7 +654,7 @@ public class Utils {
                     throw new AdminCommands.CommandException("message.error.invalid_option", value, field.getName(), String.join(", ", acc));
             } else {
                 String[] valueStrs = value.split(",");
-                List<String> values = Arrays.stream(valueStrs).filter(s -> !s.isEmpty()).map(String::trim).toList();
+                List<String> values = Arrays.stream(valueStrs).filter(s -> !s.isEmpty()).map(String::trim).collect(Collectors.toList());
                 if (values.stream().filter(s -> !s.isEmpty()).anyMatch(v -> !acc.contains(v))) {
                     throw new AdminCommands.CommandException("message.error.invalid_option", value, field.getName(), String.join(", ", acc));
                 }
@@ -934,9 +914,33 @@ public class Utils {
     }
 
     public static boolean isUtilArmorStand(Entity livingEntity) {
-        if (livingEntity instanceof ArmorStand arm) {
+        if (livingEntity instanceof ArmorStand) {
+            ArmorStand arm = (ArmorStand) livingEntity;
             return arm.isMarker() && !arm.isVisible();
         }
         return false;
+    }
+
+    private static class AngledEntity implements Comparable<AngledEntity> {
+        double angle;
+        LivingEntity entity;
+
+        public AngledEntity(double angle, LivingEntity entity) {
+            this.angle = angle;
+            this.entity = entity;
+        }
+
+        public LivingEntity getEntity() {
+            return entity;
+        }
+
+        public double getAngle() {
+            return angle;
+        }
+
+        @Override
+        public int compareTo(AngledEntity o) {
+            return Double.compare(angle, o.angle);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package cat.nyaa.nyaacore.utils;
 
 import net.minecraft.nbt.CompoundTag;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftItem;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
@@ -56,7 +57,6 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putInt(key, value);
         itemStack.setTag(tag);
         return Optional.of(value);
@@ -82,7 +82,6 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putDouble(key, value);
         itemStack.setTag(tag);
         return Optional.of(value);
@@ -108,7 +107,6 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putShort(key, value);
         itemStack.setTag(tag);
         return Optional.of(value);
@@ -134,7 +132,6 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putByte(key, value);
         itemStack.setTag(tag);
         return Optional.of(value);
@@ -160,7 +157,6 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putLong(key, value);
         itemStack.setTag(tag);
         return Optional.of(value);
@@ -186,7 +182,6 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putLongArray(key, value); // this is anonymous
         itemStack.setTag(tag);
         return Optional.of(value);
@@ -212,7 +207,6 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putIntArray(key, value);
         itemStack.setTag(tag);
         return Optional.of(value);
@@ -238,7 +232,6 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putByteArray(key, value);
         itemStack.setTag(tag);
         return Optional.of(value);
@@ -264,7 +257,6 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putBoolean(key, value);
         itemStack.setTag(tag);
         return Optional.of(value);
@@ -290,20 +282,27 @@ public class ItemTagUtils {
         }
         net.minecraft.world.item.ItemStack itemStack = is.get();
         CompoundTag tag = itemStack.getOrCreateTag();
-        if (tag == null) return Optional.empty();
         tag.putFloat(key, value);
         itemStack.setTag(tag);
         return Optional.of(value);
     }
 
+    public static void remove(ItemStack item, String key) throws NoSuchFieldException, IllegalAccessException {
+        Optional<net.minecraft.world.item.ItemStack> is = getItem(item);
+        if (is.isEmpty()) {
+            return;
+        }
+        net.minecraft.world.item.ItemStack itemStack = is.get();
+        CompoundTag tag = itemStack.getOrCreateTag();
+        tag.remove(key);
+        itemStack.setTag(tag);
+    }
+
+
     private static Optional<net.minecraft.world.item.ItemStack> getItem(ItemStack itemStack) throws NoSuchFieldException, IllegalAccessException {
         if (!(itemStack instanceof CraftItemStack)) {
             return Optional.empty();
         }
-        if (handle == null) {
-            handle = CraftItemStack.class.getDeclaredField("handle");
-        }
-        handle.setAccessible(true);
-        return Optional.ofNullable((net.minecraft.world.item.ItemStack) handle.get(itemStack));
+        return Optional.of(((CraftItemStack) itemStack).handle);
     }
 }

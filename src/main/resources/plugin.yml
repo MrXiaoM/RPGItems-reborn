@@ -7,7 +7,11 @@ softdepend: [WorldGuard,NyaaUtils,Vault]
 authors: [Taiterio,cyilin,RecursiveG,Librazy]
 website: "https://github.com/MrXiaoM/RPGItems-reloaded"
 database: false
-api-version: 1.13
+api-version: 1.19
+libraries:
+  - 'com.udojava:EvalEx:2.7'
+  - 'commons-lang:commons-lang:2.6'
+  - 'net.bytebuddy:byte-buddy:LATEST'
 
 commands:
   rpgitem:

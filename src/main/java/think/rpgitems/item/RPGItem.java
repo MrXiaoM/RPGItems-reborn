@@ -12,9 +12,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -46,6 +43,7 @@ import think.rpgitems.power.cond.SlotCondition;
 import think.rpgitems.power.marker.*;
 import think.rpgitems.power.propertymodifier.Modifier;
 import think.rpgitems.power.propertymodifier.RgiParameter;
+import think.rpgitems.power.proxy.Interceptor;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.utils.ColorHelper;
@@ -1662,21 +1660,14 @@ public class RPGItem {
 
     private <TEvent extends Event, T extends Pimpl, TResult, TReturn> List<T> getPower(Trigger<TEvent, T, TResult, TReturn> trigger, Player player, ItemStack stack) {
         return powers.stream()
-                     .filter(p -> p.getTriggers().contains(trigger))
-                     .map(p -> {
-                         Class<? extends Power> cls = p.getClass();
-                         Power proxy = DynamicMethodInterceptor.create(p, player, cls, stack, trigger);
-                         return PowerManager.createImpl(cls, proxy);
-                     })
-                     .map(p -> {
-                         try {
-                             return p.cast(trigger.getPowerClass());
-                         } catch (ClassCastException ignored) {
-                             return null;
-                         }
-                         })
-                     .filter(Objects::nonNull)
-                     .collect(Collectors.toList());
+                .filter(p -> p.getTriggers().contains(trigger))
+                .map(p -> {
+                    Class<? extends Power> cls = p.getClass();
+                    Power proxy = Interceptor.create(p, player, stack, trigger);
+                    return PowerManager.createImpl(cls, proxy);
+                })
+                .map(p -> p.cast(trigger.getPowerClass()))
+                .collect(Collectors.toList());
     }
 
     public PlaceholderHolder getPlaceholderHolder(String placeholderId) {
@@ -1843,71 +1834,6 @@ public class RPGItem {
 
     public List<String> getTemplatePlaceholders() {
         return new ArrayList<>(templatePlaceholders);
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static class DynamicMethodInterceptor implements MethodInterceptor {
-        private static WeakHashMap<Player, WeakHashMap<ItemStackWrapper, WeakHashMap<Power, Power>>> cache = new WeakHashMap<>();
-
-        private static Power makeProxy(Power orig, Player player, Class<? extends Power> cls, ItemStack stack, Trigger trigger) {
-            Enhancer enhancer = new Enhancer();
-            enhancer.setSuperclass(cls);
-            enhancer.setInterfaces(new Class[]{trigger.getPowerClass()});
-            enhancer.setCallback(new DynamicMethodInterceptor(orig, player, stack));
-            return (Power) enhancer.create();
-        }
-
-        protected static Power create(Power orig, Player player, Class<? extends Power> cls, ItemStack stack, Trigger trigger) {
-            return cache.computeIfAbsent(player, (k) -> new WeakHashMap<>())
-                        .computeIfAbsent(ItemStackWrapper.of(stack), (p) -> new WeakHashMap<>())
-                        .computeIfAbsent(orig, (s) -> makeProxy(orig, player, cls, stack, trigger));
-        }
-
-        private final Power orig;
-        private final Player player;
-        private final Map<Method, PropertyInstance> getters;
-        private ItemStack stack;
-
-        protected DynamicMethodInterceptor(Power orig, Player player, ItemStack stack) {
-            this.orig = orig;
-            this.player = player;
-            this.getters = PowerManager.getProperties(orig.getClass())
-                                       .entrySet()
-                                       .stream()
-                                       .collect(Collectors.toMap(e -> e.getValue().getKey(), e -> e.getValue().getValue()));
-            this.stack = stack;
-        }
-
-        @Override
-        public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy)
-                throws Throwable {
-            if (getters.containsKey(method)) {
-                PropertyInstance propertyInstance = getters.get(method);
-                Class<?> type = propertyInstance.field().getType();
-                List<Modifier> playerModifiers = getModifiers(player);
-                List<Modifier> stackModifiers = getModifiers(stack);
-                List<Modifier> modifiers = Stream.concat(playerModifiers.stream(), stackModifiers.stream()).sorted(Comparator.comparing(Modifier::priority)).toList();
-                // Numeric modifiers
-                if (type == int.class || type == Integer.class || type == float.class || type == Float.class || type == double.class || type == Double.class) {
-
-                    @SuppressWarnings("unchecked") List<Modifier<Double>> numberModifiers = modifiers.stream().filter(m -> (m.getModifierTargetType() == Double.class) && m.match(orig, propertyInstance)).map(m -> (Modifier<Double>) m).toList();
-                    Number value = (Number) methodProxy.invoke(orig, args);
-                    double origValue = value.doubleValue();
-                    for (Modifier<Double> numberModifier : numberModifiers) {
-                        RgiParameter param = new RgiParameter<>(orig.getItem(), orig, stack, origValue);
-                        origValue = numberModifier.apply(param);
-                    }
-                    if (int.class.equals(type) || Integer.class.equals(type)) {
-                        return (int) Math.round(origValue);
-                    } else if (float.class.equals(type) || Float.class.equals(type)) {
-                        return (float) (origValue);
-                    } else {
-                        return origValue;
-                    }
-                }
-            }
-            return methodProxy.invoke(orig, args);
-        }
     }
 
     public void addTrigger(String name, Trigger trigger) {

@@ -6,6 +6,7 @@ import think.rpgitems.RPGItems;
 import think.rpgitems.power.trigger.Trigger;
 
 import javax.annotation.Nullable;
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
@@ -132,5 +133,9 @@ public interface Power extends PropertyHolder, PlaceholderHolder, TagHolder {
             }
         }
         return clazz;
+    }
+
+    default MethodHandles.Lookup getLookup() {
+        return MethodHandles.lookup();
     }
 }

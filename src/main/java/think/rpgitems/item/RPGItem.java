@@ -42,7 +42,6 @@ import think.rpgitems.power.*;
 import think.rpgitems.power.cond.SlotCondition;
 import think.rpgitems.power.marker.*;
 import think.rpgitems.power.propertymodifier.Modifier;
-import think.rpgitems.power.propertymodifier.RgiParameter;
 import think.rpgitems.power.proxy.Interceptor;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
@@ -51,7 +50,6 @@ import think.rpgitems.utils.MaterialUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
@@ -64,6 +62,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.bukkit.ChatColor.COLOR_CHAR;
+import static org.bukkit.Material.*;
+import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
 import static think.rpgitems.utils.ItemTagUtils.*;
 
 public class RPGItem {
@@ -160,7 +160,7 @@ public class RPGItem {
         this.uid = uid;
         this.setAuthor(author instanceof Player ? ((Player) author).getUniqueId().toString() : plugin.cfg.defaultAuthor);
         setEnchantMode(plugin.cfg.defaultEnchantMode);
-        setItem(Material.WOODEN_SWORD);
+        setItem(WOODEN_SWORD);
         setDisplayName(getItem().toString());
         getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
         setMcVersion(RPGItems.getServerMCVersion());
@@ -733,6 +733,25 @@ public class RPGItem {
             }
         }
 
+        if ((armour > 0 || !armourExpression.isEmpty())) {
+            Material m = item.getType();
+            meta.removeAttributeModifier(Attribute.GENERIC_ARMOR);
+            meta.removeAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS);
+            int modifier = switch (m) {
+                case IRON_HELMET, IRON_LEGGINGS, IRON_BOOTS, TURTLE_HELMET, CHAINMAIL_HELMET, GOLDEN_HELMET -> 1;
+                case LEATHER_HELMET, LEATHER_BOOTS, IRON_CHESTPLATE, GOLDEN_BOOTS, CHAINMAIL_LEGGINGS, CHAINMAIL_BOOTS -> 2;
+                case GOLDEN_CHESTPLATE, GOLDEN_LEGGINGS, CHAINMAIL_CHESTPLATE -> 3;
+                case LEATHER_LEGGINGS -> 4;
+                case LEATHER_CHESTPLATE -> 5;
+                default -> 0;
+            };
+
+            if (modifier != 0) {
+                meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new org.bukkit.attribute.AttributeModifier("RPGItems", modifier, ADD_NUMBER));
+                meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new org.bukkit.attribute.AttributeModifier("RPGItems", 2, ADD_NUMBER));
+            }
+        }
+
         if (loreOnly) {
             rpgitemsTagContainer.commit();
             item.setItemMeta(meta);
@@ -1074,7 +1093,7 @@ public class RPGItem {
     }
 
     private <TEvent extends Event, TPower extends Pimpl, TResult, TReturn> boolean triggerPreCheck(Player player, ItemStack i, TEvent event, Trigger<TEvent, TPower, TResult, TReturn> trigger, List<TPower> powers) {
-        if (i.getType().equals(Material.AIR)) return false;
+        if (i.getType().equals(AIR)) return false;
         if (powers.isEmpty()) return false;
         if (checkPermission(player, true) == Event.Result.DENY) return false;
 
@@ -1180,7 +1199,7 @@ public class RPGItem {
 
         if (getItemStackDurability(itemStack).map(d -> d <= 0).orElse(false)) {
             itemStack.setAmount(0);
-            itemStack.setType(Material.AIR);
+            itemStack.setType(AIR);
         }
     }
 
@@ -1428,45 +1447,45 @@ public class RPGItem {
         itemStack.setAmount(count);
         if (wear) {
             if (
-                    item.equals(Material.CHAINMAIL_HELMET) ||
-                            item.equals(Material.DIAMOND_HELMET) ||
-                            item.equals(Material.GOLDEN_HELMET) ||
-                            item.equals(Material.IRON_HELMET) ||
-                            item.equals(Material.LEATHER_HELMET) ||
-                            item.equals(Material.TURTLE_HELMET)
+                    item.equals(CHAINMAIL_HELMET) ||
+                            item.equals(DIAMOND_HELMET) ||
+                            item.equals(GOLDEN_HELMET) ||
+                            item.equals(IRON_HELMET) ||
+                            item.equals(LEATHER_HELMET) ||
+                            item.equals(TURTLE_HELMET)
             ) {
                 if (player.getInventory().getHelmet() == null) {
                     player.getInventory().setHelmet(itemStack);
                     return;
                 }
             } else if (
-                           item.equals(Material.CHAINMAIL_CHESTPLATE) ||
-                                   item.equals(Material.DIAMOND_CHESTPLATE) ||
-                                   item.equals(Material.GOLDEN_CHESTPLATE) ||
-                                   item.equals(Material.IRON_CHESTPLATE) ||
-                                   item.equals(Material.LEATHER_CHESTPLATE)
+                           item.equals(CHAINMAIL_CHESTPLATE) ||
+                                   item.equals(DIAMOND_CHESTPLATE) ||
+                                   item.equals(GOLDEN_CHESTPLATE) ||
+                                   item.equals(IRON_CHESTPLATE) ||
+                                   item.equals(LEATHER_CHESTPLATE)
             ) {
                 if (player.getInventory().getChestplate() == null) {
                     player.getInventory().setChestplate(itemStack);
                     return;
                 }
             } else if (
-                           item.equals(Material.CHAINMAIL_LEGGINGS) ||
-                                   item.equals(Material.DIAMOND_LEGGINGS) ||
-                                   item.equals(Material.GOLDEN_LEGGINGS) ||
-                                   item.equals(Material.IRON_LEGGINGS) ||
-                                   item.equals(Material.LEATHER_LEGGINGS)
+                           item.equals(CHAINMAIL_LEGGINGS) ||
+                                   item.equals(DIAMOND_LEGGINGS) ||
+                                   item.equals(GOLDEN_LEGGINGS) ||
+                                   item.equals(IRON_LEGGINGS) ||
+                                   item.equals(LEATHER_LEGGINGS)
             ) {
                 if (player.getInventory().getLeggings() == null) {
                     player.getInventory().setLeggings(itemStack);
                     return;
                 }
             } else if (
-                           item.equals(Material.CHAINMAIL_BOOTS) ||
-                                   item.equals(Material.DIAMOND_BOOTS) ||
-                                   item.equals(Material.GOLDEN_BOOTS) ||
-                                   item.equals(Material.IRON_BOOTS) ||
-                                   item.equals(Material.LEATHER_BOOTS)
+                           item.equals(CHAINMAIL_BOOTS) ||
+                                   item.equals(DIAMOND_BOOTS) ||
+                                   item.equals(GOLDEN_BOOTS) ||
+                                   item.equals(IRON_BOOTS) ||
+                                   item.equals(LEATHER_BOOTS)
             ) {
                 if (player.getInventory().getBoots() == null) {
                     player.getInventory().setBoots(itemStack);

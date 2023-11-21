@@ -932,6 +932,9 @@ properties:
     init: Init value
 
 manual:
+  format:
+    - '  &2<description> &8&l:'
+    - '    <usage>'
   addtogroup:
     description: Add an item to a item group
     usage: /rpgitem addtogroup {group} {item}

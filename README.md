@@ -2,7 +2,7 @@
 
 The RPGItems2 plugin continued from [TheCreeperOfRedstone/RPG-Items-2](https://github.com/TheCreeperOfRedstone/RPG-Items-2)
 
-[LangUtils 2.7.x](https://ci.nyaacat.com/maven/com/meowj/LangUtils/2.7-SNAPSHOT/) is needed and no longer need to install NyaaCore.
+No any dependency plugin needed.
 
 ## Fork
 

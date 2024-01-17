@@ -678,8 +678,28 @@ public class Events implements Listener {
         }
     }
 
+    @SuppressWarnings({"deprecation"})
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent ev) {
+        if (ev.getEntity() instanceof LivingEntity entity) {
+            EntityEquipment equipment = entity.getEquipment();
+            boolean armor = false;
+            boolean hardHat = false;
+            if (equipment != null) for (ItemStack item : equipment.getArmorContents()) {
+                RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
+                if (rpg == null) continue;
+
+                if (!armor && ev.isApplicable(EntityDamageEvent.DamageModifier.ARMOR)) {
+                    ev.setDamage(EntityDamageEvent.DamageModifier.ARMOR, 0);
+                    armor = true;
+                }
+                if (!hardHat && item.getType().name().toUpperCase().endsWith("_HELMET") && ev.isApplicable(EntityDamageEvent.DamageModifier.HARD_HAT)) {
+                    ev.setDamage(EntityDamageEvent.DamageModifier.HARD_HAT, 0);
+                    hardHat = true;
+                }
+                if (armor && hardHat) break;
+            }
+        }
         if (ev.getDamager() instanceof Player) {
             playerDamager(ev);
         } else if (ev.getDamager() instanceof Projectile) {

@@ -733,23 +733,17 @@ public class RPGItem {
             }
         }
 
-        if ((armour > 0 || !armourExpression.isEmpty())) {
-            Material m = item.getType();
+        if (armour > 0 || !armourExpression.isEmpty()) {
+            String m = item.getType().name().toUpperCase();
             meta.removeAttributeModifier(Attribute.GENERIC_ARMOR);
             meta.removeAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS);
-            int modifier = switch (m) {
-                case IRON_HELMET, IRON_LEGGINGS, IRON_BOOTS, TURTLE_HELMET, CHAINMAIL_HELMET, GOLDEN_HELMET -> 1;
-                case LEATHER_HELMET, LEATHER_BOOTS, IRON_CHESTPLATE, GOLDEN_BOOTS, CHAINMAIL_LEGGINGS, CHAINMAIL_BOOTS -> 2;
-                case GOLDEN_CHESTPLATE, GOLDEN_LEGGINGS, CHAINMAIL_CHESTPLATE -> 3;
-                case LEATHER_LEGGINGS -> 4;
-                case LEATHER_CHESTPLATE -> 5;
-                default -> 0;
-            };
-
-            if (modifier != 0) {
-                meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new org.bukkit.attribute.AttributeModifier("RPGItems", modifier, ADD_NUMBER));
-                meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new org.bukkit.attribute.AttributeModifier("RPGItems", 2, ADD_NUMBER));
-            }
+            int modifier = 0;
+            if (m.endsWith("_HELMET")) modifier = 3;
+            if (m.endsWith("_CHESTPLATE")) modifier = 8;
+            if (m.endsWith("_LEGGINGS")) modifier = 6;
+            if (m.endsWith("_BOOTS")) modifier = 3;
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new org.bukkit.attribute.AttributeModifier("RPGItems", modifier, ADD_NUMBER));
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new org.bukkit.attribute.AttributeModifier("RPGItems", 2, ADD_NUMBER));
         }
 
         if (loreOnly) {

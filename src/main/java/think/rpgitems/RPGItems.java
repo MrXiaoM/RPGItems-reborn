@@ -22,6 +22,7 @@ import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.support.WGSupport;
+import think.rpgitems.utils.cast.PluginUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -147,6 +148,14 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
     }
 
     public void loadExtensions() {
+        for (Plugin plugin : plugin.managedPlugins) {
+            String name = plugin.getName();
+            PluginUtils.unload(plugin);
+            if (Bukkit.getPluginManager().getPlugin(name) != null) {
+                getLogger().warning("Plugin " + name + " unload failed!");
+            }
+        }
+        plugin.managedPlugins.clear();
         File extDir = new File(plugin.getDataFolder(), "ext");
         if (extDir.isDirectory() || extDir.mkdirs()) {
             File[] files = extDir.listFiles((d, n) -> n.endsWith(".jar"));
@@ -154,9 +163,11 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
             for (File file : files) {
                 try {
                     Plugin plugin = Bukkit.getPluginManager().loadPlugin(file);
-                    String message = String.format("Loading %s", plugin.getDescription().getFullName());
-                    plugin.getLogger().info(message);
-                    plugin.onLoad();
+                    if (!PluginUtils.isClassPresent("io.papermc.paper.plugin.storage.ServerPluginProviderStorage")) {
+                        String message = String.format("Loading %s", plugin.getDescription().getFullName());
+                        plugin.getLogger().info(message);
+                        plugin.onLoad();
+                    }
                     managedPlugins.add(plugin);
                     logger.info("Loaded extension: " + plugin.getName());
                 } catch (InvalidPluginException | InvalidDescriptionException e) {
@@ -253,7 +264,10 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         getCommand("rpgitem").setTabCompleter(null);
         this.getServer().getScheduler().cancelTasks(plugin);
         ItemManager.unload();
-        managedPlugins.forEach(Bukkit.getPluginManager()::disablePlugin);
+        for (Plugin plugin : managedPlugins) {
+            PluginUtils.unload(plugin);
+        }
+        managedPlugins.clear();
         nyaaCoreLoader.onDisable();
     }
 }

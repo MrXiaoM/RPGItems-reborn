@@ -37,6 +37,7 @@ import think.rpgitems.power.*;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.NetworkUtils;
+import think.rpgitems.utils.cast.PluginUtils;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -191,8 +192,6 @@ public class AdminCommands extends RPGCommandReceiver {
         plugin.cfg.enabledLanguages.forEach(lang -> new I18n(plugin, lang));
         plugin.loadPowers();
         WGSupport.reload();
-        plugin.managedPlugins.forEach(Bukkit.getPluginManager()::disablePlugin);
-        plugin.managedPlugins.clear();
         plugin.loadExtensions();
         plugin.managedPlugins.forEach(Bukkit.getPluginManager()::enablePlugin);
         ItemManager.reload(plugin);

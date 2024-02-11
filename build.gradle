@@ -98,7 +98,7 @@ tasks.withType(ProcessResources).configureEach {
 }
 
 reobfJar {
-    outputJar.set(layout.buildDirectory.file("libs/${archivesBaseName}-${project.version}-all.jar"))
+    outputJar.set(layout.buildDirectory.file("libs/${archivesBaseName}-${project.version}-release.jar"))
 }
 
 jar {

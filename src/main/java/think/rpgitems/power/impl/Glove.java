@@ -64,7 +64,7 @@ public class Glove extends BasePower {
             if (!player.getPassengers().isEmpty()) {
                 Entity entity = player.getPassengers().get(0);
                 entity.leaveVehicle();
-                if (getThrowSpeed() > 0.0D) {
+                if (getThrowSpeed() > 0.0D && !entity.hasMetadata("NPC")) {
                     player.getWorld().playSound(player.getLocation(), Sound.ENTITY_EGG_THROW, 1.0F, 1.0F);
                     entity.setVelocity(player.getLocation().getDirection().multiply(getThrowSpeed()));
                 }
@@ -74,23 +74,20 @@ public class Glove extends BasePower {
 
             List<LivingEntity> entities = getLivingEntitiesInCone(getNearestLivingEntities(getPower(), player.getEyeLocation(), player, getMaxDistance(), 0), player.getLocation().toVector(), 30, player.getLocation().getDirection());
             for (LivingEntity entity : entities) {
+                if (!(entity instanceof Player) || entity.hasMetadata("NPC")) continue;
                 if (entity.isValid() && entity.getType() != EntityType.ARMOR_STAND && !entity.isInsideVehicle() &&
                             entity.getPassengers().isEmpty() && player.hasLineOfSight(entity) && player.addPassenger(entity)) {
                     player.getWorld().playSound(player.getLocation(), Sound.BLOCK_DISPENSER_DISPENSE, 1.0F, 1.0F);
-                    Listener listener = null;
-                    if (entity instanceof Player) {
-                        listener = new Listener() {
-                            @EventHandler
-                            public void onPlayerQuit(PlayerQuitEvent e) {
-                                if (e.getPlayer().getUniqueId().equals(entity.getUniqueId())) {
-                                    player.removePassenger(entity);
-                                    entity.leaveVehicle();
-                                }
+                    Listener listener = new Listener() {
+                        @EventHandler
+                        public void onPlayerQuit(PlayerQuitEvent e) {
+                            if (e.getPlayer().getUniqueId().equals(entity.getUniqueId())) {
+                                player.removePassenger(entity);
+                                entity.leaveVehicle();
                             }
-                        };
-                        Bukkit.getPluginManager().registerEvents(listener, RPGItems.plugin);
-                    }
-                    Listener finalListener = listener;
+                        }
+                    };
+                    Bukkit.getPluginManager().registerEvents(listener, RPGItems.plugin);
                     new BukkitRunnable() {
                         private long ticks = 0L;
 
@@ -98,9 +95,7 @@ public class Glove extends BasePower {
                         public void run() {
                             if (getTicks() >= getMaxTicks() || player.getPassengers().isEmpty() || entity.isDead()) {
                                 cancel();
-                                if (finalListener != null) {
-                                    HandlerList.unregisterAll(finalListener);
-                                }
+                                HandlerList.unregisterAll(listener);
                                 if (!player.getPassengers().isEmpty() && player.getPassengers().get(0).getUniqueId().equals(entity.getUniqueId())) {
                                     player.getPassengers().get(0).leaveVehicle();
                                 }

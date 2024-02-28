@@ -113,7 +113,7 @@ public class Utils {
             }
         }
         List<LivingEntity> entity = new ArrayList<>();
-        entities.sort(Comparator.comparing(Map.Entry::getValue));
+        entities.sort(Map.Entry.comparingByValue());
         entities.forEach((k) -> entity.add(k.getKey()));
         return entity;
     }
@@ -914,6 +914,7 @@ public class Utils {
     }
 
     public static boolean isUtilArmorStand(Entity livingEntity) {
+        if (livingEntity.hasMetadata("NPC")) return true;
         if (livingEntity instanceof ArmorStand) {
             ArmorStand arm = (ArmorStand) livingEntity;
             return arm.isMarker() && !arm.isVisible();

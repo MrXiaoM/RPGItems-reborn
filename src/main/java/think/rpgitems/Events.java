@@ -879,11 +879,19 @@ public class Events implements Listener {
                         continue;
                     }
                     damage = Utils.eval(player, damage, e, damager, pRItem);
-                }catch (Exception ignored){
+                } catch (Exception ignored) {
                 }
             }
             if (hasRPGItem) {
                 player.getInventory().setArmorContents(armour);
+            }
+            ItemStack offHand = player.getInventory().getItemInOffHand();
+            {
+                RPGItem pRItem = ItemManager.toRPGItem(offHand).orElse(null);
+                if (pRItem != null) {
+                    damage = pRItem.takeDamage(player, damage, offHand, damager);
+                    player.getInventory().setItemInOffHand(offHand);
+                }
             }
             e.setDamage(damage);
         }

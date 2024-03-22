@@ -67,6 +67,7 @@ import static think.rpgitems.utils.ItemTagUtils.getInt;
 import static think.rpgitems.utils.ItemTagUtils.getTag;
 import static think.rpgitems.utils.NetworkUtils.Location.GIST;
 
+@SuppressWarnings({"deprecation"})
 public class AdminCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
     private final Map<String, String> subCommandCompletion = new HashMap<>();
@@ -574,7 +575,39 @@ public class AdminCommands extends RPGCommandReceiver {
             } catch (BadCommandException e) {
                 damageMax = damageMin;
             }
-            item.setDamage(damageMin, damageMax);
+            item.setDamage(damageMin, damageMax, true);
+            if (damageMin != damageMax) {
+                msgs(sender, "message.damage.set.range", item.getName(), item.getDamageMin(), item.getDamageMax());
+            } else {
+                msgs(sender, "message.damage.set.value", item.getName(), item.getDamageMin());
+            }
+            ItemManager.refreshItem();
+            ItemManager.save(item);
+        } catch (BadCommandException e) {
+            msgs(sender, "message.damage.get", item.getName(), item.getDamageMin(), item.getDamageMax());
+        }
+    }
+
+    @SubCommand(value = "damagemythic", tabCompleter = "itemCompleter")
+    public void itemDamageMythic(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
+        RPGItem item = getItem(args.nextString(), sender);
+        try {
+            int damageMin = args.nextInt();
+            int damageMax;
+            if (damageMin > 32767) {
+                msgs(sender, "message.error.damagetolarge");
+                return;
+            }
+            try {
+                damageMax = args.nextInt();
+            } catch (BadCommandException e) {
+                damageMax = damageMin;
+            }
+            item.setDamageMythic(damageMin, damageMax);
             if (damageMin != damageMax) {
                 msgs(sender, "message.damage.set.range", item.getName(), item.getDamageMin(), item.getDamageMax());
             } else {

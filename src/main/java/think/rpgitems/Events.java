@@ -37,6 +37,7 @@ import think.rpgitems.power.Utils;
 import think.rpgitems.power.marker.Ranged;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
+import think.rpgitems.support.MythicSupport;
 import think.rpgitems.support.WGHandler;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.LightContext;
@@ -745,9 +746,12 @@ public class Events implements Listener {
 
         RPGItem rItem = ItemManager.toRPGItem(item).orElse(null);
 
-        if (rItem != null && e.getCause().equals(EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) || e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)){
-            int damageMin = rItem.getDamageMin();
-            int damageMax = rItem.getDamageMax();
+        if (rItem != null && (e.getCause().equals(EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) || e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_EXPLOSION))) {
+            boolean isMythic = MythicSupport.isMythic(entity);
+            boolean isPlayer = entity instanceof Player;
+            int damageMin = isMythic ? rItem.getDamageMinMythic() : isPlayer ? rItem.getDamageMinPlayer() : rItem.getDamageMin();
+            int damageMax = isMythic ? rItem.getDamageMinMythic() : isPlayer ? rItem.getDamageMaxPlayer() : rItem.getDamageMax();
+
             double dmg = damageMin < damageMax ? ThreadLocalRandom.current().nextDouble(damageMin, damageMax) : damageMax;
             overridingDamage = Optional.of(dmg);
         }

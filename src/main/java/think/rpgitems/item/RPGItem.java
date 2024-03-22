@@ -45,6 +45,7 @@ import think.rpgitems.power.propertymodifier.Modifier;
 import think.rpgitems.power.proxy.Interceptor;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
+import think.rpgitems.support.MythicSupport;
 import think.rpgitems.utils.ColorHelper;
 import think.rpgitems.utils.MaterialUtils;
 
@@ -118,6 +119,10 @@ public class RPGItem {
     private String displayNameColored;
     private int damageMin = 0;
     private int damageMax = 3;
+    private int damageMinPlayer = -1;
+    private int damageMaxPlayer = -1;
+    private int damageMinMythic = -1;
+    private int damageMaxMythic = -1;
     private DamageMode damageMode = DamageMode.FIXED;
     private AttributeMode attributeMode = AttributeMode.PARTIAL_UPDATE;
     private int armour = 0;
@@ -287,6 +292,10 @@ public class RPGItem {
         setDescription(desc);
         setDamageMin(s.getInt("damageMin"));
         setDamageMax(s.getInt("damageMax"));
+        setDamageMinMythic(s.getInt("damageMinMythic", -1));
+        setDamageMaxMythic(s.getInt("damageMaxMythic", -1));
+        damageMinPlayer = damageMin;
+        damageMaxPlayer = damageMax;
         setArmour(s.getInt("armour", 0), false);
         setArmourExpression(s.getString("armourExpression", ""));
         setDamageType(s.getString("DamageType", ""));
@@ -556,6 +565,8 @@ public class RPGItem {
         s.set("display", getDisplayNameRaw().replaceAll("" + COLOR_CHAR, "&"));
         s.set("damageMin", getDamageMin());
         s.set("damageMax", getDamageMax());
+        s.set("damageMinMythic", getDamageMinMythic());
+        s.set("damageMaxMythic", getDamageMaxMythic());
         s.set("armour", getArmour());
         s.set("armourExpression", getArmourExpression());
         s.set("DamageType", getDamageType());
@@ -967,11 +978,16 @@ public class RPGItem {
         if (!can) {
             return -1;
         }
+        boolean isMythic = MythicSupport.isMythic(entity);
+        boolean isPlayer = entity instanceof Player;
+        int min = isMythic ? getDamageMinMythic() : isPlayer ? getDamageMinPlayer() : getDamageMin();
+        int max = isMythic ? getDamageMaxMythic() : isPlayer ? getDamageMaxPlayer() : getDamageMax();
+
         switch (getDamageMode()) {
             case MULTIPLY:
             case FIXED:
             case ADDITIONAL:
-                damage = getDamageMin() != getDamageMax() ? (getDamageMin() + ThreadLocalRandom.current().nextInt(getDamageMax() - getDamageMin() + 1)) : getDamageMin();
+                damage = min != max ? (min + ThreadLocalRandom.current().nextInt(max - min + 1)) : min;
 
                 if (getDamageMode() == DamageMode.MULTIPLY) {
                     damage *= originDamage;
@@ -1023,11 +1039,16 @@ public class RPGItem {
             return -1;
         }
 
+        boolean isMythic = MythicSupport.isMythic(entity);
+        boolean isPlayer = entity instanceof Player;
+        int min = isMythic ? getDamageMinMythic() : isPlayer ? getDamageMinPlayer() : getDamageMin();
+        int max = isMythic ? getDamageMaxMythic() : isPlayer ? getDamageMaxPlayer() : getDamageMax();
+
         switch (getDamageMode()) {
             case FIXED:
             case ADDITIONAL:
             case MULTIPLY:
-                damage = getDamageMin() != getDamageMax() ? (getDamageMin() + ThreadLocalRandom.current().nextInt(getDamageMax() - getDamageMin() + 1)) : getDamageMin();
+                damage = min != max ? (min + ThreadLocalRandom.current().nextInt(max - min + 1)) : min;
 
                 if (getDamageMode() == DamageMode.MULTIPLY) {
                     damage *= originDamage;
@@ -1909,6 +1930,13 @@ public class RPGItem {
         return damageMax;
     }
 
+    public int getDamageMaxPlayer() {
+        return damageMaxPlayer;
+    }
+
+    public int getDamageMaxMythic() {
+        return damageMaxMythic < 0 ? damageMax : damageMaxMythic;
+    }
     public void setCanBeOwned(boolean canBeOwned) {
         this.canBeOwned = canBeOwned;
     }
@@ -1917,18 +1945,47 @@ public class RPGItem {
         this.damageMax = damageMax;
     }
 
+    private void setDamageMaxMythic(int damageMaxMythic) {
+        this.damageMaxMythic = damageMaxMythic;
+    }
+
     public int getDamageMin() {
         return damageMin;
+    }
+
+    public int getDamageMinPlayer() {
+        return damageMinPlayer;
+    }
+
+    public int getDamageMinMythic() {
+        return damageMinMythic < 0 ? damageMin : damageMinMythic;
     }
 
     private void setDamageMin(int damageMin) {
         this.damageMin = damageMin;
     }
 
-    public void setDamage(int min, int max) {
+    private void setDamageMinMythic(int damageMinMythic) {
+        this.damageMinMythic = damageMinMythic;
+    }
+
+    public void setDamageMythic(int min, int max) {
+        setDamageMinMythic(min);
+        setDamageMaxMythic(max);
+    }
+
+    public void setDamage(int min, int max, boolean command) {
+        if (command) {
+            damageMinPlayer = min;
+            damageMaxPlayer = max;
+        }
         setDamageMin(min);
         setDamageMax(max);
         rebuild();
+    }
+
+    public void setDamage(int min, int max) {
+        setDamage(min, max, false);
     }
 
     public DamageMode getDamageMode() {

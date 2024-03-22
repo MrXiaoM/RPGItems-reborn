@@ -620,6 +620,38 @@ public class AdminCommands extends RPGCommandReceiver {
         }
     }
 
+    enum SpeedType {
+        attack, move
+    }
+
+    @SubCommand(value = "speed", tabCompleter = "itemCompleter")
+    public void itemSpeed(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
+        RPGItem item = getItem(args.nextString(), sender);
+        try {
+            SpeedType type = args.nextEnum(SpeedType.class);
+            double value = args.nextDouble();
+            switch (type) {
+                case attack: {
+                    item.setAtkSpeed(value);
+                    msgs(sender, "message.speed.atk.set.value", item.getName(), item.getAtkSpeed());
+                    break;
+                }
+                case move: {
+                    item.setMoveSpeed(value);
+                    msgs(sender, "message.speed.move.set.value", item.getName(), item.getMoveSpeed());
+                    break;
+                }
+            }
+            ItemManager.refreshItem();
+            ItemManager.save(item);
+        } catch (BadCommandException e) {
+            msgs(sender, "message.damage.get", item.getName(), item.getDamageMin(), item.getDamageMax());
+        }
+    }
 
 
     @SubCommand(value = "armour", tabCompleter = "itemCompleter")

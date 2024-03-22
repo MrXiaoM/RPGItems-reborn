@@ -123,6 +123,8 @@ public class RPGItem {
     private int damageMaxPlayer = -1;
     private int damageMinMythic = -1;
     private int damageMaxMythic = -1;
+    private double atkSpeed = 0;
+    private double moveSpeed = 0;
     private DamageMode damageMode = DamageMode.FIXED;
     private AttributeMode attributeMode = AttributeMode.PARTIAL_UPDATE;
     private int armour = 0;
@@ -296,6 +298,8 @@ public class RPGItem {
         setDamageMaxMythic(s.getInt("damageMaxMythic", -1));
         damageMinPlayer = damageMin;
         damageMaxPlayer = damageMax;
+        setAtkSpeed(s.getInt("atkSpeed"));
+        setMoveSpeed(s.getInt("moveSpeed"));
         setArmour(s.getInt("armour", 0), false);
         setArmourExpression(s.getString("armourExpression", ""));
         setDamageType(s.getString("DamageType", ""));
@@ -567,6 +571,8 @@ public class RPGItem {
         s.set("damageMax", getDamageMax());
         s.set("damageMinMythic", getDamageMinMythic());
         s.set("damageMaxMythic", getDamageMaxMythic());
+        s.set("atkSpeed", getAtkSpeed());
+        s.set("moveSpeed", getMoveSpeed());
         s.set("armour", getArmour());
         s.set("armourExpression", getArmourExpression());
         s.set("DamageType", getDamageType());
@@ -755,6 +761,16 @@ public class RPGItem {
             if (m.endsWith("_BOOTS")) modifier = 3;
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new org.bukkit.attribute.AttributeModifier("RPGItems", modifier, ADD_NUMBER));
             meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new org.bukkit.attribute.AttributeModifier("RPGItems", 2, ADD_NUMBER));
+        }
+
+        if (atkSpeed != 0) {
+            meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new org.bukkit.attribute.AttributeModifier("RPGItems", atkSpeed, ADD_NUMBER));
+        }
+
+        if (moveSpeed != 0) {
+            meta.removeAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED);
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new org.bukkit.attribute.AttributeModifier("RPGItems", moveSpeed, ADD_NUMBER));
         }
 
         if (loreOnly) {
@@ -1937,6 +1953,15 @@ public class RPGItem {
     public int getDamageMaxMythic() {
         return damageMaxMythic < 0 ? damageMax : damageMaxMythic;
     }
+
+    public double getAtkSpeed() {
+        return atkSpeed;
+    }
+
+    public double getMoveSpeed() {
+        return moveSpeed;
+    }
+
     public void setCanBeOwned(boolean canBeOwned) {
         this.canBeOwned = canBeOwned;
     }
@@ -1986,6 +2011,14 @@ public class RPGItem {
 
     public void setDamage(int min, int max) {
         setDamage(min, max, false);
+    }
+
+    public void setAtkSpeed(double atkSpeed) {
+        this.atkSpeed = atkSpeed;
+    }
+
+    public void setMoveSpeed(double moveSpeed) {
+        this.moveSpeed = moveSpeed;
     }
 
     public DamageMode getDamageMode() {

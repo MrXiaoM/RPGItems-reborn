@@ -129,6 +129,13 @@ message:
       value: 物品 '%s' 伤害设置为 %d
       range: 物品 '%s' 伤害设置为 %d-%d
     get: 物品 '%s' 伤害为 %d-%d
+  speed:
+    atk:
+      set:
+        value: 物品 '%s' 相对攻击速度设置为 %d
+    move:
+      set:
+        value: 物品 '%s' 相对移动速度设置为 %d
   item:
     set: '物品 ''%s'' 材质已设置为 {itemName} (%s): %d '
     cant:

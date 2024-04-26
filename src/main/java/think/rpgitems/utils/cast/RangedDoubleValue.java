@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static think.rpgitems.power.Utils.weightedRandomPick;
 
 public class RangedDoubleValue {
-    Double totalLength = null;
+    volatile Double totalLength = null;
     private final List<WeightedPair<Double, Double>> ranges = new ArrayList<>();
 
     public static RangedDoubleValue of(String s) {
@@ -52,9 +52,11 @@ public class RangedDoubleValue {
         if (totalLength == null) {
             synchronized (this) {
                 if (totalLength == null) {
-                    totalLength = ranges.stream()
-                            .mapToDouble(pair -> length(pair))
-                            .sum();
+                    double len = 0.0;
+                    for (WeightedPair<Double, Double> range : ranges) {
+                        len += length(range);
+                    }
+                    totalLength = len;
                 }
             }
         }
@@ -71,8 +73,7 @@ public class RangedDoubleValue {
             return pair.getKey();
         }
         double range = pair.getValue() - pair.getKey();
-        double selected = ThreadLocalRandom.current().nextDouble() * range + pair.getKey();
-        return selected;
+        return ThreadLocalRandom.current().nextDouble() * range + pair.getKey();
     }
 
     @Override

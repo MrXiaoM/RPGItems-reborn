@@ -22,12 +22,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Power Manager for registering and inspecting powers.
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class PowerManager {
     static final HashBasedTable<Class<? extends Pimpl>, Class<? extends Pimpl>, Function> adapters = HashBasedTable.create();
     private static final Map<Class<? extends PropertyHolder>, Map<String, Pair<Method, PropertyInstance>>> properties = new HashMap<>();
@@ -143,13 +142,13 @@ public class PowerManager {
 
     private static Map<String, Pair<Method, PropertyInstance>> scanProperties(Class<? extends PropertyHolder> cls) {
         RPGItems.logger.finest("Scanning class " + cls.toGenericString());
-        List<Method> methods = Arrays.stream(cls.getMethods()).collect(Collectors.toList());
+        List<Method> methods = Arrays.stream(cls.getMethods()).toList();
         List<Pair<Field, Property>> collect = getAllFields(cls)
                 .stream()
                 .map(field -> Pair.of(field, field.getAnnotation(Property.class)))
                 .filter(pair -> pair.getValue() != null)
                 .sorted(Comparator.comparingInt(p -> p.getValue().order()))
-                .collect(Collectors.toList());
+                .toList();
 
         int requiredOrder = collect.stream()
                 .map(Pair::getValue)
@@ -252,9 +251,11 @@ public class PowerManager {
 
     public static List<String> getAcceptedValue(Class<? extends PropertyHolder> cls, AcceptedValue anno) {
         if (anno.preset() != Preset.NONE) {
-            return Stream.concat(Arrays.stream(anno.value()), anno.preset().get(cls).stream())
-                    .sorted()
-                    .collect(Collectors.toList());
+            List<String> list = new ArrayList<>();
+            Collections.addAll(list, anno.value());
+            list.addAll(anno.preset().get(cls));
+            Collections.sort(list);
+            return list;
         } else {
             return Arrays.asList(anno.value());
         }
@@ -370,7 +371,7 @@ public class PowerManager {
     public static <T extends Pimpl> T adaptPower(Pimpl pimpl, Class<T> specified) {
         List<Class<? extends Pimpl>> generals = Arrays.asList(getMeta(pimpl.getPower().getNamespacedKey()).generalInterface());
         Set<Class<? extends Pimpl>> statics = Power.getStaticInterfaces(pimpl.getClass());
-        List<Class<? extends Pimpl>> preferences = generals.stream().filter(statics::contains).collect(Collectors.toList());
+        List<Class<? extends Pimpl>> preferences = generals.stream().filter(statics::contains).toList();
 
         for (Class<? extends Pimpl> general : preferences) {
             if (adapters.contains(general, specified)) {

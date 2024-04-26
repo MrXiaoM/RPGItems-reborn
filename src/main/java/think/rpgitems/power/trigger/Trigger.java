@@ -1,7 +1,7 @@
 package think.rpgitems.power.trigger;
 
-import cat.nyaa.nyaacore.Pair;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -10,10 +10,8 @@ import think.rpgitems.power.*;
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+@SuppressWarnings({"rawtypes"})
 public abstract class Trigger<TEvent extends Event, TPower extends Pimpl, TResult, TReturn> extends BasePropertyHolder {
 
     private static final Map<String, Trigger> registry = new HashMap<>();
@@ -55,8 +53,12 @@ public abstract class Trigger<TEvent extends Event, TPower extends Pimpl, TResul
         this.base = base;
     }
 
-    public static Stream<Trigger> fromInterface(Class<? extends Pimpl> power) {
-        return registry.values().stream().filter(t -> t.powerClass.equals(power));
+    public static void fromInterface(Set<Trigger> addTo, Class<? extends Pimpl> power) {
+        for (Trigger trigger : registry.values()) {
+            if (trigger.powerClass.equals(power)) {
+                addTo.add(trigger);
+            }
+        }
     }
 
     @Nullable
@@ -66,20 +68,30 @@ public abstract class Trigger<TEvent extends Event, TPower extends Pimpl, TResul
 
     public static Set<Trigger> getValid(List<String> name, Set<String> ignored) {
         Set<Trigger> triggers = new HashSet<>();
-        name.stream().filter(((Predicate<String>) Strings::isNullOrEmpty).negate()).map(s -> Pair.of(s, Trigger.get(s))).forEach(
-                p -> {
-                    if (p.getValue() == null) {
-                        ignored.add(p.getKey());
-                    } else {
-                        triggers.add(p.getValue());
-                    }
+        for (String s : name) {
+            if (!Strings.isNullOrEmpty(s)) {
+                Trigger trigger = Trigger.get(s);
+                if (trigger == null) {
+                    ignored.add(s);
+                } else {
+                    triggers.add(trigger);
                 }
-        );
+            }
+        }
         return triggers;
     }
 
-    public static Stream<Trigger> getValid(Stream<String> name) {
-        return name.filter(((Predicate<String>) Strings::isNullOrEmpty).negate()).map(Trigger::get).filter(Objects::nonNull);
+    public static Set<Trigger> getValid(List<String> name) {
+        Set<Trigger> set = new HashSet<>();
+        for (String n : name) {
+            if (!Strings.isNullOrEmpty(n)) {
+                Trigger trigger = get(n);
+                if (Objects.nonNull(trigger)) {
+                    set.add(trigger);
+                }
+            }
+        }
+        return set;
     }
 
     public static Trigger valueOf(String name) {
@@ -89,11 +101,17 @@ public abstract class Trigger<TEvent extends Event, TPower extends Pimpl, TResul
     }
 
     public static Set<Trigger> valueOf(String[] name) {
-        return valueOf(Arrays.stream(name)).collect(Collectors.toSet());
+        return valueOf(Lists.newArrayList(name));
     }
 
-    public static Stream<Trigger> valueOf(Stream<String> name) {
-        return name.filter(((Predicate<String>) Strings::isNullOrEmpty).negate()).map(Trigger::valueOf);
+    public static Set<Trigger> valueOf(List<String> name) {
+        Set<Trigger> set = new HashSet<>();
+        for (String n : name) {
+            if (!Strings.isNullOrEmpty(n)) {
+                set.add(valueOf(n));
+            }
+        }
+        return set;
     }
 
     public static void register(Trigger trigger) {

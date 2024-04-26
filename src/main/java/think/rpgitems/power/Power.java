@@ -7,25 +7,25 @@ import think.rpgitems.power.trigger.Trigger;
 
 import javax.annotation.Nullable;
 import java.lang.invoke.MethodHandles;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Base interface for all powers
  */
+@SuppressWarnings({"rawtypes"})
 public interface Power extends PropertyHolder, PlaceholderHolder, TagHolder {
     String CGLIB_CLASS_SEPARATOR = "$$";
     String BYTE_BUDDY_CLASS_SEPARATOR = "$ByteBuddy";
 
     static Set<Trigger> getTriggers(Class<? extends Pimpl> cls) {
-        return getDynamicInterfaces(cls)
-                .stream()
-                .flatMap(Trigger::fromInterface)
-                .collect(Collectors.toSet());
+        Set<Class<? extends Pimpl>> dynamic = getDynamicInterfaces(cls);
+        Set<Trigger> triggers = new HashSet<>();
+        for (Class<? extends Pimpl> i : dynamic) {
+            Trigger.fromInterface(triggers, i);
+        }
+        return triggers;
     }
 
     /**
@@ -34,12 +34,14 @@ public interface Power extends PropertyHolder, PlaceholderHolder, TagHolder {
      */
     @SuppressWarnings("unchecked")
     static Set<Class<? extends Pimpl>> getStaticInterfaces(Class<? extends Pimpl> cls) {
-        return TypeToken.of(cls).getTypes().interfaces().stream()
-                .map(TypeToken::getRawType)
-                .filter(Pimpl.class::isAssignableFrom)
-                .filter(i -> !Objects.equals(i, Pimpl.class))
-                .map(i -> (Class<? extends Pimpl>) i)
-                .collect(Collectors.toSet());
+        Set<Class<? extends Pimpl>> set = new HashSet<>();
+        for (TypeToken<?> type : TypeToken.of(cls).getTypes().interfaces()) {
+            Class<?> rawType = type.getRawType();
+            if (Pimpl.class.isAssignableFrom(rawType) && !Objects.equals(rawType, Pimpl.class)) {
+                set.add((Class<? extends Pimpl>) rawType);
+            }
+        }
+        return set;
     }
 
     /**
@@ -47,13 +49,12 @@ public interface Power extends PropertyHolder, PlaceholderHolder, TagHolder {
      * @return All static and dynamic implemented interfaces
      */
     static Set<Class<? extends Pimpl>> getDynamicInterfaces(Class<? extends Pimpl> cls) {
-        return getStaticInterfaces(cls)
-                .stream()
-                .flatMap(i -> Stream.concat(
-                        Stream.of(i),
-                        PowerManager.adapters.row(i).keySet().stream()
-                ))
-                .collect(Collectors.toSet());
+        Set<Class<? extends Pimpl>> set = new HashSet<>();
+        for (Class<? extends Pimpl> staticInterface : getStaticInterfaces(cls)) {
+            set.add(staticInterface);
+            set.addAll(PowerManager.adapters.row(staticInterface).keySet());
+        }
+        return set;
     }
 
     static Set<Trigger> getDefaultTriggers(Class<? extends Power> cls) {

@@ -1531,11 +1531,20 @@ public class RPGItem {
     }
 
     public boolean hasMarker(Class<? extends Marker> marker) {
-        return markers.stream().anyMatch(p -> p.getClass().equals(marker));
+        for (Marker p : markers) {
+            if (p.getClass().equals(marker)) return true;
+        }
+        return false;
     }
 
     public <T extends Marker> List<T> getMarker(Class<T> marker) {
-        return markers.stream().filter(p -> p.getClass().equals(marker)).map(marker::cast).collect(Collectors.toList());
+        List<T> list = new ArrayList<>();
+        for (Marker p : markers) {
+            if (p.getClass().equals(marker)) {
+                list.add(marker.cast(p));
+            }
+        }
+        return list;
     }
 
     public <T extends Condition<?>> List<T> getConditions(Class<T> condition) {
@@ -1543,23 +1552,51 @@ public class RPGItem {
     }
 
     public <T extends Marker> List<T> getMarker(Class<T> marker, boolean subclass) {
-        return subclass ? markers.stream().filter(marker::isInstance).map(marker::cast).collect(Collectors.toList()) : getMarker(marker);
+        if (!subclass) return getMarker(marker);
+        List<T> list = new ArrayList<>();
+        for (Marker p : markers) {
+            if (marker.isInstance(p)) {
+                list.add(marker.cast(p));
+            }
+        }
+        return list;
     }
 
     public <T extends Marker> List<T> getMarker(NamespacedKey key, Class<T> marker) {
-        return markers.stream().filter(p -> p.getClass().equals(marker) && getPropertyHolderKey(p).equals(key)).map(marker::cast).collect(Collectors.toList());
+        List<T> list = new ArrayList<>();
+        for (Marker p : markers) {
+            if (p.getClass().equals(marker) && getPropertyHolderKey(p).equals(key)) {
+                list.add(marker.cast(p));
+            }
+        }
+        return list;
     }
 
     public <T extends Power> List<T> getPower(NamespacedKey key, Class<T> power) {
-        return powers.stream().filter(p -> p.getClass().equals(power) && getPropertyHolderKey(p).equals(key)).map(power::cast).collect(Collectors.toList());
+        List<T> list = new ArrayList<>();
+        for (Power p : powers) {
+            if (p.getClass().equals(power) && getPropertyHolderKey(p).equals(key)) {
+                list.add(power.cast(p));
+            }
+        }
+        return list;
     }
 
     public <T extends Condition<?>> List<T> getCondition(NamespacedKey key, Class<T> condition) {
-        return powers.stream().filter(p -> p.getClass().equals(condition) && getPropertyHolderKey(p).equals(key)).map(condition::cast).collect(Collectors.toList());
+        List<T> list = new ArrayList<>();
+        for (Condition<?> p : conditions) {
+            if (p.getClass().equals(condition) && getPropertyHolderKey(p).equals(key)) {
+                list.add(condition.cast(p));
+            }
+        }
+        return list;
     }
 
     public Condition<?> getCondition(String id) {
-        return conditions.stream().filter(c -> c.id().equals(id)).findAny().orElse(null);
+        for (Condition<?> c : conditions) {
+            if (c.id().equals(id)) return c;
+        }
+        return null;
     }
 
     public void addPower(NamespacedKey key, Power power) {
@@ -1649,33 +1686,35 @@ public class RPGItem {
 
     public Map<String, List<PlaceholderHolder>> checkDuplicatePlaceholderIds(){
         Map<String, List<PlaceholderHolder>> ids = new HashMap<>();
-        getPlaceholdersStream()
-                .forEach(placeholder -> {
-                    String placeholderId = placeholder.getPlaceholderId();
-                    if("".equals(placeholderId)){
-                        return;
-                    }
-                    List<PlaceholderHolder> placeholderHolders = ids.computeIfAbsent(placeholderId, (s) -> new ArrayList<>());
-                    placeholderHolders.add(placeholder);
-                });
-        Map<String, List<PlaceholderHolder>> result = new HashMap<>();
-        ids.forEach((key, value) ->{
-            if (value.size()>1){
-                result.put(key, value);
+        for (PlaceholderHolder placeholder : getPlaceholdersStream()) {
+            String placeholderId = placeholder.getPlaceholderId();
+            if ("".equals(placeholderId)) {
+                continue;
             }
-        });
+            List<PlaceholderHolder> placeholderHolders;
+            if (ids.containsKey(placeholderId)) placeholderHolders = ids.get(placeholderId);
+            else {
+                placeholderHolders = new ArrayList<>();
+                ids.put(placeholderId, placeholderHolders);
+            }
+            placeholderHolders.add(placeholder);
+        }
+
+        Map<String, List<PlaceholderHolder>> result = new HashMap<>();
+
+        for (Map.Entry<String, List<PlaceholderHolder>> entry : ids.entrySet()) {
+            if (entry.getValue().size() > 1) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
         return result;
     }
 
-    public Stream<PlaceholderHolder> getPlaceholdersStream() {
-        List<Power> powers = getPowers();
-        List<Condition<?>> conditions = getConditions();
-        List<Marker> markers = getMarkers();
-        return Stream.concat(
-                Stream.concat(
-                        powers.stream().map(ph -> ((PlaceholderHolder) ph)),
-                        conditions.stream().map(ph -> ((PlaceholderHolder) ph))),
-                markers.stream());
+    public List<PlaceholderHolder> getPlaceholdersStream() {
+        List<PlaceholderHolder> list = new ArrayList<>(getPowers());
+        list.addAll(getConditions());
+        list.addAll(getMarkers());
+        return list;
     }
 
     public void addDescription(String str) {
@@ -1799,24 +1838,24 @@ public class RPGItem {
         copyFromTemplate(target);
 
         //replace powers & fill placeholders
-        target.getPlaceholdersStream().forEach(power -> {
-                String powerId = power.getPlaceholderId();
-                PlaceholderHolder replaced = replacePlaceholder(powerId, power);
-                List<String> strings = powerMap.get(powerId);
-                if (strings != null){
-                    strings.forEach(s ->{
-                        String[] split = s.split(":");
-                        String propName = split[1];
-                        Object origVal = valMap.get(s);
-                        try {
-                            setPropVal(replaced.getClass(), propName, replaced, origVal);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                            throw new RuntimeException();
-                        }
-                    });
+        for (PlaceholderHolder power : target.getPlaceholdersStream()) {
+            String powerId = power.getPlaceholderId();
+            PlaceholderHolder replaced = replacePlaceholder(powerId, power);
+            List<String> strings = powerMap.get(powerId);
+            if (strings != null) {
+                for (String s : strings) {
+                    String[] split = s.split(":");
+                    String propName = split[1];
+                    Object origVal = valMap.get(s);
+                    try {
+                        setPropVal(replaced.getClass(), propName, replaced, origVal);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException();
+                    }
                 }
-        });
+            }
+        }
 
         ItemManager.save(this);
     }
@@ -1876,7 +1915,9 @@ public class RPGItem {
 
     private void rebuildPlaceholder() {
         placeholders.clear();
-        getPlaceholdersStream().forEach(placeholderHolder -> placeholders.put(placeholderHolder.getPlaceholderId(), placeholderHolder));
+        for (PlaceholderHolder placeholderHolder : getPlaceholdersStream()) {
+            placeholders.put(placeholderHolder.getPlaceholderId(), placeholderHolder);
+        }
     }
 
     public List<String> getTemplatePlaceholders() {

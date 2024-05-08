@@ -1,6 +1,6 @@
 package think.rpgitems.data;
 
-import cat.nyaa.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 

@@ -1,6 +1,6 @@
 package think.rpgitems.power.trigger;
 
-import cat.nyaa.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;

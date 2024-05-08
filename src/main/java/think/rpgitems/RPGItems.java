@@ -1,6 +1,6 @@
 package think.rpgitems;
 
-import cat.nyaa.nyaacore.NyaaCoreLoader;
+import think.rpgitems.utils.nyaacore.NyaaCoreLoader;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;

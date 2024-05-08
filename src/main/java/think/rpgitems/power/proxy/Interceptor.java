@@ -1,7 +1,7 @@
 package think.rpgitems.power.proxy;
 
-import cat.nyaa.nyaacore.Pair;
-import cat.nyaa.nyaacore.utils.ItemTagUtils;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.bytebuddy.ByteBuddy;

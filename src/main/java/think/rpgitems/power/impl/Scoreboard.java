@@ -1,6 +1,6 @@
 package think.rpgitems.power.impl;
 
-import cat.nyaa.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;

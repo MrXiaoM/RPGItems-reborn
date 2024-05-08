@@ -1,6 +1,6 @@
 package think.rpgitems;
 
-import cat.nyaa.nyaacore.utils.RayTraceUtils;
+import think.rpgitems.utils.nyaacore.utils.RayTraceUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

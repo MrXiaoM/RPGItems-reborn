@@ -1,7 +1,7 @@
 package think.rpgitems;
 
-import cat.nyaa.nyaacore.LanguageRepository;
-import cat.nyaa.nyaacore.utils.HexColorUtils;
+import think.rpgitems.utils.nyaacore.LanguageRepository;
+import think.rpgitems.utils.nyaacore.utils.HexColorUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.IllegalFormatConversionException;

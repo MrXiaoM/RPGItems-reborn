@@ -1,6 +1,6 @@
 package think.rpgitems.power;
 
-import cat.nyaa.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;

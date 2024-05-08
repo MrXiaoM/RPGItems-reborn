@@ -1,6 +1,6 @@
 package think.rpgitems;
 
-import cat.nyaa.nyaacore.configuration.PluginConfigure;
+import think.rpgitems.utils.nyaacore.configuration.PluginConfigure;
 import org.bukkit.plugin.java.JavaPlugin;
 import think.rpgitems.item.RPGItem;
 

@@ -1,6 +1,6 @@
 package think.rpgitems.support;
 
-import cat.nyaa.nyaacore.utils.HexColorUtils;
+import think.rpgitems.utils.nyaacore.utils.HexColorUtils;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;

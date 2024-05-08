@@ -1,13 +1,13 @@
 package think.rpgitems;
 
-import cat.nyaa.nyaacore.Message;
-import cat.nyaa.nyaacore.Pair;
-import cat.nyaa.nyaacore.cmdreceiver.Arguments;
-import cat.nyaa.nyaacore.cmdreceiver.BadCommandException;
-import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
-import cat.nyaa.nyaacore.utils.HexColorUtils;
-import cat.nyaa.nyaacore.utils.ItemStackUtils;
-import cat.nyaa.nyaacore.utils.OfflinePlayerUtils;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
+import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
+import think.rpgitems.utils.nyaacore.utils.HexColorUtils;
+import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
+import think.rpgitems.utils.nyaacore.utils.OfflinePlayerUtils;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -37,7 +37,6 @@ import think.rpgitems.power.*;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.NetworkUtils;
-import think.rpgitems.utils.cast.PluginUtils;
 
 import java.io.*;
 import java.lang.reflect.Field;

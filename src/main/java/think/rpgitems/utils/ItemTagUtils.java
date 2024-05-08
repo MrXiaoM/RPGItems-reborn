@@ -1,6 +1,6 @@
 package think.rpgitems.utils;
 
-import cat.nyaa.nyaacore.utils.ItemStackUtils;
+import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import com.google.common.base.FinalizablePhantomReference;
 import com.google.common.base.FinalizableReferenceQueue;
 import com.google.common.collect.Sets;

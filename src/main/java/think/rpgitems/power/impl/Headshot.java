@@ -1,6 +1,6 @@
 package think.rpgitems.power.impl;
 
-import cat.nyaa.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;

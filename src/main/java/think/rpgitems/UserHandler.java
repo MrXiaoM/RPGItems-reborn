@@ -1,9 +1,9 @@
 package think.rpgitems;
 
-import cat.nyaa.nyaacore.LanguageRepository;
-import cat.nyaa.nyaacore.cmdreceiver.Arguments;
-import cat.nyaa.nyaacore.cmdreceiver.BadCommandException;
-import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
+import think.rpgitems.utils.nyaacore.LanguageRepository;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
+import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

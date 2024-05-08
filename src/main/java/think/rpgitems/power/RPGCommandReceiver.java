@@ -1,10 +1,10 @@
 package think.rpgitems.power;
 
-import cat.nyaa.nyaacore.LanguageRepository;
-import cat.nyaa.nyaacore.Message;
-import cat.nyaa.nyaacore.Pair;
-import cat.nyaa.nyaacore.cmdreceiver.Arguments;
-import cat.nyaa.nyaacore.cmdreceiver.CommandReceiver;
+import think.rpgitems.utils.nyaacore.LanguageRepository;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.CommandReceiver;
 import com.google.common.base.Strings;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;

@@ -1,9 +1,9 @@
 package think.rpgitems.item;
 
-import cat.nyaa.nyaacore.Message;
-import cat.nyaa.nyaacore.Pair;
-import cat.nyaa.nyaacore.utils.ItemStackUtils;
-import cat.nyaa.nyaacore.utils.ItemTagUtils;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
+import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

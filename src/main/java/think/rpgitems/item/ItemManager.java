@@ -1,7 +1,7 @@
 package think.rpgitems.item;
 
-import cat.nyaa.nyaacore.Message;
-import cat.nyaa.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.sun.nio.file.ExtendedOpenOption;
@@ -25,6 +25,7 @@ import think.rpgitems.event.ItemsLoadedEvent;
 import think.rpgitems.power.UnknownExtensionException;
 import think.rpgitems.power.UnknownPowerException;
 import think.rpgitems.support.WGSupport;
+import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -516,9 +517,9 @@ public class ItemManager {
         if (!item.hasItemMeta())
             return Optional.empty();
 
-        Optional<Integer> uid = cat.nyaa.nyaacore.utils.ItemTagUtils.getInt(item, NBT_UID);
-        Optional<Integer> itemUuid = cat.nyaa.nyaacore.utils.ItemTagUtils.getInt(item, NBT_ITEM_UUID);
-        Optional<Boolean> isModel = cat.nyaa.nyaacore.utils.ItemTagUtils.getBoolean(item, NBT_IS_MODEL);
+        Optional<Integer> uid = ItemTagUtils.getInt(item, NBT_UID);
+        Optional<Integer> itemUuid = ItemTagUtils.getInt(item, NBT_ITEM_UUID);
+        Optional<Boolean> isModel = ItemTagUtils.getBoolean(item, NBT_IS_MODEL);
 
         if (uid.isEmpty()) {
             return Optional.empty();

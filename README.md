@@ -8,6 +8,8 @@ Recently, I targeted to make RPGItems more powerful and easy to use.
 Original plugin is not only hard to learn and understand how to use, but also there are very few choices of powers, conditions and triggers.  
 That's the problem I want to solve.
 
+Do not use Spigot, use Paper please.
+
 ## Fork
 
 This is a personal fork. Only the branch `1.19` is supported. I add [LoreUpdateEvent](/src/main/java/think/rpgitems/event/LoreUpdateEvent.java) so it is friendly to *SoulBinding-kind* plugins. 
@@ -29,7 +31,7 @@ I uploaded it to central. It is easy to depend it. :P
 class MyEventListener implements Listener {
     @EventHandler
     public void onLoreUpdate(LoreUpdateEvent e) {
-        // cat.nyaa.nyaacore.utils.ItemTagUtils
+        // think.rpgitems.utils.nyaacore.ItemTagUtils
         String owner = ItemTagUtils.getString(event.item, "bind_owner").orElse(null);
         if (owner != null) {
             e.newLore.add("");

@@ -1,6 +1,6 @@
 package think.rpgitems.item;
 
-import cat.nyaa.nyaacore.utils.ItemTagUtils;
+import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;

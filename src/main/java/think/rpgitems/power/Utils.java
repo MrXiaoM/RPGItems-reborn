@@ -1,7 +1,7 @@
 package think.rpgitems.power;
 
-import cat.nyaa.nyaacore.Message;
-import cat.nyaa.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;

@@ -1,7 +1,7 @@
 package think.rpgitems.power.impl;
 
-import cat.nyaa.nyaacore.Message;
-import cat.nyaa.nyaacore.utils.ItemStackUtils;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import com.google.common.base.Strings;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.HoverEvent;

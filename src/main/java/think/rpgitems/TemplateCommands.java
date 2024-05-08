@@ -1,12 +1,12 @@
 package think.rpgitems;
 
-import cat.nyaa.nyaacore.ILocalizer;
-import cat.nyaa.nyaacore.LanguageRepository;
-import cat.nyaa.nyaacore.Message;
-import cat.nyaa.nyaacore.cmdreceiver.Arguments;
-import cat.nyaa.nyaacore.cmdreceiver.BadCommandException;
-import cat.nyaa.nyaacore.cmdreceiver.CommandReceiver;
-import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
+import think.rpgitems.utils.nyaacore.ILocalizer;
+import think.rpgitems.utils.nyaacore.LanguageRepository;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
+import think.rpgitems.utils.nyaacore.cmdreceiver.CommandReceiver;
+import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;

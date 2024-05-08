@@ -1,6 +1,6 @@
 package think.rpgitems.power.impl;
 
-import cat.nyaa.nyaacore.utils.NmsUtils;
+import think.rpgitems.utils.nyaacore.utils.NmsUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

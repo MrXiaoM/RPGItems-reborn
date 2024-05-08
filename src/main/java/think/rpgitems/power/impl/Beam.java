@@ -1,6 +1,6 @@
 package think.rpgitems.power.impl;
 
-import cat.nyaa.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Message;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.udojava.evalex.Expression;
 import org.bukkit.*;

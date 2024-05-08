@@ -1,6 +1,6 @@
 package think.rpgitems.power.propertymodifier;
 
-import cat.nyaa.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.base.Strings;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;

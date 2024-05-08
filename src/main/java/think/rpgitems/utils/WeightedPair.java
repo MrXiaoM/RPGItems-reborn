@@ -1,6 +1,6 @@
 package think.rpgitems.utils;
 
-import cat.nyaa.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.Pair;
 
 import java.util.Map;
 

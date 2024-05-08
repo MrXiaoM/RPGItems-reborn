@@ -1,8 +1,8 @@
 package think.rpgitems;
 
-import cat.nyaa.nyaacore.Pair;
-import cat.nyaa.nyaacore.cmdreceiver.Arguments;
-import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import think.rpgitems.item.ItemManager;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 

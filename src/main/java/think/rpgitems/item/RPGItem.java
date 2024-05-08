@@ -117,6 +117,7 @@ public class RPGItem {
     private String permission;
     private String displayName;
     private String displayNameColored;
+    private String factor;
     private int damageMin = 0;
     private int damageMax = 3;
     private int damageMinPlayer = -1;
@@ -289,6 +290,7 @@ public class RPGItem {
         String display = s.getString("display");
 
         setDisplayName(display);
+        setFactor(s.getString("factor", ""));
         List<String> desc = s.getStringList("description");
         desc.replaceAll(ColorHelper::parseColor);
         setDescription(desc);
@@ -567,6 +569,7 @@ public class RPGItem {
         s.set("haspermission", isHasPermission());
         s.set("permission", getPermission());
         s.set("display", getDisplayNameRaw().replaceAll("" + COLOR_CHAR, "&"));
+        s.set("factor", getFactor());
         s.set("damageMin", getDamageMin());
         s.set("damageMax", getDamageMax());
         s.set("damageMinMythic", getDamageMinMythic());
@@ -2104,6 +2107,14 @@ public class RPGItem {
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
         this.displayNameColored = ColorHelper.parseColor(displayName);
+    }
+
+    public String getFactor() {
+        return factor;
+    }
+
+    public void setFactor(String factor) {
+        this.factor = factor;
     }
 
     public int getDurabilityLowerBound() {

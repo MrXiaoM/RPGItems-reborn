@@ -121,6 +121,9 @@ message:
   display:
     get: 物品 '%s' 展示名为 '%s'
     set: 物品 '%s' 展示名已设置为 '%s'
+  factor:
+    get: 物品 '%s' 元素为 '%s'
+    set: 物品 '%s' 元素已设置为 '%s'
   type:
     set: 物品 '%s' 类型已设置为 '%s'
     get: 物品 '%s' 类型为 '%s'

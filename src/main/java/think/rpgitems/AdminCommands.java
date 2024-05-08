@@ -542,6 +542,24 @@ public class AdminCommands extends RPGCommandReceiver {
         }
     }
 
+    @SubCommand(value = "factor", tabCompleter = "itemCompleter")
+    public void itemFactor(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
+        RPGItem item = getItem(args.nextString(), sender);
+        String value = args.nextString();
+        if (value != null) {
+            item.setFactor(value);
+            msgs(sender, "message.factor.set", item.getName(), item.getFactor());
+            ItemManager.refreshItem();
+            ItemManager.save(item);
+        } else {
+            msgs(sender, "message.factor.get", item.getName(), item.getFactor());
+        }
+    }
+
     @SubCommand(value = "customModel", tabCompleter = "itemCompleter")
     public void itemCustomModel(CommandSender sender, Arguments args) {
         if (plugin.cfg.readonly) {

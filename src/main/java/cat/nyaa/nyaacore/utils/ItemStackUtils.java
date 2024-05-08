@@ -7,12 +7,11 @@ import com.google.common.io.ByteStreams;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.datafix.DataFixers;
-import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTReadLimiter;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.DynamicOpsNBT;
+import net.minecraft.util.datafix.DataConverterRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
@@ -36,7 +35,7 @@ public final class ItemStackUtils {
     private static final Cache<String, List<ItemStack>> itemDeserializerCache = CacheBuilder.newBuilder()
             .weigher((String k, List<ItemStack> v) -> k.getBytes().length)
             .maximumWeight(256L * 1024 * 1024).build(); // Hard Coded 256M
-    private static NbtAccounter unlimitedNbtAccounter = null;
+    private static NBTReadLimiter unlimitedNbtAccounter = null;
 
     static {
         //noinspection deprecation
@@ -52,13 +51,13 @@ public final class ItemStackUtils {
      */
     public static byte[] itemToBinary(ItemStack itemStack) throws IOException {
         net.minecraft.world.item.ItemStack nativeItemStack = CraftItemStack.asNMSCopy(itemStack);
-        CompoundTag CompoundTag = new CompoundTag();
-        nativeItemStack.save(CompoundTag);
-        CompoundTag.putInt(NYAACORE_ITEMSTACK_DATAVERSION_KEY, currentDataVersion);
+        NBTTagCompound compoundTag = new NBTTagCompound();
+        nativeItemStack.b(compoundTag);
+        compoundTag.a(NYAACORE_ITEMSTACK_DATAVERSION_KEY, currentDataVersion);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
-        CompoundTag.write(dos);
+        compoundTag.a(dos);
         byte[] outputByteArray = baos.toByteArray();
         dos.close();
         baos.close();
@@ -78,32 +77,33 @@ public final class ItemStackUtils {
 
     public static ItemStack itemFromBinary(byte[] nbt, int offset, int len) throws IOException {
         if (unlimitedNbtAccounter == null) {
-            unlimitedNbtAccounter = NbtAccounter.UNLIMITED;
+            unlimitedNbtAccounter = NBTReadLimiter.a;
         }
 
         //Constructor<?> constructNativeItemStackFromCompoundTag = classNativeItemStack.getConstructor(classCompoundTag);
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(nbt, offset, len);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        CompoundTag reconstructedCompoundTag = CompoundTag.TYPE.load(dataInputStream, 0, unlimitedNbtAccounter);
+        NBTTagCompound reconstructedCompoundTag = NBTTagCompound.b.b(dataInputStream, 0, unlimitedNbtAccounter);
         dataInputStream.close();
         byteArrayInputStream.close();
-        int dataVersion = reconstructedCompoundTag.getInt(NYAACORE_ITEMSTACK_DATAVERSION_KEY);
+        int dataVersion = reconstructedCompoundTag.h(NYAACORE_ITEMSTACK_DATAVERSION_KEY); // nbt.getInt
         if (dataVersion > 0) {
-            reconstructedCompoundTag.remove(NYAACORE_ITEMSTACK_DATAVERSION_KEY);
+            reconstructedCompoundTag.r(NYAACORE_ITEMSTACK_DATAVERSION_KEY); // nbt.remove
         }
         if (dataVersion < currentDataVersion) {
             // 1.12 to 1.13
             if (dataVersion <= 0) {
                 dataVersion = NYAACORE_ITEMSTACK_DEFAULT_DATAVERSION;
             }
-            DSL.TypeReference References_ITEM_STACK = References.ITEM_STACK;
-            NbtOps NbtOps_instance = NbtOps.INSTANCE;
-            DataFixer dataFixer_instance = DataFixers.getDataFixer();
-            Dynamic<Tag> dynamicInstance = new Dynamic<>(NbtOps_instance, reconstructedCompoundTag);
-            Dynamic<Tag> out = dataFixer_instance.update(References_ITEM_STACK, dynamicInstance, dataVersion, currentDataVersion);
-            reconstructedCompoundTag = (CompoundTag) out.getValue();
+
+            DSL.TypeReference References_ITEM_STACK = () -> "item_stack";
+            DynamicOpsNBT NbtOps_instance = DynamicOpsNBT.a;
+            DataFixer dataFixer_instance = DataConverterRegistry.a();
+            Dynamic<NBTBase> dynamicInstance = new Dynamic<>(NbtOps_instance, reconstructedCompoundTag);
+            Dynamic<NBTBase> out = dataFixer_instance.update(References_ITEM_STACK, dynamicInstance, dataVersion, currentDataVersion);
+            reconstructedCompoundTag = (NBTTagCompound) out.getValue();
         }
-        net.minecraft.world.item.ItemStack reconstructedNativeItemStack = net.minecraft.world.item.ItemStack.of(reconstructedCompoundTag);
+        net.minecraft.world.item.ItemStack reconstructedNativeItemStack = net.minecraft.world.item.ItemStack.a(reconstructedCompoundTag);
         return CraftItemStack.asBukkitCopy(reconstructedNativeItemStack);
     }
 
@@ -180,7 +180,7 @@ public final class ItemStackUtils {
     public static List<ItemStack> itemsFromBase64(String base64) {
         List<ItemStack> stack = itemDeserializerCache.getIfPresent(base64);
         if (stack != null) return stack.stream().map(ItemStack::clone).collect(Collectors.toList());
-        if (base64.length() <= 0) return new ArrayList<>();
+        if (base64.isEmpty()) return new ArrayList<>();
 
         byte[] uncompressedBinary = decompress(BaseEncoding.base64().decode(base64));
         List<ItemStack> ret = new ArrayList<>();
@@ -220,14 +220,14 @@ public final class ItemStackUtils {
      * NOTE: this method has no corresponding deserializer.
      */
     public static String itemToJson(ItemStack itemStack) throws RuntimeException {
-        CompoundTag nmsCompoundTagObj; // This will just be an empty CompoundTag instance to invoke the saveNms method
+        NBTTagCompound nmsCompoundTagObj; // This will just be an empty CompoundTag instance to invoke the saveNms method
         net.minecraft.world.item.ItemStack nmsItemStackObj; // This is the net.minecraft.server.ItemStack object received from the asNMSCopy method
-        CompoundTag itemAsJsonObject; // This is the net.minecraft.server.ItemStack after being put through saveNmsItem method
+        NBTTagCompound itemAsJsonObject; // This is the net.minecraft.server.ItemStack after being put through saveNmsItem method
 
         try {
-            nmsCompoundTagObj = new CompoundTag();
+            nmsCompoundTagObj = new NBTTagCompound();
             nmsItemStackObj = CraftItemStack.asNMSCopy(itemStack);
-            itemAsJsonObject = nmsItemStackObj.save(nmsCompoundTagObj);
+            itemAsJsonObject = nmsItemStackObj.b(nmsCompoundTagObj); // save
         } catch (Throwable t) {
             throw new RuntimeException("failed to serialize itemstack to nms item", t);
         }

@@ -1,6 +1,5 @@
 package think.rpgitems.power.impl;
 
-import cat.nyaa.nyaacore.utils.NmsUtils;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -104,7 +103,8 @@ public class Explosion extends BasePower {
                 LightContext.putTemp(player.getUniqueId(), DAMAGE_SOURCE, getPower().getNamespacedKey().toString());
                 LightContext.putTemp(player.getUniqueId(), SUPPRESS_MELEE, false);
                 LightContext.putTemp(player.getUniqueId(), DAMAGE_SOURCE_ITEM, stack);
-                boolean explosion = NmsUtils.createExplosion(location.getWorld(), player, location.getX(), location.getY(), location.getZ(), getExplosionPower(), false, false);
+                if (location.getWorld() == null) return PowerResult.fail();
+                boolean explosion = location.getWorld().createExplosion(location.getX(), location.getY(), location.getZ(), getExplosionPower(), false, false, player);
                 LightContext.clear();
                 return explosion ? PowerResult.ok() : PowerResult.fail();
             }

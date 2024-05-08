@@ -11,6 +11,7 @@ libraries:
   - 'com.udojava:EvalEx:2.7'
   - 'commons-lang:commons-lang:2.6'
   - 'net.bytebuddy:byte-buddy:LATEST'
+  - 'org.jetbrains:annotations:24.0.1'
 
 commands:
   rpgitem:

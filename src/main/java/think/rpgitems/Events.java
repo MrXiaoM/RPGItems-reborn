@@ -1,7 +1,6 @@
 package think.rpgitems;
 
 import cat.nyaa.nyaacore.utils.RayTraceUtils;
-import cat.nyaa.nyaacore.utils.TridentUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -314,8 +313,8 @@ public class Events implements Listener {
         ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
         ItemStack item = itemInMainHand;
         RPGItem rItem = ItemManager.toRPGItem(item).orElse(null);
-        if (entity instanceof Trident) {
-            item = TridentUtils.getTridentItemStack((Trident) entity);
+        if (entity instanceof Trident trident) {
+            item = trident.getItem();
             rItem = ItemManager.toRPGItem(item).orElse(null);
             if (rItem == null) return;
             UUID uuid = entity.getUniqueId();
@@ -326,7 +325,7 @@ public class Events implements Listener {
             ItemMeta fakeItemItemMeta = fakeItem.getItemMeta();
             fakeItemItemMeta.setLore(fakeLore);
             fakeItem.setItemMeta(fakeItemItemMeta);
-            TridentUtils.setTridentItemStack((Trident) entity, fakeItem);
+            trident.setItem(fakeItem);
         } else {
             if (rItem == null) {
                 item = itemInOffHand;

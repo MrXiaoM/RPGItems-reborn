@@ -1,6 +1,5 @@
 package think.rpgitems.power.impl;
 
-import cat.nyaa.nyaacore.utils.TridentUtils;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.*;
@@ -183,7 +182,7 @@ public class Deflect extends BasePower {
                 }
                 if (p instanceof Trident tridentP) {
                     Trident tridentT = (Trident) t;
-                    TridentUtils.setTridentItemStack(tridentP, TridentUtils.getTridentItemStack(tridentT));
+                    tridentP.setItem(tridentT.getItem());
                 }
                 t.setGravity(p.hasGravity());
                 // `bounce` does not do anything

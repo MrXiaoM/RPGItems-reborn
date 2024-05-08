@@ -1,7 +1,6 @@
 package think.rpgitems.power.impl;
 
 import cat.nyaa.nyaacore.Message;
-import cat.nyaa.nyaacore.utils.VaultUtils;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;

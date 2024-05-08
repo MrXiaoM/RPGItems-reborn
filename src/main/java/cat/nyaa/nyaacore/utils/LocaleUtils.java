@@ -3,12 +3,14 @@ package cat.nyaa.nyaacore.utils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.UnsafeValues;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A wrapper for LangUtils
@@ -19,12 +21,6 @@ public final class LocaleUtils {
         return namespaceKeyToTranslationKey(material.isBlock() ? "block" : "item", material.getKey());
     }
 
-    public static String getUnlocalizedName(ItemStack itemStack) {
-        if (itemStack == null) throw new IllegalArgumentException();
-        net.minecraft.world.item.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(itemStack);
-        return nmsItemStack.getItem().getDescriptionId(nmsItemStack);
-    }
-
     public static BaseComponent getNameComponent(ItemStack item) {
         if (item == null) throw new IllegalArgumentException();
         if (item.hasItemMeta() && item.getItemMeta().hasDisplayName())
@@ -33,8 +29,10 @@ public final class LocaleUtils {
             String key = getUnlocalizedName(item.getType()) + ".named";
             return new TranslatableComponent(key, ((SkullMeta) item.getItemMeta()).getOwningPlayer().getName());
         }
-        net.minecraft.world.item.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(item);
-        return new TranslatableComponent(nmsItemStack.getItem().getDescriptionId(nmsItemStack));
+        String key = item.getType().getItemTranslationKey();
+        if (key == null) key = item.getType().getBlockTranslationKey();
+        else key = (item.getType().isItem() ? "item" : "block") + ".minecraft." + item.getType().name().toLowerCase();
+        return new TranslatableComponent(key);
     }
 
     public static String getUnlocalizedName(Enchantment ench) {

@@ -1,8 +1,12 @@
-# RPGItems SweetRice Fork
+# RPGItems SweetRice Edition
 
-The RPGItems2 plugin continued from [TheCreeperOfRedstone/RPG-Items-2](https://github.com/TheCreeperOfRedstone/RPG-Items-2)
+The NyaaCat RPGItems-reloaded plugin continued from [NyaaCat/RPGItems-reloaded](https://github.com/NyaaCat/RPGItems-reloaded).
 
-No any dependency plugin needed.
+Take it easy. **NO ANY** dependency plugin is needed this time.
+
+Recently, I targeted to make RPGItems more powerful and easy to use.  
+Original plugin is not only hard to learn and understand how to use, but also there are very few choices of powers, conditions and triggers.  
+That's the problem I want to solve.
 
 ## Fork
 
@@ -46,6 +50,13 @@ class MyEventListener implements Listener {
 * Read-only mode
 * BungeeCord notice read-only server to reload
 * Register sub-command into `/rpgitem`
+
+## Languages
+
+Due to my works and study, I'm sorry that the `en_US` language file may no longer be supported.  
+The old language file is available. But something new features are missing.  
+If you want it, you can translate it from `zh_CN`.  
+And also, PRs welcome.
 
 ## Accessible
 

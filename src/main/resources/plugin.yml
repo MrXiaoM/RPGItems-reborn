@@ -2,7 +2,7 @@ name: RPGItems
 main: think.rpgitems.RPGItems
 description: "RPGItems"
 version: ${version}
-softdepend: [WorldGuard,NyaaUtils,Vault]
+softdepend: [WorldGuard,Vault]
 authors: [Taiterio,cyilin,RecursiveG,Librazy]
 website: "https://github.com/MrXiaoM/RPGItems-reloaded"
 database: false

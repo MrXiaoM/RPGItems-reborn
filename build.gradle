@@ -63,9 +63,6 @@ repositories {
 dependencies {
     paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:$minecraftVersion-R0.1-SNAPSHOT")
 
-    compileOnly "cat.nyaa:nyaautils:8.0-SNAPSHOT"
-    shadow "cat.nyaa:nyaautils:8.0-SNAPSHOT"
-
     compileOnly 'io.netty:netty-all:4.1.25.Final' // netty is shadowed inside spigot jar
 
     compileOnly 'org.ow2.asm:asm:9.3'

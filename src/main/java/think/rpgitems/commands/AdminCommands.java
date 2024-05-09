@@ -546,6 +546,7 @@ public class AdminCommands extends RPGCommandReceiver {
         RPGItem item = getItem(args.nextString(), sender);
         String value = args.nextString();
         if (value != null) {
+            if (value.equalsIgnoreCase("none")) value = "";
             item.setFactor(value);
             msgs(sender, "message.factor.set", item.getName(), item.getFactor());
             ItemManager.refreshItem();

@@ -1,35 +1,34 @@
 package think.rpgitems;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.EntityEquipment;
-import org.jetbrains.annotations.Nullable;
-import think.rpgitems.api.IFactorDefiner;
-import think.rpgitems.commands.AdminCommands;
-import think.rpgitems.item.RPGItem;
-import think.rpgitems.utils.nms.NMS;
-import think.rpgitems.utils.nyaacore.NyaaCoreLoader;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerLoadEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.Nullable;
+import think.rpgitems.api.IFactorDefiner;
+import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.data.Font;
 import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
-import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.cast.PluginUtils;
+import think.rpgitems.utils.nms.NMS;
+import think.rpgitems.utils.nyaacore.NyaaCoreLoader;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -216,7 +215,6 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
 
     @Override
     public void onEnable() {
-        Trigger.stopAcceptingRegistrations();
         plugin = this;
         if (plugin.cfg.version.startsWith("0.") && Double.parseDouble(plugin.cfg.version) < 0.5) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "======================================");

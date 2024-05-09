@@ -15,7 +15,6 @@ import java.util.*;
 public abstract class Trigger<TEvent extends Event, TPower extends Pimpl, TResult, TReturn> extends BasePropertyHolder {
 
     private static final Map<String, Trigger> registry = new HashMap<>();
-    private static boolean acceptingNew = true;
     private final Class<TEvent> eventClass;
     private final Class<TResult> resultClass;
     private final Class<TPower> powerClass;
@@ -115,22 +114,15 @@ public abstract class Trigger<TEvent extends Event, TPower extends Pimpl, TResul
     }
 
     public static void register(Trigger trigger) {
+        register(trigger, false);
+    }
+    public static void register(Trigger trigger, boolean override) {
         String name = trigger.name();
-        if (registry.containsKey(name)) {
+        if (!override && registry.containsKey(name)) {
             throw new IllegalArgumentException("Cannot set already-set trigger: " + trigger.name);
-        } else if (!isAcceptingRegistrations()) {
-            throw new IllegalStateException("No longer accepting new triggers (can only be done when loading): " + trigger.name);
         }
         registry.put(name, trigger);
         PowerManager.registerMetas(trigger.getClass());
-    }
-
-    public static boolean isAcceptingRegistrations() {
-        return acceptingNew;
-    }
-
-    public static void stopAcceptingRegistrations() {
-        acceptingNew = false;
     }
 
     public static Set<String> keySet() {

@@ -1,6 +1,8 @@
 package think.rpgitems;
 
+import think.rpgitems.data.Factor;
 import think.rpgitems.data.FactorConfig;
+import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.configuration.PluginConfigure;
 import org.bukkit.plugin.java.JavaPlugin;
 import think.rpgitems.item.RPGItem;
@@ -8,6 +10,7 @@ import think.rpgitems.item.RPGItem;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -119,4 +122,27 @@ public class Configuration extends PluginConfigure {
 
     @Serializable(name = "factor_config")
     public FactorConfig factorConfig = new FactorConfig();
+    {
+        factorConfig.addFactor(new Factor("machine", "&bMachine", mapOf(
+                Pair.of("creature", "damage * 1.2"),
+                Pair.of("supernatural", "damage * 0.8")
+        )));
+        factorConfig.addFactor(new Factor("creature", "&eCreature", mapOf(
+                Pair.of("supernatural", "damage * 1.2"),
+                Pair.of("machine", "damage * 0.8")
+        )));
+        factorConfig.addFactor(new Factor("supernatural", "&dSuper Natural", mapOf(
+                Pair.of("machine", "damage * 1.2"),
+                Pair.of("creature", "damage * 0.8")
+        )));
+    }
+
+    @SafeVarargs
+    public static <V> Map<String, V> mapOf(Pair<String, V>... pairs) {
+        Map<String, V> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (Pair<String, V> pair : pairs) {
+            map.put(pair.getKey(), pair.getValue());
+        }
+        return map;
+    }
 }

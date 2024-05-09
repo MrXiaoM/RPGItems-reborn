@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RPGItems extends JavaPlugin implements PluginMessageListener {
 
@@ -78,6 +80,15 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         plugin = this;
         NMS.init(logger = this.getLogger());
         nyaaCoreLoader.onLoad();
+
+        String versionDesc = getDescription().getVersion();
+        Pattern serialPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
+        Matcher serialMatcher = serialPattern.matcher(versionDesc);
+
+        if (serialMatcher.matches()) {
+            version = Integer.parseInt(serialMatcher.group(1)) * 100 + Integer.parseInt(serialMatcher.group(2));
+            serial = Integer.parseInt(serialMatcher.group(3));
+        }
 
         serverMCVersion = Bukkit.getMinecraftVersion(); // Paper
 

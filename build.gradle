@@ -82,6 +82,7 @@ dependencies {
 
     for (Project proj : project(":nms").subprojects) {
         implementation(proj)
+        shadow(proj)
     }
 }
 

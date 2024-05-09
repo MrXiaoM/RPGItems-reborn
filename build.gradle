@@ -28,6 +28,7 @@ String jdDirectory = System.getenv("JAVADOCS_DIR") == null ? null               
 
 archivesBaseName = "RPGItems-reloaded"
 
+version = "$majorVersion.$minorVersion.$buildNumber"
 String mavenVersion = releasing ? version : "$majorVersion.$minorVersion-SNAPSHOT"
 
 println("version: $version")
@@ -42,7 +43,7 @@ configurations.configureEach {
 }
 allprojects {
     group = "top.mrxiaom"
-    version = "$majorVersion.$minorVersion.$buildNumber"
+    version = rootProject.version
 
     repositories {
         jcenter()

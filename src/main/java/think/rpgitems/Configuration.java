@@ -1,5 +1,6 @@
 package think.rpgitems;
 
+import think.rpgitems.data.FactorConfig;
 import think.rpgitems.utils.nyaacore.configuration.PluginConfigure;
 import org.bukkit.plugin.java.JavaPlugin;
 import think.rpgitems.item.RPGItem;
@@ -115,4 +116,7 @@ public class Configuration extends PluginConfigure {
         qualityPrefixes.put("epic", "&3");
         qualityPrefixes.put("legendary", "&e");
     }
+
+    @Serializable(name = "factor_config")
+    public FactorConfig factorConfig = new FactorConfig();
 }

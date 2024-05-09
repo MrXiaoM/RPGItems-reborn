@@ -2,8 +2,8 @@ name: RPGItems
 main: think.rpgitems.RPGItems
 description: "RPGItems"
 version: ${version}
-softdepend: [WorldGuard,Vault]
-authors: [Taiterio,cyilin,RecursiveG,Librazy]
+softdepend: [WorldGuard,Vault,ItemsAdder,MythicMobs]
+authors: [MrXiaoM,Taiterio,cyilin,RecursiveG,Librazy]
 website: "https://github.com/MrXiaoM/RPGItems-reloaded"
 database: false
 api-version: 1.19

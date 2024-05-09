@@ -41,7 +41,6 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
 
     private static int version;
     private static int serial;
-    private static String pluginMCVersion;
     private static String serverMCVersion;
 
     public static Logger logger;
@@ -58,10 +57,6 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
 
     public static int getSerial() {
         return serial;
-    }
-
-    public static String getPluginMCVersion() {
-        return pluginMCVersion;
     }
 
     public static String getServerMCVersion() {
@@ -85,25 +80,7 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         NMS.init(logger = this.getLogger());
         nyaaCoreLoader.onLoad();
 
-        String versionDesc = getDescription().getVersion();
-        Pattern serialPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)-mc([\\d.]+)");
-        Matcher serialMatcher = serialPattern.matcher(versionDesc);
-
-        if (serialMatcher.matches()) {
-            version = Integer.parseInt(serialMatcher.group(1)) * 100 + Integer.parseInt(serialMatcher.group(2));
-            serial = Integer.parseInt(serialMatcher.group(3));
-            pluginMCVersion = serialMatcher.group(4);
-        }
-
-        String serverVersion = Bukkit.getVersion();
-        Pattern mcVersionPattern = Pattern.compile("\\(MC:\\s+([\\d.]+)\\)");
-        Matcher mcVersionMatcher = mcVersionPattern.matcher(serverVersion);
-
-        if (mcVersionMatcher.find()) {
-            serverMCVersion = mcVersionMatcher.group(1);
-        }
-
-        logger.log(Level.INFO, "Plugin serial: '" + serial + "', native version: '" + pluginMCVersion + "', server version: '" + serverMCVersion + "'.");
+        serverMCVersion = Bukkit.getMinecraftVersion(); // Paper
 
         cfg = new Configuration(this);
         cfg.load();

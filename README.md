@@ -25,6 +25,15 @@ dependencies {
 ```
 I uploaded it to central. It is easy to depend it. :P
 
+## Support Versions
+
+| Minecraft Version  | NMS Version |
+|--------------------|-------------|
+| `1.19.4`           | `v1_19_R3`  |
+| `1.20`, `1.20.1`   | `v1_20_R1`  |
+| `1.20.2`           | `v1_20_R2`  |
+| `1.20.4`           | `v1_20_R3`  |
+
 ## LoreUpdateEvent Example
 
 ```java

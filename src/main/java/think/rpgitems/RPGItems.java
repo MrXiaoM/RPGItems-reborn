@@ -1,5 +1,6 @@
 package think.rpgitems;
 
+import think.rpgitems.utils.nms.NMS;
 import think.rpgitems.utils.nyaacore.NyaaCoreLoader;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
@@ -78,11 +79,10 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         };
         return (T) Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class[]{implInterface}, invocationHandler);
     }
-
     @Override
     public void onLoad() {
         plugin = this;
-        logger = this.getLogger();
+        NMS.init(logger = this.getLogger());
         nyaaCoreLoader.onLoad();
 
         String versionDesc = getDescription().getVersion();

@@ -14,10 +14,6 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 String majorVersion = 3
 String minorVersion = 12
-String minecraftMajorVersion = "1.19"
-String minecraftMinorVersion = "4"
-String minecraftVersion = "${minecraftMajorVersion}.${minecraftMinorVersion}"
-
 Grgit repo = Grgit.open(currentDir: project.projectDir)
 
 Commit commit = repo.head()
@@ -25,15 +21,12 @@ String commitHash = commit.abbreviatedId
 
 String branch = System.getenv("BRANCH_NAME") == null ? repo.branch.current().name      : System.getenv("BRANCH_NAME")
 
-boolean mainBranch = minecraftMajorVersion == branch
 boolean releasing = commit.shortMessage.contains("[release]")
 
 String buildNumber = findProperty("BUILD_NUMBER") == null ? (releasing ? '0' : commitHash.substring(0,6)) : findProperty("BUILD_NUMBER")
 String jdDirectory = System.getenv("JAVADOCS_DIR") == null ? null                      : System.getenv("JAVADOCS_DIR")
 
-group = 'top.mrxiaom'
-archivesBaseName = "RPGItems-reloaded-mc$minecraftVersion"
-version = "$majorVersion.$minorVersion.$buildNumber"
+archivesBaseName = "RPGItems-reloaded"
 
 String mavenVersion = releasing ? version : "$majorVersion.$minorVersion-SNAPSHOT"
 
@@ -47,25 +40,28 @@ targetCompatibility = 17
 configurations.configureEach {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
+allprojects {
+    group = "top.mrxiaom"
+    version = "$majorVersion.$minorVersion.$buildNumber"
 
-repositories {
-    // mavenLocal()
-    jcenter()
-    mavenCentral()
-    maven { name 'NyaaCat'; url 'https://ci.nyaacat.com/maven/' }
-    maven { name "papermc"; url "https://papermc.io/repo/repository/maven-public/" }
-    maven { name 'enginehub'; url 'https://maven.enginehub.org/repo/' }
-    maven { name 'RoseWoodDev'; url "https://repo.rosewooddev.io/repository/public/" }
-    maven { name 'Spigot'; url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { name 'vault-repo'; url 'https://jitpack.io' }
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { name "papermc"; url "https://papermc.io/repo/repository/maven-public/" }
+        maven { name 'enginehub'; url 'https://maven.enginehub.org/repo/' }
+        maven { name 'RoseWoodDev'; url "https://repo.rosewooddev.io/repository/public/" }
+        maven { name 'Spigot'; url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { name 'vault-repo'; url 'https://jitpack.io' }
+    }
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = "UTF-8"
+        sourceCompatibility = 17
+        targetCompatibility = 17
+    }
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:$minecraftVersion-R0.1-SNAPSHOT"
-    compileOnly "org.spigotmc:spigot:$minecraftVersion"
-    compileOnly "com.mojang:datafixerupper:6.0.6"
-    compileOnly "com.mojang:brigadier:1.0.18"
-    compileOnly "com.mojang:authlib:3.18.38"
+    compileOnly "io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT"
 
     compileOnly 'io.netty:netty-all:4.1.25.Final' // netty is shadowed inside spigot jar
 
@@ -83,6 +79,10 @@ dependencies {
         exclude group: 'org.spigotmc', module: 'spigot-api'
     }
     compileOnly('com.github.MilkBowl:VaultAPI:1.7') { transitive = false }
+
+    for (Project proj : project(":nms").subprojects) {
+        implementation(proj)
+    }
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -166,9 +166,6 @@ javadoc {
 
         windowTitle = "RPGItems Javadoc"
         docTitle = "<b>RPGItems</b> " + version
-        if (!mainBranch) {
-            docTitle += branch.replace(minecraftMajorVersion, "")
-        }
     }
 }
 

@@ -41,22 +41,22 @@ public class NMS {
         try {
             String v = getVersion();
             boolean flag = false;
-            if (starts(v, "R1_19_")) {
+            if (equals(v, "v1_19_R3")) {
                 stackTools = new StackTools_v1_19_R3();
                 entityTools = new EntityTools_v1_19_R3();
                 nbtTools = new NBTTagTools_v1_19_R3();
                 flag = true;
-            } else if (equals(v, "R1_20_1")) {
+            } else if (equals(v, "v1_20_R1")) {
                 stackTools = new StackTools_v1_20_R1();
                 entityTools = new EntityTools_v1_20_R1();
                 nbtTools = new NBTTagTools_v1_20_R1();
                 flag = true;
-            } else if (equals(v, "R1_20_2")) {
+            } else if (equals(v, "v1_20_R2")) {
                 stackTools = new StackTools_v1_20_R2();
                 entityTools = new EntityTools_v1_20_R2();
                 nbtTools = new NBTTagTools_v1_20_R2();
                 flag = true;
-            } else if (equals(v, "R1_20_3")) {
+            } else if (equals(v, "v1_20_R3")) {
                 stackTools = new StackTools_v1_20_R3();
                 entityTools = new EntityTools_v1_20_R3();
                 nbtTools = new NBTTagTools_v1_20_R3();
@@ -110,7 +110,7 @@ public class NMS {
     public static String getVersion() {
         if (versionString == null) {
             String name = Bukkit.getServer().getClass().getPackage().getName();
-            versionString = name.substring(name.lastIndexOf('.') + 1) + ".";
+            versionString = name.substring(name.lastIndexOf('.') + 1);
         }
 
         return versionString;

@@ -22,7 +22,7 @@ import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
-import think.rpgitems.AdminCommands;
+import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.data.Context;

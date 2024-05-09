@@ -1,5 +1,7 @@
-package think.rpgitems;
+package think.rpgitems.commands;
 
+import think.rpgitems.I18n;
+import think.rpgitems.RPGItems;
 import think.rpgitems.utils.nyaacore.ILocalizer;
 import think.rpgitems.utils.nyaacore.LanguageRepository;
 import think.rpgitems.utils.nyaacore.Message;

@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static think.rpgitems.AdminCommands.msgs;
+import static think.rpgitems.commands.AdminCommands.msgs;
 
 public abstract class RPGCommandReceiver extends CommandReceiver {
     public final LanguageRepository i18n;

@@ -1,5 +1,7 @@
-package think.rpgitems;
+package think.rpgitems.commands;
 
+import think.rpgitems.I18n;
+import think.rpgitems.RPGItems;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
@@ -18,7 +20,7 @@ import java.util.logging.Level;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static think.rpgitems.AdminCommands.*;
+import static think.rpgitems.commands.AdminCommands.*;
 
 public class MarkerCommands extends RPGCommandReceiver {
     private final RPGItems plugin;

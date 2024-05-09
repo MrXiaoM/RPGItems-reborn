@@ -8,7 +8,7 @@ import com.google.common.collect.HashBiMap;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
-import think.rpgitems.AdminCommands;
+import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.RPGItems;
 import think.rpgitems.power.propertymodifier.Modifier;
 

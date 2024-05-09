@@ -1,5 +1,8 @@
-package think.rpgitems;
+package think.rpgitems.commands;
 
+import think.rpgitems.Configuration;
+import think.rpgitems.I18n;
+import think.rpgitems.RPGItems;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
@@ -71,7 +74,7 @@ public class AdminCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
     private final Map<String, String> subCommandCompletion = new HashMap<>();
 
-    AdminCommands(RPGItems plugin, I18n i18n) {
+    public AdminCommands(RPGItems plugin, I18n i18n) {
         super(plugin, i18n);
         this.plugin = plugin;
         Arrays.stream(getClass().getDeclaredMethods()).forEach(method -> {
@@ -187,14 +190,7 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand("reload")
     public void reload(CommandSender sender, Arguments args) {
-        plugin.cfg = new Configuration(plugin);
-        plugin.cfg.load();
-        plugin.cfg.enabledLanguages.forEach(lang -> new I18n(plugin, lang));
-        plugin.loadPowers();
-        WGSupport.reload();
-        plugin.loadExtensions();
-        plugin.managedPlugins.forEach(Bukkit.getPluginManager()::enablePlugin);
-        ItemManager.reload(plugin);
+        plugin.reload();
         sender.sendMessage(ChatColor.GREEN + "[RPGItems] Reloaded RPGItems.");
         if (!plugin.cfg.readonly && plugin.cfg.readonlyReloadNotice) {
             Player p = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);

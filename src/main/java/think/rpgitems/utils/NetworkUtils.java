@@ -4,7 +4,7 @@ import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import think.rpgitems.AdminCommands;
+import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.RPGItems;
 
 import java.io.IOException;

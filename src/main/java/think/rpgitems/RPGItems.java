@@ -1,5 +1,6 @@
 package think.rpgitems;
 
+import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.utils.nms.NMS;
 import think.rpgitems.utils.nyaacore.NyaaCoreLoader;
 import com.google.common.io.ByteArrayDataInput;
@@ -34,8 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class RPGItems extends JavaPlugin implements PluginMessageListener {
 
@@ -107,6 +106,17 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         Font.load();
         WGSupport.load();
         loadExtensions();
+    }
+
+    public void reload() {
+        plugin.cfg = new Configuration(plugin);
+        plugin.cfg.load();
+        plugin.cfg.enabledLanguages.forEach(lang -> new I18n(plugin, lang));
+        plugin.loadPowers();
+        WGSupport.reload();
+        plugin.loadExtensions();
+        plugin.managedPlugins.forEach(Bukkit.getPluginManager()::enablePlugin);
+        ItemManager.reload(plugin);
     }
 
     void loadPowers() {

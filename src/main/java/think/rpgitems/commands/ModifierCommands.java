@@ -1,5 +1,7 @@
-package think.rpgitems;
+package think.rpgitems.commands;
 
+import think.rpgitems.I18n;
+import think.rpgitems.RPGItems;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
@@ -24,7 +26,7 @@ import java.util.logging.Level;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static think.rpgitems.AdminCommands.*;
+import static think.rpgitems.commands.AdminCommands.*;
 import static think.rpgitems.item.RPGItem.TAG_MODIFIER;
 import static think.rpgitems.item.RPGItem.TAG_VERSION;
 import static think.rpgitems.utils.ItemTagUtils.*;

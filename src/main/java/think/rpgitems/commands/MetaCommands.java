@@ -1,5 +1,7 @@
-package think.rpgitems;
+package think.rpgitems.commands;
 
+import think.rpgitems.I18n;
+import think.rpgitems.RPGItems;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
@@ -12,8 +14,8 @@ import think.rpgitems.power.RPGCommandReceiver;
 import java.util.ArrayList;
 import java.util.List;
 
-import static think.rpgitems.AdminCommands.filtered;
-import static think.rpgitems.AdminCommands.getItem;
+import static think.rpgitems.commands.AdminCommands.filtered;
+import static think.rpgitems.commands.AdminCommands.getItem;
 
 public class MetaCommands extends RPGCommandReceiver {
     private final RPGItems plugin;

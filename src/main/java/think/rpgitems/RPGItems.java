@@ -1,6 +1,11 @@
 package think.rpgitems;
 
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.EntityEquipment;
+import org.jetbrains.annotations.Nullable;
+import think.rpgitems.api.IFactorDefiner;
 import think.rpgitems.commands.AdminCommands;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nms.NMS;
 import think.rpgitems.utils.nyaacore.NyaaCoreLoader;
 import com.google.common.io.ByteArrayDataInput;
@@ -33,6 +38,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -146,6 +153,36 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
     }
 
     public void loadExtensions() {
+        cfg.factorConfig.clearDefiner();
+        cfg.factorConfig.addDefiner(new IFactorDefiner() {
+            @Override
+            public @Nullable String define(LivingEntity entity) {
+                EntityEquipment equipment = entity.getEquipment();
+                if (equipment == null) return null;
+                Map<String, Integer> appearTimes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                add(appearTimes, ItemManager.toRPGItem(equipment.getHelmet()).orElse(null));
+                add(appearTimes, ItemManager.toRPGItem(equipment.getChestplate()).orElse(null));
+                add(appearTimes, ItemManager.toRPGItem(equipment.getLeggings()).orElse(null));
+                add(appearTimes, ItemManager.toRPGItem(equipment.getBoots()).orElse(null));
+                add(appearTimes, ItemManager.toRPGItem(equipment.getItemInOffHand()).orElse(null));
+                add(appearTimes, ItemManager.toRPGItem(equipment.getItemInMainHand()).orElse(null));
+                String factor = null;
+                int max = 0;
+                for (Map.Entry<String, Integer> entry : appearTimes.entrySet()) {
+                    if (entry.getValue() > max) {
+                        factor = entry.getKey();
+                    }
+                }
+                return factor;
+            }
+
+            private void add(Map<String, Integer> appearTimes, RPGItem rpg) {
+                if (rpg == null) return;
+                if (rpg.getFactor() == null || rpg.getFactor().trim().isEmpty()) return;
+                int times = appearTimes.getOrDefault(rpg.getFactor(), 0);
+                appearTimes.put(rpg.getFactor(), times + 1);
+            }
+        });
         for (Plugin plugin : plugin.managedPlugins) {
             String name = plugin.getName();
             PluginUtils.unload(plugin);

@@ -700,20 +700,32 @@ public class Events implements Listener {
                 if (armor && hardHat) break;
             }
         }
+        double damage;
         if (ev.getDamager() instanceof Player) {
-            playerDamager(ev);
+            damage = playerDamager(ev);
         } else if (ev.getDamager() instanceof Projectile) {
-            projectileDamager(ev);
+            damage = projectileDamager(ev);
+        } else {
+            damage = ev.getDamage();
+        }
+        if (damage >= 0
+                && ev.getDamager() instanceof LivingEntity damager
+                && ev.getEntity() instanceof LivingEntity entity
+        ) {
+            double dmg = plugin.cfg.factorConfig.getDamage(damager, entity, damage);
+            if (dmg != damage) {
+                ev.setDamage(dmg);
+            }
         }
     }
 
-    private void playerDamager(EntityDamageByEntityEvent e) {
+    private double playerDamager(EntityDamageByEntityEvent e) {
         Player player = (Player) e.getDamager();
         Entity entity = e.getEntity();
         ItemStack item = player.getInventory().getItemInMainHand();
 
         if (e.getCause() == EntityDamageEvent.DamageCause.THORNS)
-            return;
+            return -1;
 
         Optional<Boolean> suppressMelee = LightContext.getTemp(player.getUniqueId(), SUPPRESS_MELEE);
         Optional<Double> overridingDamage = LightContext.getTemp(player.getUniqueId(), OVERRIDING_DAMAGE);
@@ -734,12 +746,12 @@ public class Events implements Listener {
 
         if (suppressMelee.isPresent() && suppressMelee.get()) {
             overridingDamage.ifPresent(e::setDamage);
-            return;
+            return -1;
         } else {
             suppressMelee = Optional.ofNullable(Context.instance().getBoolean(player.getUniqueId(), SUPPRESS_MELEE));
             if (suppressMelee.isPresent() && suppressMelee.get()) {
                 overridingDamage.ifPresent(e::setDamage);
-                return;
+                return -1;
             }
         }
 
@@ -764,20 +776,20 @@ public class Events implements Listener {
         }
         if (damage == -1) {
             e.setCancelled(true);
-            return;
+            return -1;
         }
         e.setDamage(damage);
-        if (!(entity instanceof LivingEntity)) return;
+        if (!(entity instanceof LivingEntity)) return damage;
         if (rItem != null) {
             String damageType = rItem.getDamageType();
             Context.instance().putTemp(player.getUniqueId(), DAMAGE_TYPE, damageType);
             damage = rItem.power(player, item, e, BaseTriggers.HIT).orElse(damage);
         }
         ItemStack[] inventory = player.getInventory().getContents();
-        runGlobalHitTrigger(e, player, damage, rItem == null ? "" : rItem.getDamageType(), inventory);
+        return runGlobalHitTrigger(e, player, damage, rItem == null ? "" : rItem.getDamageType(), inventory);
     }
 
-    private void projectileDamager(EntityDamageByEntityEvent e) {
+    private double projectileDamager(EntityDamageByEntityEvent e) {
         Projectile projectile = (Projectile) e.getDamager();
         Integer projectileID = rpgProjectiles.get(projectile.getEntityId());
         if (projectileID == null) {
@@ -785,13 +797,13 @@ public class Events implements Listener {
                 double damage = e.getDamage() * projectile.getMetadata("RPGItems.Force").get(0).asFloat() / projectile.getMetadata("RPGItems.OriginalForce").get(0).asFloat();
                 e.setDamage(damage);
             }
-            return;
+            return -1;
         }
         RPGItem rItem = ItemManager.getItem(projectileID).orElse(null);
         if (rItem == null || !(projectile.getShooter() instanceof Player player))
-            return;
+            return -1;
         if (!((Player) projectile.getShooter()).isOnline()) {
-            return;
+            return -1;
         }
         ItemStack item = player.getInventory().getItemInMainHand();
         RPGItem hItem = ItemManager.toRPGItem(item).orElse(null);
@@ -817,7 +829,7 @@ public class Events implements Listener {
             if (overridingDamage != null) {
                 e.setDamage(overridingDamage);
             }
-            return;
+            return -1;
         }
 
         double originDamage = e.getDamage();
@@ -829,18 +841,18 @@ public class Events implements Listener {
         }
         if (damage == -1) {
             e.setCancelled(true);
-            return;
+            return -1;
         }
         e.setDamage(damage);
-        if (!(e.getEntity() instanceof LivingEntity)) return;
+        if (!(e.getEntity() instanceof LivingEntity)) return damage;
         ItemStack[] armorContents = player.getInventory().getContents();
         String damageType = rItem.getDamageType();
         Context.instance().putTemp(player.getUniqueId(), DAMAGE_TYPE, damageType);
         damage = rItem.power(player, item, e, BaseTriggers.HIT).orElse(damage);
-        runGlobalHitTrigger(e, player, damage, damageType, armorContents);
+        return runGlobalHitTrigger(e, player, damage, damageType, armorContents);
     }
 
-    private void runGlobalHitTrigger(EntityDamageByEntityEvent e, Player player, double damage, String damageType, ItemStack[] itemStacks) {
+    private double runGlobalHitTrigger(EntityDamageByEntityEvent e, Player player, double damage, String damageType, ItemStack[] itemStacks) {
         ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
         for (ItemStack itemStack : itemStacks) {
             if (itemStack == null) continue;
@@ -854,7 +866,9 @@ public class Events implements Listener {
             e.setCancelled(true);
             e.setDamage(0);
         }
-        e.setDamage(Math.max(damage, 0));
+        double dmg = Math.max(damage, 0);
+        e.setDamage(dmg);
+        return dmg;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

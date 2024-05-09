@@ -34,21 +34,6 @@ I uploaded it to central. It is easy to depend it. :P
 | `1.20.2`           | `v1_20_R2`  |
 | `1.20.4`           | `v1_20_R3`  |
 
-## LoreUpdateEvent Example
-
-```java
-class MyEventListener implements Listener {
-    @EventHandler
-    public void onLoreUpdate(LoreUpdateEvent e) {
-        // think.rpgitems.utils.nyaacore.ItemTagUtils
-        String owner = ItemTagUtils.getString(event.item, "bind_owner").orElse(null);
-        if (owner != null) {
-            e.newLore.add("");
-            e.newLore.add(ColorHelper.parseColor("&aBound to &2" + owner));
-        }
-    }
-}
-```
 
 ## What's new 
 
@@ -59,8 +44,12 @@ class MyEventListener implements Listener {
 * More friendly and developer comfortably help command
 * More friendly Chinese translation with color
 * Read-only mode
+* Redirect `items` data folder
 * BungeeCord notice read-only server to reload
 * Register sub-command into `/rpgitem`
+* High playability Factor system
+* More interesting preset powers, conditions and triggers
+* Link with more plugins
 
 ## Languages
 

@@ -75,6 +75,9 @@ dependencies {
     compileOnly 'com.github.LoneDev6:api-itemsadder:3.6.1'
     compileOnly 'io.lumine:Mythic-Dist:5.4.1-SNAPSHOT'
 
+    implementation("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
+
     implementation('com.sk89q.worldguard:worldguard-core:7.0.4-SNAPSHOT')
     implementation('com.sk89q.worldguard:worldguard-bukkit:7.0.4-SNAPSHOT') {
         exclude group: 'io.papermc', module: 'paperlib'

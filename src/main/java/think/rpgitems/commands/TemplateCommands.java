@@ -48,7 +48,7 @@ public class TemplateCommands extends RPGCommandReceiver {
             badPlaceHolders.forEach(s -> sendBadMsg(sender, s));
             return;
         }
-        rpgItem.setIsTemplate(true);
+        rpgItem.setTemplate(true);
         rpgItem.setTemplatePlaceHolders(placeHolder);
         ItemManager.save(rpgItem);
         new Message("").append(I18n.getInstance(sender).format("command.template.create.success", itemName)).send(sender);
@@ -62,7 +62,7 @@ public class TemplateCommands extends RPGCommandReceiver {
         }
         String itemName = arguments.nextString();
         RPGItem rpgItem = ItemManager.getItem(itemName).orElseThrow(BadCommandException::new);
-        rpgItem.setIsTemplate(false);
+        rpgItem.setTemplate(false);
         new Message("").append(I18n.getInstance(sender).format("command.template.delete.success", itemName)).send(sender);
     }
 

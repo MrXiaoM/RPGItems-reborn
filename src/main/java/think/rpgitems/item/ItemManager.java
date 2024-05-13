@@ -635,7 +635,7 @@ public class ItemManager {
         RPGItem newItem;
         try {
             newItem = new RPGItem(section, name, free);
-            newItem.setIsTemplate(false);
+            newItem.setTemplate(false);
             newItem.setTemplateOf(item.getName());
         } catch (UnknownPowerException | UnknownExtensionException e) {
             throw new IllegalStateException(e);

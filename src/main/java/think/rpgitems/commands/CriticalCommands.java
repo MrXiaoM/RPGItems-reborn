@@ -114,7 +114,7 @@ public class CriticalCommands extends RPGCommandReceiver {
         msgs(sender, "message.critical.back.get", item.getName(), item.getCriticalBackRate(), item.getCriticalBackDamage(), item.getCriticalBackMultiple());
     }
 
-    @SubCommand(value = "anti", tabCompleter = "typeCompleter")
+    @SubCommand(value = "anti", tabCompleter = "antiCompleter")
     public void anti(CommandSender sender, Arguments arguments){
         if (plugin.cfg.readonly) {
             sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");

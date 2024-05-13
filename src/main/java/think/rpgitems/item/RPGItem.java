@@ -136,8 +136,8 @@ public class RPGItem {
     @Getter @Setter private double criticalBackDamage;
     @Getter @Setter private double criticalBackMultiple;
     @Getter @Setter private double dodgeRate;
-    @Getter @Setter private MessageType dodgeMessageType;
-    @Getter @Setter private String dodgeMessage;
+    @Setter private MessageType dodgeMessageType = MessageType.TITLE;
+    @Getter @Setter private String dodgeMessage = "&e当心\n&f躲避判定成功";
     @Getter @Setter private double criticalAntiRate;
 
     @Getter @Setter private double atkSpeed = 0;
@@ -2032,6 +2032,11 @@ public class RPGItem {
     public void setDurabilityBound(int min, int max) {
         setDurabilityLowerBound(min);
         setDurabilityUpperBound(max);
+    }
+
+    public MessageType getDodgeMessageType() {
+        if (dodgeMessageType == null) dodgeMessageType = MessageType.TITLE;
+        return dodgeMessageType;
     }
 
     void setFile(File itemFile) {

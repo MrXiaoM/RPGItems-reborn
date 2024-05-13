@@ -1,5 +1,7 @@
 package think.rpgitems.utils;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
@@ -12,6 +14,12 @@ public class ColorHelper {
     private static final Pattern startWithColor = Pattern.compile("^(&[LMNKOlmnko])+");
     private static final Pattern gradientPattern = Pattern.compile("\\{(#[ABCDEFabcdef0123456789]{6}):(#[ABCDEFabcdef0123456789]{6}):(.*)}");
     private static final Pattern hexPattern = Pattern.compile("&(#[ABCDEFabcdef0123456789]{6})");
+
+    @SuppressWarnings({"deprecation"})
+    public static BaseComponent bungee(String s) {
+        return new TextComponent(TextComponent.fromLegacyText(parseColor(s)));
+    }
+
     public static String parseColor(String s) {
         String fin = s;
         fin = String.join("", split(hexPattern, fin, regexResult -> {

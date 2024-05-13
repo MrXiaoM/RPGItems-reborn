@@ -124,6 +124,27 @@ message:
   factor:
     get: 物品 '%s' 元素为 '%s'
     set: 物品 '%s' 元素已设置为 '%s'
+  critical:
+    normal:
+      get: 物品 '%s' 暴击几率为 %.2f，暴击伤害增加 %.2f，暴击倍率 %.2f
+      rate:
+        set: 物品 '%s' 暴击几率已设置为 %.2f
+      damage:
+        set: 物品 '%s' 暴击伤害增加已设置为 %.2f
+      multiple:
+        set: 物品 '%s' 暴击倍率已设置为 %.2f
+    back:
+      get: 物品 '%s' 背刺暴击几率为 %.2f，背刺暴击伤害增加 %.2f，背刺暴击倍率 %.2f
+      rate:
+        set: 物品 '%s' 背刺暴击几率已设置为 %.2f
+      damage:
+        set: 物品 '%s' 背刺暴击伤害增加已设置为 %.2f
+      multiple:
+        set: 物品 '%s' 背刺暴击倍率已设置为 %.2f
+    anti:
+      get: 物品 '%s' 抗爆率为 %.2f
+      rate:
+        set: 物品 '%s' 抗爆率已设置为 %.2f
   type:
     set: 物品 '%s' 类型已设置为 '%s'
     get: 物品 '%s' 类型为 '%s'

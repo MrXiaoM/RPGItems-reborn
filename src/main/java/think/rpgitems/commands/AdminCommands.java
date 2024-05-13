@@ -138,6 +138,9 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand("condition")
     public ConditionCommands condition;
 
+    @SubCommand("critical")
+    public CriticalCommands critical;
+
     @SubCommand("marker")
     public MarkerCommands marker;
 
@@ -544,7 +547,7 @@ public class AdminCommands extends RPGCommandReceiver {
             return;
         }
         RPGItem item = getItem(args.nextString(), sender);
-        String value = args.nextString();
+        String value = args.nextString(null);
         if (value != null) {
             if (value.equalsIgnoreCase("none")) value = "";
             item.setFactor(value);

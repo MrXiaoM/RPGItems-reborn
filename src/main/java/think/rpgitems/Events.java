@@ -1,5 +1,6 @@
 package think.rpgitems;
 
+import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.utils.RayTraceUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -708,15 +709,88 @@ public class Events implements Listener {
         } else {
             damage = ev.getDamage();
         }
+        // factor
         if (damage >= 0
                 && ev.getDamager() instanceof LivingEntity damager
                 && ev.getEntity() instanceof LivingEntity entity
         ) {
-            double dmg = plugin.cfg.factorConfig.getDamage(damager, entity, damage);
-            if (dmg != damage) {
-                ev.setDamage(dmg);
+            damage = plugin.cfg.factorConfig.getDamage(damager, entity, damage);
+        }
+        // critical
+        double criticalDamage = damage;
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        if (damage >= 0 && ev.getDamager() instanceof LivingEntity damager && damager.getEquipment() != null) {
+            RPGItem rpg = ItemManager.toRPGItem(damager.getEquipment().getItemInMainHand()).orElse(null);
+            if (rpg != null) {
+                if (rpg.getCriticalRate() > 0 && random.nextDouble(100) < rpg.getCriticalRate()) {
+                    criticalDamage += rpg.getCriticalDamage();
+                    criticalDamage *= rpg.getCriticalMultiple();
+                } else if (rpg.getCriticalBackRate() > 0 && random.nextDouble(100) < rpg.getCriticalBackRate()) {
+                    criticalDamage += rpg.getCriticalBackDamage();
+                    criticalDamage *= rpg.getCriticalBackMultiple();
+                }
             }
         }
+        // anti critical
+        if (criticalDamage > damage && ev.getEntity() instanceof LivingEntity entity && entity.getEquipment() != null) {
+            EntityEquipment equipment = entity.getEquipment();
+            Pair<RPGItem, ItemStack> pair;
+            if ((pair = isAntiCriticalSuccess(random, equipment.getItemInMainHand())) != null
+                    || (pair = isAntiCriticalSuccess(random, equipment.getItemInOffHand())) != null
+                    || (pair = isAntiCriticalSuccess(random, equipment.getHelmet())) != null
+                    || (pair = isAntiCriticalSuccess(random, equipment.getChestplate())) != null
+                    || (pair = isAntiCriticalSuccess(random, equipment.getLeggings())) != null
+                    || (pair = isAntiCriticalSuccess(random, equipment.getBoots())) != null) {
+                criticalDamage = damage;
+                if (entity instanceof Player p) {
+                    pair.getKey().getDodgeMessageType().send(p, pair.getKey().getDodgeMessage());
+                    trigger(p, ev, pair.getValue(), BaseTriggers.ANTI_CRITICAL);
+                    if (ev.getDamager() instanceof Player p2) {
+                        trigger(p2, ev, pair.getValue(), BaseTriggers.CRITICAL_FORCE_FAIL);
+                    }
+                }
+            }
+        }
+        ev.setDamage(criticalDamage);
+        // dodge
+        if (ev.getEntity() instanceof LivingEntity entity && entity.getEquipment() != null) {
+            EntityEquipment equipment = entity.getEquipment();
+            Pair<RPGItem, ItemStack> pair;
+            if ((pair = isDodgeSuccess(random, equipment.getItemInMainHand())) != null
+                    || (pair = isDodgeSuccess(random, equipment.getItemInOffHand())) != null
+                    || (pair = isDodgeSuccess(random, equipment.getHelmet())) != null
+                    || (pair = isDodgeSuccess(random, equipment.getChestplate())) != null
+                    || (pair = isDodgeSuccess(random, equipment.getLeggings())) != null
+                    || (pair = isDodgeSuccess(random, equipment.getBoots())) != null) {
+                ev.setCancelled(true);
+                if (entity instanceof Player p) {
+                    pair.getKey().getDodgeMessageType().send(p, pair.getKey().getDodgeMessage());
+                    trigger(p, ev, pair.getValue(), BaseTriggers.DODGE);
+                    return;
+                }
+            }
+        }
+        if (criticalDamage > damage && ev.getDamager() instanceof Player p) {
+            trigger(p, ev, p.getInventory().getItemInMainHand(), BaseTriggers.CRITICAL);
+        }
+    }
+
+    private Pair<RPGItem, ItemStack> isDodgeSuccess(ThreadLocalRandom random, ItemStack item) {
+        RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
+        if (rpg == null || rpg.getDodgeRate() <= 0) return null;
+        if (random.nextDouble(100) < rpg.getDodgeRate()) {
+            return Pair.of(rpg, item);
+        }
+        return null;
+    }
+
+    private Pair<RPGItem, ItemStack> isAntiCriticalSuccess(ThreadLocalRandom random, ItemStack item) {
+        RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
+        if (rpg == null || rpg.getCriticalAntiRate() <= 0) return null;
+        if (random.nextDouble(100) < rpg.getCriticalAntiRate()) {
+            return Pair.of(rpg, item);
+        }
+        return null;
     }
 
     private double playerDamager(EntityDamageByEntityEvent e) {

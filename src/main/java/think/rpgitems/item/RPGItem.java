@@ -1,5 +1,6 @@
 package think.rpgitems.item;
 
+import think.rpgitems.utils.MessageType;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
@@ -127,6 +128,18 @@ public class RPGItem {
     @Getter private int damageMaxPlayer = -1;
     private int damageMinMythic = -1;
     private int damageMaxMythic = -1;
+
+    @Getter @Setter private double criticalRate;
+    @Getter @Setter private double criticalDamage;
+    @Getter @Setter private double criticalMultiple;
+    @Getter @Setter private double criticalBackRate;
+    @Getter @Setter private double criticalBackDamage;
+    @Getter @Setter private double criticalBackMultiple;
+    @Getter @Setter private double dodgeRate;
+    @Getter @Setter private MessageType dodgeMessageType;
+    @Getter @Setter private String dodgeMessage;
+    @Getter @Setter private double criticalAntiRate;
+
     @Getter @Setter private double atkSpeed = 0;
     @Getter @Setter private double moveSpeed = 0;
     @Getter @Setter private DamageMode damageMode = DamageMode.FIXED;
@@ -305,6 +318,19 @@ public class RPGItem {
         setDamageMaxMythic(s.getInt("damageMaxMythic", -1));
         damageMinPlayer = damageMin;
         damageMaxPlayer = damageMax;
+
+        setCriticalRate(s.getDouble("critical.normal.rate", 0.0d));
+        setCriticalDamage(s.getDouble("critical.normal.damage", 0.0d));
+        setCriticalMultiple(s.getDouble("critical.normal.multiple", 1.0d));
+        setCriticalBackRate(s.getDouble("critical.back.rate", 0.0d));
+        setCriticalBackDamage(s.getDouble("critical.back.damage", 0.0d));
+        setCriticalBackMultiple(s.getDouble("critical.back.multiple", 1.0d));
+        setCriticalAntiRate(s.getDouble("critical.anti.rate", 0.0d));
+
+        setDodgeRate(s.getDouble("dodge.rate", 0.0d));
+        setDodgeMessageType(MessageType.getFromConfig(s, "dodge.message-type", MessageType.TITLE));
+        setDodgeMessage(s.getString("dodge.message", "&e当心\\n&f躲避判定成功").replace("\\n", "\n"));
+
         setAtkSpeed(s.getInt("atkSpeed"));
         setMoveSpeed(s.getInt("moveSpeed"));
         setArmour(s.getInt("armour", 0), false);
@@ -329,8 +355,16 @@ public class RPGItem {
             for (String sectionKey : powerList.getKeys(false)) {
                 ConfigurationSection section = powerList.getConfigurationSection(sectionKey);
                 String powerName = Objects.requireNonNull(section).getString("powerName");
+                if (powerName == null) continue;
+                if (powerName.equalsIgnoreCase("rpgitems:criticalhit")) { // merge critical power into RPGItem
+                    setCriticalRate(section.getDouble("chance", 0.0d));
+                    setCriticalMultiple(section.getDouble("factor", 1.0d));
+                    setCriticalBackRate(section.getDouble("backstabChance", 0.0d));
+                    setCriticalBackMultiple(section.getDouble("backstabFactor", 1.0d));
+                    continue;
+                }
                 // 3.7 -> 3.8 Migration
-                if (Objects.requireNonNull(powerName).endsWith("condition")) {
+                if (powerName.endsWith("condition")) {
                     loadCondition(section, powerName);
                 } else if (Stream.of("attributemodifier", "lorefilter", "ranged", "rangedonly", "selector", "unbreakable").anyMatch(powerName::endsWith)) {
                     loadMarker(section, powerName);
@@ -566,6 +600,19 @@ public class RPGItem {
         s.set("damageMax", getDamageMax());
         s.set("damageMinMythic", getDamageMinMythic());
         s.set("damageMaxMythic", getDamageMaxMythic());
+
+        s.set("critical.normal.rate", getCriticalRate());
+        s.set("critical.normal.damage", getCriticalDamage());
+        s.set("critical.normal.multiple", getCriticalMultiple());
+        s.set("critical.back.rate", getCriticalBackRate());
+        s.set("critical.back.damage", getCriticalBackDamage());
+        s.set("critical.back.multiple", getCriticalBackMultiple());
+        s.set("critical.anti.rate", getCriticalAntiRate());
+
+        s.set("dodge.rate", getDodgeRate());
+        s.set("dodge.message-type", getDodgeMessageType().name().toUpperCase());
+        s.set("dodge.message", getDodgeMessage().replace("\n", "\\n"));
+
         s.set("atkSpeed", getAtkSpeed());
         s.set("moveSpeed", getMoveSpeed());
         s.set("armour", getArmour());

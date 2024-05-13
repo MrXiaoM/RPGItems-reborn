@@ -41,4 +41,8 @@ public final class BaseTriggers {
     public static final Trigger<BeamHitBlockEvent, PowerBeamHit, Void, Void> BEAM_HIT_BLOCK = new BeamHit<>(BeamHitBlockEvent.class, Void.class, Void.class, "BEAM_HIT_BLOCK");
     public static final Trigger<BeamHitEntityEvent, PowerBeamHit, Double, Optional<Double>> BEAM_HIT_ENTITY = new BeamHit<>(BeamHitEntityEvent.class, Double.class, Optional.class, "BEAM_HIT_ENTITY");
     public static final Trigger<BeamEndEvent, PowerBeamHit, Double, Optional<Double>> BEAM_END = new BeamHit<>(BeamEndEvent.class, Double.class, Optional.class, "BEAM_END");
+    public static final Trigger<EntityDamageByEntityEvent, PowerHit, Double, Optional<Double>> CRITICAL = new Critical();
+    public static final Trigger<EntityDamageByEntityEvent, PowerHit, Double, Optional<Double>> CRITICAL_FORCE_FAIL = new CriticalForceFail();
+    public static final Trigger<EntityDamageEvent, PowerHurt, Void, Void> ANTI_CRITICAL = new AntiCritical();
+    public static final Trigger<EntityDamageEvent, PowerHurt, Void, Void> DODGE = new Dodge();
 }

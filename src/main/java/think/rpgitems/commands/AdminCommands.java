@@ -3,6 +3,7 @@ package think.rpgitems.commands;
 import think.rpgitems.Configuration;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.utils.MessageType;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
@@ -557,6 +558,53 @@ public class AdminCommands extends RPGCommandReceiver {
         } else {
             msgs(sender, "message.factor.get", item.getName(), item.getFactor());
         }
+    }
+
+    @SubCommand(value = "dodge", tabCompleter = "dodgeCompleter")
+    public void dodge(CommandSender sender, Arguments arguments){
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
+        RPGItem item = getItem(arguments.nextString(), sender);
+        String type = arguments.nextString();
+        if (type.equalsIgnoreCase("rate")) {
+            Double rate = arguments.nextDouble((Double) null);
+            if (rate != null) {
+                item.setCriticalRate(rate);
+                msgs(sender, "message.critical.normal.rate.set", item.getName(), item.getCriticalRate());
+                ItemManager.save(item);
+                return;
+            }
+        } else if (type.equalsIgnoreCase("msgType")) {
+            MessageType msgType = arguments.nextEnum(MessageType.class);
+            if (msgType != null) {
+                item.setDodgeMessageType(msgType);
+                msgs(sender, "message.dodge.msg-type.set", item.getName(), item.getDodgeMessageType().name().toUpperCase());
+                ItemManager.save(item);
+                return;
+            }
+        } else if (type.equalsIgnoreCase("msg")) {
+            String msg = consumeString(arguments);
+            item.setDodgeMessage(msg.replace("\\n", "\n"));
+            msgs(sender, "message.dodge.msg.set", item.getName(), item.getDodgeMessage().replace("\n", "\\n"));
+            ItemManager.save(item);
+            return;
+        }
+        msgs(sender, "message.dodge.get", item.getName(), item.getDodgeRate(), item.getDodgeMessageType().name().toUpperCase(), item.getDodgeMessage());
+    }
+
+    private List<String> dodgeCompleter(CommandSender sender, Arguments arguments){
+        List<String> completeStr = new ArrayList<>();
+        switch (arguments.remains()) {
+            case 1 -> completeStr.addAll(ItemManager.itemNames());
+            case 2 -> {
+                completeStr.add("rate");
+                completeStr.add("damage");
+                completeStr.add("multiple");
+            }
+        }
+        return filtered(arguments, completeStr);
     }
 
     @SubCommand(value = "customModel", tabCompleter = "itemCompleter")

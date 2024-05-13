@@ -126,25 +126,33 @@ message:
     set: 物品 '%s' 元素已设置为 '%s'
   critical:
     normal:
-      get: 物品 '%s' 暴击几率为 %.2f，暴击伤害增加 %.2f，暴击倍率 %.2f
+      get: 物品 '%s' 暴击几率为 %.2f%%，暴击伤害增加 %.2f，暴击倍率 %.2f
       rate:
-        set: 物品 '%s' 暴击几率已设置为 %.2f
+        set: 物品 '%s' 暴击几率已设置为 %.2f%%
       damage:
         set: 物品 '%s' 暴击伤害增加已设置为 %.2f
       multiple:
         set: 物品 '%s' 暴击倍率已设置为 %.2f
     back:
-      get: 物品 '%s' 背刺暴击几率为 %.2f，背刺暴击伤害增加 %.2f，背刺暴击倍率 %.2f
+      get: 物品 '%s' 背刺暴击几率为 %.2f%%，背刺暴击伤害增加 %.2f，背刺暴击倍率 %.2f
       rate:
-        set: 物品 '%s' 背刺暴击几率已设置为 %.2f
+        set: 物品 '%s' 背刺暴击几率已设置为 %.2f%%
       damage:
         set: 物品 '%s' 背刺暴击伤害增加已设置为 %.2f
       multiple:
         set: 物品 '%s' 背刺暴击倍率已设置为 %.2f
     anti:
-      get: 物品 '%s' 抗爆率为 %.2f
+      get: 物品 '%s' 抗爆率为 %.2f%%
       rate:
-        set: 物品 '%s' 抗爆率已设置为 %.2f
+        set: 物品 '%s' 抗爆率已设置为 %.2f%%
+  dodge:
+    get: 物品 '%s' 闪避几率为 %.2f%%，闪避消息类型为 %s，闪避消息为 '%s&r'
+    rate:
+      set: 物品 '%s' 闪避几率已设置为 %.2f%%
+    msg-type:
+      set: 物品 '%s' 闪避消息类型已设置为 %s
+    msg:
+      set: 物品 '%s' 闪避消息已设置为 '%s&r'
   type:
     set: 物品 '%s' 类型已设置为 '%s'
     get: 物品 '%s' 类型为 '%s'
@@ -1084,8 +1092,47 @@ manual:
       usage: '&f/rpgitem meta &a[help]'
     description: 设置物品元数据
     usage: '&f/rpgitem meta &a{神器} <&fquality&a/&ftype&a> <值>'
+  critical:
+    description: '展示/设置物品的暴击、抗暴选项
+    可用的参数：
+    
+    normal - 设置普通暴击选项
+    back - 设置背刺暴击选项
+    anti - 设置抗暴选项'
+    usage: '&f/rpgitem critical &a<&fnormal&a/&fback&a/&fanti&a> {神器} <&frate&a/&fdamage&a/&fmultiple&a> <值>'
+    normal:
+      description: '展示/设置物品的普通暴击选项
+      可用的参数：
+      
+      rate - 设置暴击几率
+      damage - 设置暴击增加伤害
+      multiple - 设置暴击伤害倍率'
+      usage: '&f/rpgitem critical normal {神器} <&frate&a/&fdamage&a/&fmultiple&a> <值>'
+    back:
+      description: '展示/设置物品的背刺暴击选项
+      可用的参数：
+      
+      rate - 设置暴击几率
+      damage - 设置暴击增加伤害
+      multiple - 设置暴击伤害倍率'
+      usage: '&f/rpgitem critical back {神器} <&frate&a/&fdamage&a/&fmultiple&a> <值>'
+    anti:
+      description: '展示/设置物品的抗暴选项
+      可用的参数：
+      
+      rate - 设置暴击几率'
+      usage: '&f/rpgitem critical back &a{神器} &frate &a<值>'
+  dodge:
+    description: '展示/设置物品的闪避选项
+    可用的参数：
+    
+    rate - 设置闪避概率
+    msgType - 设置闪避消息类型
+    msg - 设置闪避消息内容'
+    usage: '&f/rpgitem critical &a{神器} <&frate&a/&fmsgType&a/&fmsg&a> <值>'
   damage:
-    description: '展示/设置物品的伤害值可用的参数：
+    description: '展示/设置物品的伤害值
+      可用的参数：
 
       [value] - 设置物品伤害值为定值。/rpgitem test_item damage 15
 

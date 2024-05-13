@@ -26,7 +26,7 @@ public class CriticalCommands extends RPGCommandReceiver {
 
     @Override
     public String getHelpPrefix() {
-        return "meta";
+        return "critical";
     }
 
     @SubCommand(value = "normal", tabCompleter = "normalCompleter")

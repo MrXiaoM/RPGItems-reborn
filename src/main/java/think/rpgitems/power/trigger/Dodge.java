@@ -16,7 +16,7 @@ class Dodge extends Trigger<EntityDamageEvent, PowerHurt, Void, Void> {
     public double maxDamage = Double.POSITIVE_INFINITY;
 
     Dodge() {
-        super(EntityDamageEvent.class, PowerHurt.class, Void.class, Void.class, "HURT");
+        super(EntityDamageEvent.class, PowerHurt.class, Void.class, Void.class, "DODGE");
     }
 
     public Dodge(String name) {

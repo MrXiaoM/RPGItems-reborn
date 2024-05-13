@@ -21,7 +21,7 @@ public class CriticalForceFail extends Trigger<EntityDamageByEntityEvent, PowerH
     public double maxDamage = Double.POSITIVE_INFINITY;
 
     CriticalForceFail() {
-        super(EntityDamageByEntityEvent.class, PowerHit.class, Double.class, Optional.class, "HIT");
+        super(EntityDamageByEntityEvent.class, PowerHit.class, Double.class, Optional.class, "CRITICAL_FORCE_FAIL");
     }
 
     public CriticalForceFail(String name, int ignored){

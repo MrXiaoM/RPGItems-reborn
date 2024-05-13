@@ -21,7 +21,7 @@ public class Critical extends Trigger<EntityDamageByEntityEvent, PowerHit, Doubl
     public double maxDamage = Double.POSITIVE_INFINITY;
 
     Critical() {
-        super(EntityDamageByEntityEvent.class, PowerHit.class, Double.class, Optional.class, "HIT");
+        super(EntityDamageByEntityEvent.class, PowerHit.class, Double.class, Optional.class, "CRITICAL");
     }
 
     public Critical(String name, int ignored){

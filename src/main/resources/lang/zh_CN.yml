@@ -1142,6 +1142,9 @@ manual:
     description: "设置物品的材质和其他参数\n可选参数\n  [物品id] - 设置物品为特定材质\n  [物品id] hex [16进制颜色]\
       \ - 设置物品的材质并设置颜色。\n  [物品id] [子id(1.12及以下)] - 设置物品的材质和伤害值/损耗值。"
     usage: '&f/rpgitem item &a{神器} [选项|值]'
+  itemHand:
+    description: "设置物品的材质为主手物品"
+    usage: '&f/rpgitem itemHand &a{神器}'
   print:
     description: 输出物品状态
     usage: '&f/rpgitem print &a{神器}'

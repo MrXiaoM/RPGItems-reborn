@@ -102,6 +102,15 @@ public class AdminCommands extends RPGCommandReceiver {
     }
 
     @Completion("")
+    public List<String> rpgItemCompleter(CommandSender sender, Arguments arguments) {
+        List<String> completeStr = new ArrayList<>();
+        if (arguments.remains() == 1) {
+            completeStr.addAll(ItemManager.itemNames());
+        }
+        return filtered(arguments, completeStr);
+    }
+
+    @Completion("")
     public List<String> attrCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         if (arguments.remains() == 1) {
@@ -571,8 +580,8 @@ public class AdminCommands extends RPGCommandReceiver {
         if (type.equalsIgnoreCase("rate")) {
             Double rate = arguments.nextDouble((Double) null);
             if (rate != null) {
-                item.setCriticalRate(rate);
-                msgs(sender, "message.critical.normal.rate.set", item.getName(), item.getCriticalRate());
+                item.setDodgeRate(rate);
+                msgs(sender, "message.dodge.rate.set", item.getName(), item.getDodgeRate());
                 ItemManager.save(item);
                 return;
             }
@@ -600,8 +609,8 @@ public class AdminCommands extends RPGCommandReceiver {
             case 1 -> completeStr.addAll(ItemManager.itemNames());
             case 2 -> {
                 completeStr.add("rate");
-                completeStr.add("damage");
-                completeStr.add("multiple");
+                completeStr.add("msgType");
+                completeStr.add("msg");
             }
         }
         return filtered(arguments, completeStr);
@@ -782,6 +791,36 @@ public class AdminCommands extends RPGCommandReceiver {
         }
     }
 
+    @SubCommand(value = "itemHand", tabCompleter = "rpgItemCompleter")
+    public void itemHand(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(I18n.getInstance(sender).format("message.error.only.player"));
+            return;
+        }
+        RPGItem item = getItem(args.nextString(), sender);
+        ItemStack inHand = player.getInventory().getItemInMainHand();
+        if (inHand.getType().isAir()) {
+            sender.sendMessage(I18n.getInstance(sender).format("message.error.iteminhand"));
+            return;
+        }
+        item.setItem(inHand.getType());
+        ItemMeta meta = inHand.getItemMeta();
+        if (meta.hasCustomModelData()) {
+            item.setCustomItemModel(true);
+            item.setCustomModelData(meta.getCustomModelData());
+        }
+        item.rebuild();
+        ItemManager.refreshItem();
+
+        new Message("")
+                .append(I18n.getInstance(sender).format("message.item.set", item.getName(), item.getItem().name(), item.getDataValue()), new ItemStack(item.getItem()))
+                .send(sender);
+        ItemManager.save(item);
+    }
     @SubCommand(value = "print", tabCompleter = "itemCompleter")
     public void itemInfo(CommandSender sender, Arguments args) {
         RPGItem item = getItem(args.nextString(), sender, true);

@@ -1,5 +1,7 @@
 # RPGItems SweetRice Edition
 
+[![Paper 1.17.1-1.20.4](https://img.shields.io/badge/Paper-1.17.1--1.20.4-blue)](https://img.shields.io/badge/Paper-1.17.1--1.20.4-blue)
+
 The NyaaCat RPGItems-reloaded plugin continued from [NyaaCat/RPGItems-reloaded](https://github.com/NyaaCat/RPGItems-reloaded).
 
 Take it easy. **NO ANY** dependency plugin is needed this time.
@@ -12,7 +14,7 @@ Do not use Spigot, use Paper please.
 
 ## Fork
 
-This is a personal fork. Only the branch `1.19` is supported. I add [LoreUpdateEvent](/src/main/java/think/rpgitems/event/LoreUpdateEvent.java) so it is friendly to *SoulBinding-kind* plugins. 
+This is a personal fork. Only the branch `main` is supported. I add [LoreUpdateEvent](/src/main/java/think/rpgitems/event/LoreUpdateEvent.java) so it is friendly to *SoulBinding-kind* plugins. 
 ```grovvy
 repositories {
     mavenCentral()
@@ -27,12 +29,14 @@ I uploaded it to central. It is easy to depend it. :P
 
 ## Support Versions
 
-| Minecraft Version  | NMS Version |
-|--------------------|-------------|
-| `1.19.4`           | `v1_19_R3`  |
-| `1.20`, `1.20.1`   | `v1_20_R1`  |
-| `1.20.2`           | `v1_20_R2`  |
-| `1.20.4`           | `v1_20_R3`  |
+| Minecraft Version | NMS Version |
+|-------------------|-------------|
+| `1.17.1`          | `v1_17_R1`  |
+| `1.18.2`          | `v1_18_R2`  |
+| `1.19.4`          | `v1_19_R3`  |
+| `1.20`, `1.20.1`  | `v1_20_R1`  |
+| `1.20.2`          | `v1_20_R2`  |
+| `1.20.4`          | `v1_20_R3`  |
 
 
 ## What's new 
@@ -50,6 +54,7 @@ I uploaded it to central. It is easy to depend it. :P
 * High playability Factor system
 * More interesting preset powers, conditions and triggers
 * Link with more plugins
+* Multi Minecraft version in just ONE jar! Not specific `1.XX.X-3.12.X` anymore.
 
 ## Languages
 

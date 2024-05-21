@@ -330,7 +330,8 @@ public class NBTTagTools_v1_18_R2 implements INBTTagTools {
                 handle.setAccessible(true);
             }
             return Optional.ofNullable((net.minecraft.world.item.ItemStack) handle.get(itemStack));
-        } catch (NoSuchFieldException | IllegalAccessException ignored) {
+        } catch (NoSuchFieldException | IllegalAccessException t) {
+            t.printStackTrace();
         }
         return Optional.empty();
     }

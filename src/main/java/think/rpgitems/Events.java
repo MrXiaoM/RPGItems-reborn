@@ -514,7 +514,9 @@ public class Events implements Listener {
         RPGItem rItem = ItemManager.toRPGItem(item).orElse(null);
         if (rItem == null)
             return;
-        e.setCancelled(true);
+        if (item.getType().isBlock() || rItem.getNote().contains("noPlace")) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler

@@ -216,8 +216,8 @@ signing {
     def signingPassword = findProperty("signingPassword")
     if (signingKey != null && signingPassword != null) {
         useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.mavenRelease
     }
-    sign publishing.publications.mavenRelease
 }
 nexusPublishing {
     repositories {

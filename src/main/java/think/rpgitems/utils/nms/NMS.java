@@ -7,6 +7,9 @@ import think.rpgitems.utils.nms.legacy.LegacyStackTools;
 import think.rpgitems.utils.nms.v1_17_R1.EntityTools_v1_17_R1;
 import think.rpgitems.utils.nms.v1_17_R1.NBTTagTools_v1_17_R1;
 import think.rpgitems.utils.nms.v1_17_R1.StackTools_v1_17_R1;
+import think.rpgitems.utils.nms.v1_18_R1.EntityTools_v1_18_R1;
+import think.rpgitems.utils.nms.v1_18_R1.NBTTagTools_v1_18_R1;
+import think.rpgitems.utils.nms.v1_18_R1.StackTools_v1_18_R1;
 import think.rpgitems.utils.nms.v1_18_R2.EntityTools_v1_18_R2;
 import think.rpgitems.utils.nms.v1_18_R2.NBTTagTools_v1_18_R2;
 import think.rpgitems.utils.nms.v1_18_R2.StackTools_v1_18_R2;
@@ -41,6 +44,11 @@ public class NMS {
             stackTools = new StackTools_v1_17_R1();
             entityTools = new EntityTools_v1_17_R1();
             nbtTools = new NBTTagTools_v1_17_R1();
+        });
+        put("v1_18_R1", () -> {
+            stackTools = new StackTools_v1_18_R1();
+            entityTools = new EntityTools_v1_18_R1();
+            nbtTools = new NBTTagTools_v1_18_R1();
         });
         put("v1_18_R2", () -> {
             stackTools = new StackTools_v1_18_R2();
@@ -134,9 +142,5 @@ public class NMS {
         }
 
         return versionString;
-    }
-
-    private class NMSDefiner {
-
     }
 }

@@ -1,12 +1,9 @@
 package think.rpgitems.utils.nyaacore.cmdreceiver;
 
+import org.bukkit.command.*;
 import org.jetbrains.annotations.NotNull;
 import think.rpgitems.utils.nyaacore.ILocalizer;
 import think.rpgitems.utils.nyaacore.LanguageRepository;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -72,6 +69,13 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
                 defaultSubCommand = scInfo;
             }
         });
+    }
+
+    public void registerToBukkit(PluginCommand command) {
+        if (command != null) {
+            command.setExecutor(this);
+            command.setTabCompleter(this);
+        }
     }
 
     public boolean registerCommand(ISubCommandInfo command, boolean override) {

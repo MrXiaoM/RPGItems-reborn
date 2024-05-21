@@ -45,4 +45,7 @@ public final class BaseTriggers {
     public static final Trigger<EntityDamageByEntityEvent, PowerHit, Double, Optional<Double>> CRITICAL_FORCE_FAIL = new CriticalForceFail();
     public static final Trigger<EntityDamageEvent, PowerHurt, Void, Void> ANTI_CRITICAL = new AntiCritical();
     public static final Trigger<EntityDamageEvent, PowerHurt, Void, Void> DODGE = new Dodge();
+    public static void load() {
+        // do nothing, just let java load static constants.
+    }
 }

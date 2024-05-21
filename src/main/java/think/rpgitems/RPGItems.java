@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,6 +21,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.Nullable;
 import think.rpgitems.api.IFactorDefiner;
 import think.rpgitems.commands.AdminCommands;
+import think.rpgitems.commands.UserCommands;
 import think.rpgitems.data.Font;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
@@ -44,10 +46,14 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RPGItems extends JavaPlugin implements PluginMessageListener {
+@SuppressWarnings({"deprecation"})
+public final class RPGItems extends JavaPlugin implements PluginMessageListener {
 
+    @lombok.Getter
     private static int version;
+    @lombok.Getter
     private static int serial;
+    @lombok.Getter
     private static String serverMCVersion;
 
     public static Logger logger;
@@ -57,18 +63,6 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
     public Configuration cfg;
     private final NyaaCoreLoader nyaaCoreLoader = new NyaaCoreLoader(this);
 
-
-    public static int getVersion() {
-        return version;
-    }
-
-    public static int getSerial() {
-        return serial;
-    }
-
-    public static String getServerMCVersion() {
-        return serverMCVersion;
-    }
 
     @SuppressWarnings({"unchecked", "JavaReflectionInvocation"})
     private static <T> T getWrapper(final PowerPlain obj, final Class<T> implInterface, final String delegateMethod) {
@@ -139,7 +133,7 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
     void loadPowers() {
         PowerManager.clear();
         logger.log(Level.INFO, "Loading powers...");
-        new BaseTriggers();
+        BaseTriggers.load();
         PowerManager.registerAdapter(PowerPlain.class, PowerOffhandClick.class, p -> getWrapper(p, PowerOffhandClick.class, "offhandClick"));
         PowerManager.registerAdapter(PowerPlain.class, PowerSprint.class, p -> getWrapper(p, PowerSprint.class, "sprint"));
         PowerManager.registerAdapter(PowerPlain.class, PowerSneak.class, p -> getWrapper(p, PowerSneak.class, "sneak"));
@@ -197,13 +191,15 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
             for (File file : files) {
                 try {
                     Plugin plugin = Bukkit.getPluginManager().loadPlugin(file);
-                    if (!PluginUtils.isClassPresent("io.papermc.paper.plugin.storage.ServerPluginProviderStorage")) {
-                        String message = String.format("Loading %s", plugin.getDescription().getFullName());
-                        plugin.getLogger().info(message);
-                        plugin.onLoad();
+                    if (plugin != null) {
+                        if (!PluginUtils.isClassPresent("io.papermc.paper.plugin.storage.ServerPluginProviderStorage")) {
+                            String message = String.format("Loading %s", plugin.getDescription().getFullName());
+                            plugin.getLogger().info(message);
+                            plugin.onLoad();
+                        }
+                        managedPlugins.add(plugin);
+                        logger.info("Loaded extension: " + plugin.getName());
                     }
-                    managedPlugins.add(plugin);
-                    logger.info("Loaded extension: " + plugin.getName());
                 } catch (InvalidPluginException | InvalidDescriptionException e) {
                     logger.log(Level.SEVERE, "Error loading extension: " + file.getName(), e);
                 }
@@ -235,19 +231,20 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         try {
             Bukkit.spigot();
         } catch (Throwable e) {
-            getCommand("rpgitem").setExecutor((sender, command, label, args) -> {
+            PluginCommand command = getCommand("rpgitem");
+            if (command != null) command.setExecutor((sender, cmd, label, args) -> {
                 sender.sendMessage(ChatColor.RED + "======================================");
                 sender.sendMessage(ChatColor.RED + "RPGItems plugin requires Spigot API, Please make sure you are using Spigot.");
                 sender.sendMessage(ChatColor.RED + "======================================");
                 return true;
             });
+            return;
         }
-        AdminCommands adminCommandHandler = new AdminCommands(this, I18n.getInstance(cfg.language));
-        UserHandler userCommandHandler = new UserHandler(this, I18n.getInstance(cfg.language));
-        getCommand("rpgitem").setExecutor(adminCommandHandler);
-        getCommand("rpgitem").setTabCompleter(adminCommandHandler);
-        getCommand("rpgitems").setExecutor(userCommandHandler);
-        getCommand("rpgitems").setTabCompleter(userCommandHandler);
+        new AdminCommands(this, I18n.getInstance(cfg.language))
+                .registerToBukkit(getCommand("rpgitem"));
+        new UserCommands(this, I18n.getInstance(cfg.language))
+                .registerToBukkit(getCommand("rpgitems"));
+
         ServerLoadListener serverLoadListener = new ServerLoadListener();
         if (Bukkit.getOnlinePlayers().isEmpty()) {
             getServer().getPluginManager().registerEvents(serverLoadListener, this);
@@ -302,8 +299,8 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
     public void onDisable() {
         WGSupport.unload();
         HandlerList.unregisterAll(plugin);
-        getCommand("rpgitem").setExecutor(null);
-        getCommand("rpgitem").setTabCompleter(null);
+        unregisterCommand("rpgitem");
+        unregisterCommand("rpgitems");
         this.getServer().getScheduler().cancelTasks(plugin);
         ItemManager.unload();
         for (Plugin plugin : managedPlugins) {
@@ -311,5 +308,13 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         }
         managedPlugins.clear();
         nyaaCoreLoader.onDisable();
+    }
+
+    private void unregisterCommand(String name) {
+        PluginCommand command = getCommand(name);
+        if (command != null) {
+            command.setExecutor(null);
+            command.setTabCompleter(null);
+        }
     }
 }

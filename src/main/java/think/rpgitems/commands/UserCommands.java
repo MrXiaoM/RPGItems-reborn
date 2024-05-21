@@ -1,5 +1,6 @@
-package think.rpgitems;
+package think.rpgitems.commands;
 
+import think.rpgitems.RPGItems;
 import think.rpgitems.utils.nyaacore.LanguageRepository;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
@@ -20,10 +21,10 @@ import static think.rpgitems.item.RPGItem.TAG_META;
 import static think.rpgitems.utils.ItemTagUtils.getTag;
 import static think.rpgitems.utils.ItemTagUtils.optBoolean;
 
-public class UserHandler extends RPGCommandReceiver {
+public class UserCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
 
-    UserHandler(RPGItems plugin, LanguageRepository i18n) {
+    public UserCommands(RPGItems plugin, LanguageRepository i18n) {
         super(plugin, i18n);
         this.plugin = plugin;
     }

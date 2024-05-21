@@ -248,10 +248,16 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
         getCommand("rpgitem").setTabCompleter(adminCommandHandler);
         getCommand("rpgitems").setExecutor(userCommandHandler);
         getCommand("rpgitems").setTabCompleter(userCommandHandler);
-        getServer().getPluginManager().registerEvents(new ServerLoadListener(), this);
+        ServerLoadListener serverLoadListener = new ServerLoadListener();
+        if (Bukkit.getOnlinePlayers().isEmpty()) {
+            getServer().getPluginManager().registerEvents(serverLoadListener, this);
+        }
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
         managedPlugins.forEach(Bukkit.getPluginManager()::enablePlugin);
+        if (!Bukkit.getOnlinePlayers().isEmpty()) {
+            serverLoadListener.load();
+        }
     }
 
     @Override
@@ -279,6 +285,9 @@ public class RPGItems extends JavaPlugin implements PluginMessageListener {
     private class ServerLoadListener implements Listener {
         @EventHandler
         public void onServerLoad(ServerLoadEvent event) {
+            load();
+        }
+        public void load() {
             HandlerList.unregisterAll(this);
             getServer().getPluginManager().registerEvents(new Events(), RPGItems.this);
             WGSupport.init(RPGItems.this);

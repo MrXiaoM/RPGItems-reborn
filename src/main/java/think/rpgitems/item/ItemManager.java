@@ -213,7 +213,7 @@ public class ItemManager {
 
             Message message = new Message(I18n.formatDefault("message.error.loading", file.getPath(), e.getLocalizedMessage()));
             if (sender == null) {
-                Bukkit.getOperators().forEach(t -> message.send((CommandSender) t));
+                Bukkit.getOperators().forEach(t -> message.send(t.getPlayer()));
                 message.send(Bukkit.getConsoleSender());
             } else {
                 message.send(sender);

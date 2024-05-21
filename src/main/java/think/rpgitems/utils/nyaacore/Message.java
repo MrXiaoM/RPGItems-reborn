@@ -1,5 +1,6 @@
 package think.rpgitems.utils.nyaacore;
 
+import org.jetbrains.annotations.Nullable;
 import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import think.rpgitems.utils.nyaacore.utils.LocaleUtils;
 import net.md_5.bungee.api.ChatMessageType;
@@ -204,7 +205,8 @@ public class Message {
         }
     }
 
-    public Message send(Player p) {
+    public Message send(@Nullable Player p) {
+        if (p == null) return this;
         return send(p.getPlayer(), MessageType.CHAT);
     }
 

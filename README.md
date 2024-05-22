@@ -38,6 +38,7 @@ I uploaded it to central. It is easy to depend it. :P
 | `1.20`, `1.20.1`  | `v1_20_R1`  |
 | `1.20.2`          | `v1_20_R2`  |
 | `1.20.4`          | `v1_20_R3`  |
+| `1.20.6` (WIP)    | `v1_20_R4`  |
 
 
 ## What's new 
@@ -56,6 +57,8 @@ I uploaded it to central. It is easy to depend it. :P
 * More interesting preset powers, conditions and triggers
 * Link with more plugins
 * Multi Minecraft version in just ONE jar! Not specific `1.XX.X-3.12.X` anymore.
+* Hot load support (experimental function with `PlugManX`)
+* Allow using a hoe item to farm a land (Add `noPlace` into comment to disallow).
 
 ## Languages
 

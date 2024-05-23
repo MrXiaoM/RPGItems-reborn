@@ -1,5 +1,6 @@
 package think.rpgitems.item;
 
+import io.lumine.mythic.bukkit.adapters.BukkitSkillAdapter;
 import think.rpgitems.utils.MessageType;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
@@ -139,6 +140,9 @@ public class RPGItem {
     @Setter private MessageType dodgeMessageType = MessageType.TITLE;
     @Getter @Setter private String dodgeMessage = "&e当心\n&f躲避判定成功";
     @Getter @Setter private double criticalAntiRate;
+
+    @Getter @Setter private double mythicSkillDamage = 0;
+    @Getter @Setter private double mythicSkillDamageMultiple = 0;
 
     @Getter @Setter private double atkSpeed = 0;
     @Getter @Setter private double moveSpeed = 0;
@@ -326,6 +330,9 @@ public class RPGItem {
         setCriticalBackDamage(s.getDouble("critical.back.damage", 0.0d));
         setCriticalBackMultiple(s.getDouble("critical.back.multiple", 1.0d));
         setCriticalAntiRate(s.getDouble("critical.anti.rate", 0.0d));
+
+        setMythicSkillDamage(s.getDouble("mythic.skill.damage-add", 0.0d));
+        setMythicSkillDamageMultiple(s.getDouble("mythic.skill.damage-add-multiple", 0.0d));
 
         setDodgeRate(s.getDouble("dodge.rate", 0.0d));
         setDodgeMessageType(MessageType.getFromConfig(s, "dodge.message-type", MessageType.TITLE));
@@ -608,6 +615,9 @@ public class RPGItem {
         s.set("critical.back.damage", getCriticalBackDamage());
         s.set("critical.back.multiple", getCriticalBackMultiple());
         s.set("critical.anti.rate", getCriticalAntiRate());
+
+        s.set("mythic.skill.damage-add", getMythicSkillDamage());
+        s.set("mythic.skill.damage-add-multiple", getMythicSkillDamageMultiple());
 
         s.set("dodge.rate", getDodgeRate());
         s.set("dodge.message-type", getDodgeMessageType().name().toUpperCase());

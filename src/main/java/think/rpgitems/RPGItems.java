@@ -27,6 +27,7 @@ import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
+import think.rpgitems.support.MythicSupport;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.cast.PluginUtils;
 import think.rpgitems.utils.nms.NMS;
@@ -245,14 +246,17 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         new UserCommands(this, I18n.getInstance(cfg.language))
                 .registerToBukkit(getCommand("rpgitems"));
 
+        if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
+            getServer().getPluginManager().registerEvents(new MythicSupport(), this);
+        }
         ServerLoadListener serverLoadListener = new ServerLoadListener();
-        if (Bukkit.getOnlinePlayers().isEmpty()) {
+        if (getServer().getOnlinePlayers().isEmpty()) {
             getServer().getPluginManager().registerEvents(serverLoadListener, this);
         }
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
-        managedPlugins.forEach(Bukkit.getPluginManager()::enablePlugin);
-        if (!Bukkit.getOnlinePlayers().isEmpty()) {
+        managedPlugins.forEach(getServer().getPluginManager()::enablePlugin);
+        if (!getServer().getOnlinePlayers().isEmpty()) {
             serverLoadListener.load();
         }
     }

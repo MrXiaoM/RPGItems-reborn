@@ -156,6 +156,13 @@ message:
   type:
     set: 物品 '%s' 类型已设置为 '%s'
     get: 物品 '%s' 类型为 '%s'
+  mythic:
+    skill-damage:
+      get: 物品 '%s' 的 Mythic 技能伤害增加为 %.2f，伤害增加倍率为 %.2f%%
+      damage:
+        set: 物品 '%s' 的 Mythic 技能伤害增加已设置为 %.2f
+      multiple:
+        set: 物品 '%s' 的 Mythic 技能伤害增加倍率已设置为 %.2f%%
   damage:
     set:
       value: 物品 '%s' 伤害设置为 %d

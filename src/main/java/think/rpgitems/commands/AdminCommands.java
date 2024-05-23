@@ -154,6 +154,9 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand("marker")
     public MarkerCommands marker;
 
+    @SubCommand("mythic")
+    public MythicCommands mythic;
+
     @SubCommand("trigger")
     public MarkerCommands trigger;
 

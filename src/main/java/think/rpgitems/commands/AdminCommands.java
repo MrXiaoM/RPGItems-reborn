@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.udojava.evalex.Expression;
+import dev.lone.itemsadder.api.CustomStack;
+import dev.lone.itemsadder.api.ItemsAdder;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -108,6 +110,20 @@ public class AdminCommands extends RPGCommandReceiver {
         List<String> completeStr = new ArrayList<>();
         if (arguments.remains() == 1) {
             completeStr.addAll(ItemManager.itemNames());
+        }
+        return filtered(arguments, completeStr);
+    }
+
+    @Completion("")
+    public List<String> itemsAdderCompleter(CommandSender sender, Arguments arguments) {
+        List<String> completeStr = new ArrayList<>();
+        if (arguments.remains() == 1) {
+            completeStr.addAll(ItemManager.itemNames());
+        }
+        if (arguments.remains() == 2) {
+            for (CustomStack item : ItemsAdder.getAllItems()) {
+                completeStr.add(item.getNamespacedID());
+            }
         }
         return filtered(arguments, completeStr);
     }
@@ -770,10 +786,37 @@ public class AdminCommands extends RPGCommandReceiver {
         ItemManager.refreshItem();
 
         new Message("")
-                .append(I18n.getInstance(sender).format("message.item.set", item.getName(), item.getItem().name(), item.getDataValue()), new ItemStack(item.getItem()))
+                .append(I18n.getInstance(sender).format("message.item.set-inHand", item.getName(), item.getItem().name(), item.getCustomModelData()), new ItemStack(item.getItem()))
                 .send(sender);
         ItemManager.save(item);
     }
+
+    @SubCommand(value = "ia", tabCompleter = "itemsAdderCompleter")
+    public void itemsAdder(CommandSender sender, Arguments args) {
+        if (readOnly(sender)) return;
+        RPGItem rpg = getItem(args.nextString(), sender);
+        String itemId = args.nextString();
+        CustomStack stack = CustomStack.getInstance(itemId);
+        if (stack == null) {
+            sender.sendMessage(I18n.getInstance(sender).format("message.error.item", itemId));
+            return;
+        }
+        ItemStack item = stack.getItemStack();
+        rpg.setItem(item.getType());
+        ItemMeta meta = item.getItemMeta();
+        if (meta.hasCustomModelData()) {
+            rpg.setCustomItemModel(true);
+            rpg.setCustomModelData(meta.getCustomModelData());
+        }
+        rpg.rebuild();
+        ItemManager.refreshItem();
+
+        new Message("")
+                .append(I18n.getInstance(sender).format("message.item.set-ia", rpg.getName(), rpg.getItem().name(), rpg.getCustomModelData()), new ItemStack(rpg.getItem()))
+                .send(sender);
+        ItemManager.save(rpg);
+    }
+
     @SubCommand(value = "print", tabCompleter = "itemCompleter")
     public void itemInfo(CommandSender sender, Arguments args) {
         RPGItem item = getItem(args.nextString(), sender, true);

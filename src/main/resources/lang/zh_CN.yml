@@ -207,6 +207,8 @@ message:
         value: 物品 '%s' 相对移动速度设置为 %d
   item:
     set: '物品 ''%s'' 材质已设置为 {itemName} (%s): %d '
+    set-inHand: '物品 ''%s'' 材质已设置为 {itemName} (%s), CustomModelData: %d '
+    set-ia: '物品 ''%s'' 材质已设置为 {itemName} (%s), CustomModelData: %d '
     cant:
       find: 没有找到该物品
     get: '物品 ''%s'' 材质为 {itemName} (%s): %d '
@@ -1221,6 +1223,9 @@ manual:
   itemHand:
     description: "设置物品的材质为主手物品"
     usage: '&f/rpgitem itemHand &a{神器}'
+  ia:
+    description: "设置物品的材质为 ItemsAdder 物品"
+    usage: '&f/rpgitem ia &a{神器} <ItemsAdder物品ID>'
   print:
     description: 输出物品状态
     usage: '&f/rpgitem print &a{神器}'

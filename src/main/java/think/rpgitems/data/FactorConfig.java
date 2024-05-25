@@ -3,8 +3,9 @@ package think.rpgitems.data;
 import com.udojava.evalex.Expression;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.ItemStack;
 import think.rpgitems.api.IFactorDefiner;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.configuration.ISerializable;
 
 import java.math.BigDecimal;
@@ -71,7 +72,17 @@ public class FactorConfig implements ISerializable {
         return null;
     }
 
+    public List<String> getFactorList() {
+        return new ArrayList<>(factors.keySet());
+    }
+
+    public List<Factor> getFactors() {
+        return new ArrayList<>(factors.values());
+    }
+
     public double getDamage(LivingEntity damager, LivingEntity entity, double damage) {
+        double finDamage = damage;
+        Collection<RPGItem> items;
         Factor factorDamager = getFactor(damager);
         Factor factorEntity = getFactor(entity);
         if (factorEntity != null && factorDamager != null) {
@@ -81,7 +92,7 @@ public class FactorConfig implements ISerializable {
 
                 Expression exp = new Expression(expression)
                         .with("damage", BigDecimal.valueOf(damage));
-                return exp.eval().doubleValue();
+                finDamage = exp.eval().doubleValue();
 
             } catch (Throwable t) {
                 plugin.getLogger().log(Level.WARNING,
@@ -89,7 +100,23 @@ public class FactorConfig implements ISerializable {
                                 "originalDamage=" + damage + ", " +
                                 "expression=`" + expression + "`", t);
             }
+            // attack damage override
+            items = ItemManager.getEquipments(damager).values();
+            for (RPGItem rpg : items) {
+                FactorModifier modifier = rpg.getFactorModifiers().get(factorEntity.id);
+                if (modifier != null) {
+                    finDamage = modifier.attack(factorEntity.id, finDamage);
+                }
+            }
+            // defend damage override
+            items = ItemManager.getEquipments(entity).values();
+            for (RPGItem rpg : items) {
+                FactorModifier modifier = rpg.getFactorModifiers().get(factorDamager.id);
+                if (modifier != null) {
+                    finDamage = modifier.defend(factorDamager.id, finDamage);
+                }
+            }
         }
-        return damage;
+        return finDamage;
     }
 }

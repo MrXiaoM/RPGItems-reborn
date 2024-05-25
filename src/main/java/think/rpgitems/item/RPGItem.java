@@ -1,6 +1,5 @@
 package think.rpgitems.item;
 
-import io.lumine.mythic.bukkit.adapters.BukkitSkillAdapter;
 import think.rpgitems.utils.MessageType;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
@@ -39,6 +38,7 @@ import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.data.Context;
+import think.rpgitems.data.FactorModifier;
 import think.rpgitems.event.LoreUpdateEvent;
 import think.rpgitems.power.*;
 import think.rpgitems.power.cond.SlotCondition;
@@ -123,6 +123,7 @@ public class RPGItem {
     private String displayName;
     private String displayNameColored;
     @Getter @Setter private String factor;
+    @Getter @Setter Map<String, FactorModifier> factorModifiers = new HashMap<>();
     @Getter private int damageMin = 0;
     @Getter private int damageMax = 3;
     @Getter private int damageMinPlayer = -1;
@@ -313,6 +314,12 @@ public class RPGItem {
 
         setDisplayName(display);
         setFactor(s.getString("factor", ""));
+        factorModifiers.clear();
+        ConfigurationSection factorModifierSection = s.getConfigurationSection("factorModifier");
+        if (factorModifierSection != null) for (String target : factorModifierSection.getKeys(false)) {
+            FactorModifier modifier = FactorModifier.load(s, "factorModifier", target);
+            factorModifiers.put(target, modifier);
+        }
         List<String> desc = s.getStringList("description");
         desc.replaceAll(ColorHelper::parseColor);
         setDescription(desc);
@@ -603,6 +610,11 @@ public class RPGItem {
         s.set("permission", getPermission());
         s.set("display", getDisplayNameRaw().replaceAll("§", "&"));
         s.set("factor", getFactor());
+
+        for (FactorModifier modifier : factorModifiers.values()) {
+            modifier.save(s, "factorModifier");
+        }
+
         s.set("damageMin", getDamageMin());
         s.set("damageMax", getDamageMax());
         s.set("damageMinMythic", getDamageMinMythic());

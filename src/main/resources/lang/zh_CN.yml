@@ -124,6 +124,28 @@ message:
   factor:
     get: 物品 '%s' 元素为 '%s'
     set: 物品 '%s' 元素已设置为 '%s'
+    modifier:
+      warn_factor_not_found: "警告: 元素 '%s' 未在配置文件中定义"
+      wrong_expression: 你输入的表达式有误，无法执行
+      not_found: 物品 '%s' 没有设置 '%s' 元素伤害修改表达式
+      set:
+        type:
+          attack: 攻击
+          defend: 防御
+        set: 物品 '%s' %s '%s' 元素伤害修改表达式已设置为 '%s'
+      remove:
+        success: 物品 '%s' 的 '%s' 元素伤害修改表达式已删除
+      list:
+        empty: 物品 '%s' 没有设置元素伤害表达式
+        header: 物品 '%s' 的元素伤害修改表达式列表如下 (共 %d 个元素)
+        target: '  %s:'
+        type:
+          attack: "    攻击: '%s'"
+          defend: "    防御: '%s'"
+      test: |
+        物品 '%s' 测试%s '%s' 元素伤害修改表达式结果如下
+        原伤害: '%.2f'
+        现伤害: '%.2f'
   critical:
     normal:
       get: 物品 '%s' 暴击几率为 %.2f%%，暴击伤害增加 %.2f，暴击倍率 %.2f
@@ -1104,10 +1126,23 @@ manual:
     可用的参数:
     
     value - 获取或设置物品当前元素
+    modifier - 获取或设置物品元素修改表达式'
     usage: '&f/rpgitem factor &a<选项> {神器} <选项...>'
     value:
       description: '展示/设置物品的元素'
       usage: '&f/rpgitem factor value &a{神器} [元素]'
+    modifier:
+      description: '设置/删除/展示/测试物品的元素伤害修改表达式
+      
+      &f/rpgitem factor modifier &a{神器}&f set&a <元素> &f<&aattack&f/&adefend&f>&a <表达式...>
+      &f/rpgitem factor modifier &a{神器}&f remove&a <元素>
+      &f/rpgitem factor modifier &a{神器}&f list
+      &f/rpgitem factor modifier &a{神器}&f test&a <元素> &f<&aattack&f/&adefend&f>&a <伤害数值>
+      
+      attack - 攻击 实体为目标元素 时修改伤害
+      defend - 被目标元素的实体 攻击 时修改伤害
+      在表达式中，damage 代表攻击或受伤时的伤害'
+      usage: '&f/rpgitem factor modifier &a{神器}&f <&aset&f/&aremove&f/&alist&f/&atest&f>&a <选项...>'
   critical:
     description: '展示/设置物品的暴击、抗暴选项
     可用的参数：

@@ -1,16 +1,21 @@
 package think.rpgitems.commands;
 
+import com.udojava.evalex.Expression;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.data.FactorModifier;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.RPGCommandReceiver;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static think.rpgitems.commands.AdminCommands.*;
 
@@ -27,8 +32,8 @@ public class FactorCommands extends RPGCommandReceiver {
         return "factor";
     }
 
-    @SubCommand(value = "set", tabCompleter = "setCompleter")
-    public void set(CommandSender sender, Arguments args){
+    @SubCommand(value = "value", tabCompleter = "valueCompleter")
+    public void value(CommandSender sender, Arguments args){
         if (plugin.cfg.readonly) {
             sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
             return;
@@ -46,10 +51,130 @@ public class FactorCommands extends RPGCommandReceiver {
         }
     }
 
-    private List<String> setCompleter(CommandSender sender, Arguments arguments){
+    enum FactorModifierType {
+        attack, defend
+    }
+
+    @SubCommand(value = "modifier", tabCompleter = "modifierCompleter")
+    public void modifier(CommandSender sender, Arguments args) {
+        if (plugin.cfg.readonly) {
+            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
+            return;
+        }
+        RPGItem item = getItem(args.nextString(), sender);
+        String value = args.nextString(null);
+        if ("set".equalsIgnoreCase(value)) {
+            String factor = args.nextString();
+            if (!plugin.cfg.factorConfig.getFactorList().contains(factor)) {
+                msgs(sender, "message.factor.modifier.warn_factor_not_found", factor);
+            }
+            FactorModifierType type = args.nextEnum(FactorModifierType.class);
+            String expression = consumeString(args);
+            try {
+                Expression exp = new Expression(expression)
+                        .with("damage", BigDecimal.valueOf(114));
+                exp.eval();
+            } catch (Throwable t) {
+                msgs(sender, "message.factor.modifier.wrong_expression");
+                return;
+            }
+            FactorModifier modifier = item.getFactorModifiers().get(factor);
+            if (modifier == null) modifier = new FactorModifier(factor);
+            switch (type) {
+                case attack -> modifier.setAttack(expression);
+                case defend -> modifier.setDefend(expression);
+            }
+            item.getFactorModifiers().put(factor, modifier);
+            String typeString = I18n.getFormatted(sender, "message.factor.modifier.set.type." + type.name().toLowerCase());
+            msgs(sender, "message.factor.modifier.set.set", item.getName(), typeString, factor, expression);
+            return;
+        } else if ("test".equalsIgnoreCase(value)) {
+            String factor = args.nextString();
+            FactorModifier modifier = item.getFactorModifiers().get(factor);
+            if (modifier == null) {
+                msgs(sender, "message.factor.modifier.not_found", item.getName(), factor);
+                return;
+            }
+            FactorModifierType type = args.nextEnum(FactorModifierType.class);
+            double damage = args.nextDouble();
+            double finalDamage = switch (type) {
+                case attack -> modifier.attack(damage);
+                case defend -> modifier.defend(damage);
+            };
+            String typeString = I18n.getFormatted(sender, "message.factor.modifier.set.type." + type.name().toLowerCase());
+            msgs(sender, "message.factor.modifier.test", item.getName(), typeString, factor, damage, finalDamage);
+            return;
+        } else if ("remove".equalsIgnoreCase(value)) {
+            String factor = args.nextString();
+            FactorModifier modifier = item.getFactorModifiers().remove(factor);
+            if (modifier != null) {
+                msgs(sender, "message.factor.modifier.remove.success", item.getName(), factor);
+            } else {
+                msgs(sender, "message.factor.modifier.not_found", item.getName(), factor);
+            }
+            return;
+        } else if ("list".equalsIgnoreCase(value)) {
+            Map<String, FactorModifier> modifiers = item.getFactorModifiers();
+            if (modifiers.isEmpty()) {
+                msgs(sender, "message.factor.modifier.list.empty", item.getName());
+            } else {
+                msgs(sender, "message.factor.modifier.list.header", item.getName(), modifiers.size());
+                for (FactorModifier modifier : modifiers.values()) {
+                    msgs(sender, "message.factor.modifier.list.target", modifier.getTarget());
+                    msgs(sender, "message.factor.modifier.list.type.attack", modifier.getAttack());
+                    msgs(sender, "message.factor.modifier.list.type.defend", modifier.getDefend());
+                }
+            }
+            return;
+        }
+        printHelp(sender, args);
+    }
+
+    private List<String> valueCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         if (arguments.remains() == 1) {
             completeStr.addAll(ItemManager.itemNames());
+        }
+        return filtered(arguments, completeStr);
+    }
+    private List<String> modifierCompleter(CommandSender sender, Arguments arguments) {
+        List<String> completeStr = new ArrayList<>();
+        switch (arguments.remains()) {
+            case 0 -> {}
+            case 1 -> completeStr.addAll(ItemManager.itemNames());
+            case 2 -> {
+                completeStr.add("set");
+                completeStr.add("remove");
+                completeStr.add("list");
+                completeStr.add("test");
+            }
+            case 3 -> {
+                RPGItem item = getItem(arguments.getRawArgs()[2], sender);
+                String operate = arguments.getRawArgs()[3];
+                if ("set".equalsIgnoreCase(operate)) {
+                    completeStr.addAll(plugin.cfg.factorConfig.getFactorList());
+                    completeStr.removeIf(item.getFactorModifiers()::containsKey);
+                } else if ("remove".equalsIgnoreCase(operate) || "test".equalsIgnoreCase(operate)) {
+                    completeStr.addAll(item.getFactorModifiers().keySet());
+                }
+            }
+            case 4 -> {
+                String operate = arguments.getRawArgs()[3];
+                if ("set".equalsIgnoreCase(operate) || "test".equalsIgnoreCase(operate)) {
+                    completeStr.add("attack");
+                    completeStr.add("defend");
+                }
+            }
+            default -> { // remains >= 5
+                String operate = arguments.getRawArgs()[3];
+                if ("set".equalsIgnoreCase(operate)) {
+                    completeStr.add("damage + 1.0");
+                    completeStr.add("damage * (1.0 + 0.05)");
+                } else if ("test".equalsIgnoreCase(operate)) {
+                    completeStr.add("114");
+                    completeStr.add("514");
+                }
+            }
         }
         return filtered(arguments, completeStr);
     }

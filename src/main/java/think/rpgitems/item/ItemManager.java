@@ -1,5 +1,8 @@
 package think.rpgitems.item;
 
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.cache.Cache;
@@ -505,6 +508,23 @@ public class ItemManager {
             plugin.getLogger().log(Level.SEVERE, "Cannot create backup for" + item.getName() + ".", e);
         }
         return backup;
+    }
+
+    /**
+     * Get equipments in slots of helmet, chestplate, leggings, boots, off hand, main hand.
+     */
+    public static Map<EquipmentSlot, RPGItem> getEquipments(LivingEntity entity) {
+        Map<EquipmentSlot, RPGItem> items = new HashMap<>();
+        EntityEquipment equipment = entity.getEquipment();
+        if (equipment != null) {
+            toRPGItem(equipment.getHelmet()).ifPresent(it -> items.put(EquipmentSlot.HEAD, it));
+            toRPGItem(equipment.getChestplate()).ifPresent(it -> items.put(EquipmentSlot.CHEST, it));
+            toRPGItem(equipment.getLeggings()).ifPresent(it -> items.put(EquipmentSlot.LEGS, it));
+            toRPGItem(equipment.getBoots()).ifPresent(it -> items.put(EquipmentSlot.FEET, it));
+            toRPGItem(equipment.getItemInMainHand()).ifPresent(it -> items.put(EquipmentSlot.HAND, it));
+            toRPGItem(equipment.getItemInOffHand()).ifPresent(it -> items.put(EquipmentSlot.OFF_HAND, it));
+        }
+        return items;
     }
 
     public static Optional<RPGItem> toRPGItem(ItemStack item) {

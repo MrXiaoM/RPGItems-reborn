@@ -138,6 +138,11 @@ public class I18n extends LanguageRepository {
         return instances.getOrDefault(lang.toLowerCase(), instances.get(RPGItems.plugin.cfg.language.toLowerCase()));
     }
 
+    public static String getFormatted(CommandSender sender, String key, Object... para) {
+        I18n instance = getInstance(sender);
+        return instance.getFormatted(key, para);
+    }
+
     /**
      * Get the language item then format with `para` by {@link String#format(String, Object...)}
      */

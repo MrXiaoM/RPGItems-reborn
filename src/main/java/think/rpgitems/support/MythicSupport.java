@@ -16,6 +16,7 @@ import think.rpgitems.item.RPGItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MythicSupport implements Listener {
     private static final NamespacedKey type = new NamespacedKey("MythicMobs".toLowerCase(), "type");
@@ -50,7 +51,14 @@ public class MythicSupport implements Listener {
                 damage += rpg.getMythicSkillDamage();
             }
             if (rpg.getMythicSkillDamageMultiple() > 0) {
-                damage *= 1.0 + rpg.getMythicSkillDamageMultiple();
+                damage *= rpg.getMythicSkillDamageMultiple();
+            }
+            if (rpg.getMythicSkillCriticalRate() > 0) {
+                ThreadLocalRandom random = ThreadLocalRandom.current();
+                if (random.nextDouble(100) < rpg.getMythicSkillCriticalRate()) {
+                    damage += rpg.getCriticalDamage();
+                    damage *= rpg.getMythicSkillCriticalDamageMultiple();
+                }
             }
         }
         return damage;

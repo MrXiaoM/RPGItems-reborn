@@ -180,11 +180,19 @@ message:
     get: 物品 '%s' 类型为 '%s'
   mythic:
     skill-damage:
-      get: 物品 '%s' 的 Mythic 技能伤害增加为 %.2f，伤害增加倍率为 %.2f%%
+      get: 物品 '%s' 释放 Mythic 技能时，技能伤害增加 %.2f，技能伤害增加倍率 %.2f%%
       damage:
         set: 物品 '%s' 的 Mythic 技能伤害增加已设置为 %.2f
       multiple:
         set: 物品 '%s' 的 Mythic 技能伤害增加倍率已设置为 %.2f%%
+    skill-critical-damage:
+      get: 物品 '%s' 释放 Mythic 技能时，%.2f%% 几率触发暴击，暴击时技能伤害增加为 %.2f，技能伤害增加倍率为 %.2f%%
+      rate:
+        set: 物品 '%s' 的 Mythic 技能伤害暴击率已设置为 %.2f%%
+      damage:
+        set: 物品 '%s' 的 Mythic 技能暴击伤害增加已设置为 %.2f
+      multiple:
+        set: 物品 '%s' 的 Mythic 技能暴击伤害增加倍率已设置为 %.2f%%
   damage:
     set:
       value: 物品 '%s' 伤害设置为 %d
@@ -486,6 +494,7 @@ power:
     backstab: '&a百分之 %.1f 的几率背刺 %.1f 倍'
   gunfu: '&a子弹会自动追踪敌人 (%.1f 秒冷却时间)'
   beam: '&a发射粒子束攻击敌人'
+  mythic: '&a释放技能 %s'
 properties:
   base:
     id: 此条件/选择器的ID。
@@ -1173,6 +1182,22 @@ manual:
       
       rate - 设置暴击几率'
       usage: '&f/rpgitem critical back &a{神器} &frate &a<值>'
+  mythic:
+    description: '展示/设置物品的 Mythic 支持选项
+    可用的参数：
+    
+    skillDamageAdd - 技能伤害增幅设置'
+    usage: '&f/rpgitem mythic &a<选项> {神器} <选项...>'
+    skillDamageAdd:
+      description: '展示/设置物品的 Mythic 技能伤害增幅
+      可用的参数：
+      
+      damage - 装备物品时，技能伤害增幅
+      multiple - 装备物品时，技能伤害倍率
+      critical rate - 装备物品时，技能伤害暴击几率
+      critical damage - 装备物品时，技能暴击伤害增幅
+      critical multiple - 装备物品时，技能暴击伤害倍率'
+      usage: '&f/rpgitem mythic skillDamageAdd &a{神器} <选项...> [数值]'
   dodge:
     description: '展示/设置物品的闪避选项
     可用的参数：

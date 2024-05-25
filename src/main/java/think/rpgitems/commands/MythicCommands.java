@@ -33,21 +33,50 @@ public class MythicCommands extends RPGCommandReceiver {
         RPGItem item = getItem(arguments.nextString(), sender);
         String type = arguments.nextString();
         if (type.equalsIgnoreCase("damage")) {
-            Double rate = arguments.nextDouble((Double) null);
-            if (rate != null) {
-                item.setMythicSkillDamage(rate);
+            Double damage = arguments.nextDouble((Double) null);
+            if (damage != null) {
+                item.setMythicSkillDamage(damage);
                 msgs(sender, "message.mythic.skill-damage.damage.set", item.getName(), item.getMythicSkillDamage());
                 ItemManager.save(item);
                 return;
             }
         } else if (type.equalsIgnoreCase("multiple")) {
-            Double damage = arguments.nextDouble((Double) null);
-            if (damage != null) {
-                item.setMythicSkillDamageMultiple(damage);
+            Double multiple = arguments.nextDouble((Double) null);
+            if (multiple != null) {
+                item.setMythicSkillDamageMultiple(multiple);
                 msgs(sender, "message.mythic.skill-damage.multiple.set", item.getName(), item.getMythicSkillDamageMultiple());
                 ItemManager.save(item);
                 return;
             }
+        } else if (type.equalsIgnoreCase("critical")) {
+            String subType = arguments.nextString();
+            if (subType.equalsIgnoreCase("rate")) {
+                Double rate = arguments.nextDouble((Double) null);
+                if (rate != null) {
+                    item.setMythicSkillCriticalRate(rate);
+                    msgs(sender, "message.mythic.skill-critical-damage.rate.set", item.getName(), item.getMythicSkillCriticalRate());
+                    ItemManager.save(item);
+                    return;
+                }
+            } else if (subType.equalsIgnoreCase("damage")) {
+                Double damage = arguments.nextDouble((Double) null);
+                if (damage != null) {
+                    item.setMythicSkillCriticalDamage(damage);
+                    msgs(sender, "message.mythic.skill-critical-damage.damage.set", item.getName(), item.getMythicSkillCriticalDamage());
+                    ItemManager.save(item);
+                    return;
+                }
+            } else if (subType.equalsIgnoreCase("multiple")) {
+                Double multiple = arguments.nextDouble((Double) null);
+                if (multiple != null) {
+                    item.setMythicSkillCriticalDamageMultiple(multiple);
+                    msgs(sender, "message.mythic.skill-critical-damage.multiple.set", item.getName(), item.getMythicSkillCriticalDamageMultiple());
+                    ItemManager.save(item);
+                    return;
+                }
+            }
+            msgs(sender, "message.mythic.skill-critical-damage.get", item.getName(), item.getMythicSkillCriticalRate(), item.getMythicSkillCriticalDamage(), item.getMythicSkillCriticalDamageMultiple());
+            return;
         }
         msgs(sender, "message.mythic.skill-damage.get", item.getName(), item.getMythicSkillDamage(), item.getMythicSkillDamageMultiple());
     }

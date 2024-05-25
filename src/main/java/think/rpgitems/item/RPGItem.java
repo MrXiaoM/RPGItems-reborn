@@ -144,7 +144,11 @@ public class RPGItem {
     @Getter @Setter private double criticalAntiRate;
 
     @Getter @Setter private double mythicSkillDamage = 0;
-    @Getter @Setter private double mythicSkillDamageMultiple = 0;
+    @Getter @Setter private double mythicSkillDamageMultiple = 1;
+
+    @Getter @Setter private double mythicSkillCriticalRate = 0;
+    @Getter @Setter private double mythicSkillCriticalDamage = 0;
+    @Getter @Setter private double mythicSkillCriticalDamageMultiple = 1;
 
     @Getter @Setter private double atkSpeed = 0;
     @Getter @Setter private double moveSpeed = 0;
@@ -348,7 +352,11 @@ public class RPGItem {
         setCriticalAntiRate(s.getDouble("critical.anti.rate", 0.0d));
 
         setMythicSkillDamage(s.getDouble("mythic.skill.damage-add", 0.0d));
-        setMythicSkillDamageMultiple(s.getDouble("mythic.skill.damage-add-multiple", 0.0d));
+        setMythicSkillDamageMultiple(s.getDouble("mythic.skill.damage-add-multiple", 1.0d));
+
+        setMythicSkillCriticalRate(s.getDouble("mythic.skill.critical.rate", 0.0d));
+        setMythicSkillCriticalDamage(s.getDouble("mythic.skill.critical.damage-add", 0.0d));
+        setMythicSkillCriticalDamageMultiple(s.getDouble("mythic.skill.critical.damage-add-multiple", 1.0d));
 
         setDodgeRate(s.getDouble("dodge.rate", 0.0d));
         setDodgeMessageType(MessageType.getFromConfig(s, "dodge.message-type", MessageType.TITLE));
@@ -639,6 +647,10 @@ public class RPGItem {
 
         s.set("mythic.skill.damage-add", getMythicSkillDamage());
         s.set("mythic.skill.damage-add-multiple", getMythicSkillDamageMultiple());
+
+        s.set("mythic.skill.critical.rate", getMythicSkillCriticalRate());
+        s.set("mythic.skill.critical.damage-add", getMythicSkillCriticalDamage());
+        s.set("mythic.skill.critical.damage-add-multiple", getMythicSkillCriticalDamageMultiple());
 
         s.set("dodge.rate", getDodgeRate());
         s.set("dodge.message-type", getDodgeMessageType().name().toUpperCase());

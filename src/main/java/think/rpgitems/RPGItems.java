@@ -28,6 +28,7 @@ import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.support.MythicSupport;
+import think.rpgitems.support.PlaceholderSupport;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.cast.PluginUtils;
 import think.rpgitems.utils.nms.NMS;
@@ -294,6 +295,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
             HandlerList.unregisterAll(this);
             getServer().getPluginManager().registerEvents(new Events(), RPGItems.this);
             WGSupport.init(RPGItems.this);
+            PlaceholderSupport.init(RPGItems.this);
             logger.info("Loading RPGItems...");
             ItemManager.load(RPGItems.this);
             logger.info("Done");

@@ -64,6 +64,9 @@ public class Configuration extends PluginConfigure {
     @Serializable(name = "support.world_guard.show_warning")
     public boolean wgShowWarning = true;
 
+    @Serializable(name = "support.placeholder_api.enable")
+    public boolean usePlaceholderAPI = true;
+
     @Serializable(name = "general.give_perms", alias = "give-perms")
     public boolean givePerms = false;
 

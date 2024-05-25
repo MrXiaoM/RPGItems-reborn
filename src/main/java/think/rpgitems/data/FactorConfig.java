@@ -82,10 +82,16 @@ public class FactorConfig implements ISerializable {
         }
     }
 
+    @Nullable
+    public Factor getFactor(String id) {
+        return factors.get(id);
+    }
+
+    @Nullable
     public Factor getFactor(LivingEntity entity) {
         for (IFactorDefiner definer : definerList) {
             String id = definer.define(entity);
-            Factor factor = id == null ? null : factors.get(id);
+            Factor factor = id == null ? null : getFactor(id);
             if (factor != null) return factor;
         }
         return null;

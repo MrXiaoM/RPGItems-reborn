@@ -153,14 +153,16 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
             public @Nullable String define(LivingEntity entity) {
                 EntityEquipment equipment = entity.getEquipment();
                 if (equipment == null) return null;
+
                 Map<String, Integer> appearTimes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                add(appearTimes, ItemManager.toRPGItem(equipment.getHelmet()).orElse(null));
-                add(appearTimes, ItemManager.toRPGItem(equipment.getChestplate()).orElse(null));
-                add(appearTimes, ItemManager.toRPGItem(equipment.getLeggings()).orElse(null));
-                add(appearTimes, ItemManager.toRPGItem(equipment.getBoots()).orElse(null));
-                add(appearTimes, ItemManager.toRPGItem(equipment.getItemInOffHand()).orElse(null));
-                add(appearTimes, ItemManager.toRPGItem(equipment.getItemInMainHand()).orElse(null));
-                String factor = null;
+                for (RPGItem rpg : ItemManager.getEquipments(entity).values()) {
+                    add(appearTimes, rpg);
+                }
+                if (appearTimes.isEmpty()) return null;
+
+                String factor = cfg.factorConfig.getConflictOverride(appearTimes.keySet());
+                if (factor != null) return factor;
+
                 int max = 0;
                 for (Map.Entry<String, Integer> entry : appearTimes.entrySet()) {
                     if (entry.getValue() > max) {

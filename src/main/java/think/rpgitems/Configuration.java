@@ -125,16 +125,31 @@ public class Configuration extends PluginConfigure {
     {
         factorConfig.addFactor(new Factor("machine", "&bMachine", mapOf(
                 Pair.of("creature", "damage * 1.2"),
-                Pair.of("supernatural", "damage * 0.8")
+                Pair.of("supernatural", "damage * 0.8"),
+
+                Pair.of("weak", "damage * 1.8")
         )));
         factorConfig.addFactor(new Factor("creature", "&eCreature", mapOf(
                 Pair.of("supernatural", "damage * 1.2"),
-                Pair.of("machine", "damage * 0.8")
+                Pair.of("machine", "damage * 0.8"),
+
+                Pair.of("weak", "damage * 1.8")
         )));
         factorConfig.addFactor(new Factor("supernatural", "&dSuper Natural", mapOf(
                 Pair.of("machine", "damage * 1.2"),
-                Pair.of("creature", "damage * 0.8")
+                Pair.of("creature", "damage * 0.8"),
+
+                Pair.of("weak", "damage * 1.8")
         )));
+        factorConfig.addFactor(new Factor("weak", "&cWeak", mapOf(
+                Pair.of("machine", "damage * 0.2"),
+                Pair.of("creature", "damage * 0.2"),
+                Pair.of("supernatural", "damage * 0.2")
+        )));
+
+        factorConfig.addConflictOverride(List.of("machine", "creature"), "weak");
+        factorConfig.addConflictOverride(List.of("machine", "supernatural"), "weak");
+        factorConfig.addConflictOverride(List.of("creature", "supernatural"), "weak");
     }
 
     @SafeVarargs

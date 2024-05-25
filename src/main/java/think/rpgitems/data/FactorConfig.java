@@ -3,9 +3,11 @@ package think.rpgitems.data;
 import com.udojava.evalex.Expression;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 import think.rpgitems.api.IFactorDefiner;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
+import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.configuration.ISerializable;
 
 import java.math.BigDecimal;
@@ -17,9 +19,16 @@ import static think.rpgitems.RPGItems.plugin;
 public class FactorConfig implements ISerializable {
     List<IFactorDefiner> definerList = new ArrayList<>();
     Map<String, Factor> factors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    List<Pair<Set<String>, String>> conflictOverrides = new ArrayList<>();
 
     public void addFactor(Factor factor) {
         factors.put(factor.id, factor);
+    }
+
+    public void addConflictOverride(Collection<String> conflictFactors, String override) {
+        Set<String> factors = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        factors.addAll(conflictFactors);
+        conflictOverrides.add(Pair.of(factors, override));
     }
 
     public void clearDefiner() {
@@ -37,6 +46,7 @@ public class FactorConfig implements ISerializable {
     @Override
     public void deserialize(ConfigurationSection config) {
         factors.clear();
+        conflictOverrides.clear();
         ConfigurationSection section = config.getConfigurationSection("factors");
         if (section != null) for (String factorId : section.getKeys(false)) {
             String name = section.getString(factorId + ".name", factorId);
@@ -46,7 +56,13 @@ public class FactorConfig implements ISerializable {
                 String exp = section1.getString(otherFactorId);
                 damageTo.put(otherFactorId, exp);
             }
-            factors.put(factorId, new Factor(factorId, name, damageTo));
+            addFactor(new Factor(factorId, name, damageTo));
+        }
+        section = config.getConfigurationSection("conflict_override");
+        if (section != null) for (String conflictFactors : section.getKeys(false)) {
+            List<String> list = Arrays.asList(conflictFactors.split(","));
+            String factorId = section.getString(conflictFactors);
+            addConflictOverride(list, factorId);
         }
     }
 
@@ -60,6 +76,9 @@ public class FactorConfig implements ISerializable {
             for (Map.Entry<String, String> entry : factor.damageTo.entrySet()) {
                 config.set("factors." + factor.id + ".damage_to." + entry.getKey(), entry.getValue());
             }
+        }
+        for (Pair<Set<String>, String> pair : conflictOverrides) {
+            config.set("conflict_override." + String.join(",", pair.getKey()), pair.getValue());
         }
     }
 
@@ -78,6 +97,21 @@ public class FactorConfig implements ISerializable {
 
     public List<Factor> getFactors() {
         return new ArrayList<>(factors.values());
+    }
+
+    /**
+     * Check factors that have been defined. If there is a conflict, return a new factor.
+     * @param factors factors to check
+     * @return new factor, null if there is no conflict.
+     */
+    @Nullable
+    public String getConflictOverride(Collection<String> factors) {
+        for (Pair<Set<String>, String> pair : conflictOverrides) {
+            if (factors.containsAll(pair.getKey())) {
+                return pair.getValue();
+            }
+        }
+        return null;
     }
 
     public double getDamage(LivingEntity damager, LivingEntity entity, double damage) {
@@ -122,7 +156,7 @@ public class FactorConfig implements ISerializable {
                 }
             }
         }
-        
+
         return finDamage;
     }
 }

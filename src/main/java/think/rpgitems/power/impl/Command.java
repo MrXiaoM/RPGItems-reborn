@@ -15,7 +15,9 @@ import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 
 import java.util.Collections;
+import java.util.logging.Level;
 
+import static think.rpgitems.RPGItems.plugin;
 import static think.rpgitems.power.Utils.attachPermission;
 import static think.rpgitems.power.Utils.checkAndSetCooldown;
 
@@ -158,6 +160,8 @@ public class Command extends BasePower {
                     try {
                         player.setOp(true);
                         player.performCommand(cmd);
+                    } catch (Throwable t) {
+                        plugin.getLogger().log(Level.WARNING, "Run OP command failed for player " + player.getName(), t);
                     } finally {
                         if (!wasOp) {
                             player.setOp(false);

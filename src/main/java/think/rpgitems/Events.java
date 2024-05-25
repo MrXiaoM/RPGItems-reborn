@@ -1,5 +1,8 @@
 package think.rpgitems;
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import org.bukkit.block.BlockFace;
+import org.bukkit.event.block.*;
 import think.rpgitems.event.LoreUpdateEvent;
 import think.rpgitems.support.PlaceholderSupport;
 import think.rpgitems.utils.nyaacore.Pair;
@@ -11,10 +14,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.*;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakEvent;
@@ -65,6 +64,7 @@ public class Events implements Listener {
     private static final Set<Integer> removeProjectiles = new HashSet<>();
     private static final Map<Integer, Integer> rpgProjectiles = new HashMap<>();
     private static final Map<UUID, ItemStack> localItemStacks = new HashMap<>();
+    private static final Map<String, Long> lastSneak = new HashMap<>();
 
     private static RPGItem projectileRpgItem;
     private static ItemStack projectileItemStack;
@@ -438,8 +438,20 @@ public class Events implements Listener {
         trigger(p, e, p.getInventory().getItemInMainHand(), trigger);
 
         ItemStack[] armorContents = p.getInventory().getArmorContents();
-        Stream.of(armorContents)
-                .forEach(i -> trigger(p, e, i, trigger));
+        for (ItemStack i : armorContents) {
+            trigger(p, e, i, trigger);
+        }
+
+        long last = lastSneak.getOrDefault(p.getName(), 0L);
+        long now = System.currentTimeMillis();
+        lastSneak.put(p.getName(), now);
+        if (now - last <= 500) {
+            Trigger<PlayerToggleSneakEvent, PowerSneak, Void, Void> trigger1 = BaseTriggers.DOUBLE_SNEAK;
+            trigger(p, e, p.getInventory().getItemInMainHand(), trigger1);
+            for (ItemStack i : armorContents) {
+                trigger(p, e, i, trigger1);
+            }
+        }
     }
 
     <TEvent extends Event, TPower extends Pimpl, TResult, TReturn> TReturn trigger(Player player, TEvent event, ItemStack itemStack, Trigger<TEvent, TPower, TResult, TReturn> trigger) {
@@ -1097,4 +1109,39 @@ public class Events implements Listener {
         event.newLore = PlaceholderSupport.setPlaceholders(event.player, event.newLore);
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerArmorUpdate(PlayerArmorChangeEvent e) {
+        Player player = e.getPlayer();
+
+        ItemStack item = e.getNewItem();
+        trigger(player, e, item, BaseTriggers.ARMOR);
+
+        EntityEquipment equipment = player.getEquipment();
+        trigger(player, e, equipment.getHelmet(), BaseTriggers.ARMOR_UPDATE);
+        trigger(player, e, equipment.getChestplate(), BaseTriggers.ARMOR_UPDATE);
+        trigger(player, e, equipment.getLeggings(), BaseTriggers.ARMOR_UPDATE);
+        trigger(player, e, equipment.getBoots(), BaseTriggers.ARMOR_UPDATE);
+        trigger(player, e, equipment.getItemInMainHand(), BaseTriggers.ARMOR_UPDATE);
+        trigger(player, e, equipment.getItemInOffHand(), BaseTriggers.ARMOR_UPDATE);
+    }
+
+    @EventHandler
+    public void onBlockDamage(BlockDamageEvent e) {
+        Player player = e.getPlayer();
+        RPGItem rItem = ItemManager.toRPGItem(e.getItemInHand()).orElse(null);
+        if (rItem == null) return;
+
+        PlayerInteractEvent event = new PlayerInteractEvent(e.getPlayer(), Action.LEFT_CLICK_BLOCK, e.getItemInHand(), e.getBlock(), BlockFace.SELF);
+        rItem.power(player, e.getItemInHand(), event, BaseTriggers.CLICK_BLOCK);
+    }
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        ItemStack item = event.getItemDrop().getItemStack();
+        RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
+        if (rpg == null) return;
+        if (!player.hasPermission("rpgitems.drop")) event.setCancelled(true);
+        rpg.power(player, item, event, player.isSneaking() ? BaseTriggers.DROP_SNEAK : BaseTriggers.DROP);
+    }
 }

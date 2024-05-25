@@ -1,12 +1,10 @@
 package think.rpgitems.power.trigger;
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.event.player.*;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
@@ -26,6 +24,7 @@ public final class BaseTriggers {
     public static final Trigger<PlayerInteractEvent, PowerRightClick, Void, Void> RIGHT_CLICK = new RightClick();
     public static final Trigger<PlayerInteractEvent, PowerOffhandClick, Void, Void> OFFHAND_CLICK = new OffhandClick();
     public static final Trigger<PlayerToggleSneakEvent, PowerSneak, Void, Void> SNEAK = new Sneak();
+    public static final Trigger<PlayerToggleSneakEvent, PowerSneak, Void, Void> DOUBLE_SNEAK = new DoubleSneak();
     public static final Trigger<PlayerToggleSprintEvent, PowerSprint, Void, Void> SPRINT = new Sprint();
     public static final Trigger<PlayerSwapHandItemsEvent, PowerMainhandItem, Boolean, Boolean> SWAP_TO_OFFHAND = new SwapToOffhand();
     public static final Trigger<PlayerSwapHandItemsEvent, PowerOffhandItem, Boolean, Boolean> SWAP_TO_MAINHAND = new SwapToMainhand();
@@ -45,6 +44,11 @@ public final class BaseTriggers {
     public static final Trigger<EntityDamageByEntityEvent, PowerHit, Double, Optional<Double>> CRITICAL_FORCE_FAIL = new CriticalForceFail();
     public static final Trigger<EntityDamageEvent, PowerHurt, Void, Void> ANTI_CRITICAL = new AntiCritical();
     public static final Trigger<EntityDamageEvent, PowerHurt, Void, Void> DODGE = new Dodge();
+    public static final Trigger<PlayerArmorChangeEvent, PowerPlain, Void, Void> ARMOR = new Armor();
+    public static final Trigger<PlayerArmorChangeEvent, PowerPlain, Void, Void> ARMOR_UPDATE = new Armor.Update();
+    public static final Trigger<PlayerInteractEvent, PowerLeftClick, Void, Void> CLICK_BLOCK = new ClickBlock();
+    public static final Trigger<PlayerDropItemEvent, PowerPlain, Void, Void> DROP = new Drop();
+    public static final Trigger<PlayerDropItemEvent, PowerPlain, Void, Void> DROP_SNEAK = new Drop.Sneak();
     public static void load() {
         // do nothing, just let java load static constants.
     }

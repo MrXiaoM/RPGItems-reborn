@@ -12,6 +12,9 @@ import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
 import think.rpgitems.power.*;
 
+import java.util.logging.Level;
+
+import static think.rpgitems.RPGItems.plugin;
 import static think.rpgitems.power.Utils.attachPermission;
 import static think.rpgitems.power.Utils.checkAndSetCooldown;
 
@@ -103,6 +106,8 @@ public class CommandHit extends Command {
                     try {
                         player.setOp(true);
                         player.performCommand(cmd);
+                    } catch (Throwable t) {
+                        plugin.getLogger().log(Level.WARNING, "Run OP command failed for player " + player.getName(), t);
                     } finally {
                         if (!wasOp) {
                             player.setOp(false);

@@ -365,7 +365,7 @@ public class ProjectilePower extends BasePower {
 
         public PowerResult<Void> fire(Player player, ItemStack stack, float speedFactor) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             CastUtils.CastLocation castLocation = null;
             if (getFiringLocation().equals(FiringLocation.TARGET)) {
                 castLocation = CastUtils.rayTrace(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), getFiringRange());
@@ -530,7 +530,7 @@ public class ProjectilePower extends BasePower {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, Double value) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             CastUtils.CastLocation castLocation = null;
             if (getFiringLocation().equals(FiringLocation.TARGET)) {
                 castLocation = CastUtils.rayTrace(entity, entity.getEyeLocation(), entity.getEyeLocation().getDirection(), getFiringRange());

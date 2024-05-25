@@ -55,7 +55,7 @@ public class UserCommands extends RPGCommandReceiver {
         Player p = asPlayer(sender);
         RPGItem item = getItem(sender);
         ItemStack itemStack = p.getInventory().getItemInMainHand();
-        item.toModel(itemStack);
+        item.toModel(p, itemStack);
         p.getInventory().setItemInMainHand(itemStack);
         msg(p, "message.model.to");
     }

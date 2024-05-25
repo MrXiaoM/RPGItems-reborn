@@ -157,7 +157,7 @@ public class Deflect extends BasePower {
                 if (!checkCooldown(getPower(), target, getCooldownpassive(), false, true)) return PowerResult.cd();
             }
 
-            if (!getItem().consumeDurability(stack, getDeflectCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(target, stack, getDeflectCost())) return PowerResult.cost();
 
             if (!(p.getShooter() instanceof LivingEntity source)) return PowerResult.noop();
             Vector relativePosition = target.getEyeLocation().toVector();
@@ -210,7 +210,7 @@ public class Deflect extends BasePower {
         public PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkAndSetCooldown(getPower(), player, getCooldown(), true, true, getItem().getUid() + "." + "deflect.initiative"))
                 return PowerResult.noop();
-            if (!getItem().consumeDurability(stack, getCost()))
+            if (!getItem().consumeDurability(player, stack, getCost()))
                 return PowerResult.cost();
             getTime().put(player.getUniqueId(), System.currentTimeMillis() / 50 + getDuration());
             return PowerResult.ok();

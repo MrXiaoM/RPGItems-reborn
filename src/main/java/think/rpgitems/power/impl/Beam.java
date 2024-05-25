@@ -1212,13 +1212,13 @@ public class Beam extends BasePower {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             return beam(player, player, stack);
         }
 
         public PowerResult<Void> fire(Player player, ItemStack stack, Location castLocation, LivingEntity target, int depth) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
 
             CastUtils.CastLocation loc = CastUtils.of(castLocation, target, yAxis.clone());
             return beam(player, player, stack, loc, depth);
@@ -1413,7 +1413,7 @@ public class Beam extends BasePower {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             return beam(player, entity, stack);
         }
     }

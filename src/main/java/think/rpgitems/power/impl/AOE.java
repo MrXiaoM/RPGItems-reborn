@@ -181,7 +181,7 @@ public class AOE extends BasePower {
 
         private PowerResult<Void> fire(Location center, Player player, ItemStack itemStack, Collection<Entity> entityList){
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(itemStack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, itemStack, getCost())) return PowerResult.cost();
 
             int range = getRange();
 

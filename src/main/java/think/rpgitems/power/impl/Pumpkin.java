@@ -66,7 +66,7 @@ public class Pumpkin extends BasePower {
 
         @Override
         public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (rand.nextInt(getChance()) != 0) return PowerResult.noop();
             if (entity instanceof Skeleton || entity instanceof Zombie) {
                 if (entity.getEquipment().getHelmet() == null || entity.getEquipment().getHelmet().getType() == Material.AIR) {

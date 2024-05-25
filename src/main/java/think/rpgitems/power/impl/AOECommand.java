@@ -127,7 +127,7 @@ public class AOECommand extends Command {
         private PowerResult<Void> fire(Player player, ItemStack stack, List<LivingEntity> entitiesInCone){
             if (!checkAndSetCooldown(getPower(), player, getCooldown(), true, false, getItem().getUid() + "." + getCommand()))
                 return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (!player.isOnline()) return PowerResult.noop();
 
             attachPermission(player, getPermission());

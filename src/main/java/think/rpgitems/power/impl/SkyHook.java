@@ -118,7 +118,7 @@ public class SkyHook extends BasePower {
         @Override
         public PowerResult<Void> fire(final Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             Boolean isHooking = hooking.get(player.getUniqueId());
             if (isHooking == null) {
                 isHooking = false;
@@ -144,7 +144,7 @@ public class SkyHook extends BasePower {
 
                 @Override
                 public void run() {
-                    if (!(player.getAllowFlight() && getItem().consumeDurability(stack, getHookingTickCost()))) {
+                    if (!(player.getAllowFlight() && getItem().consumeDurability(player, stack, getHookingTickCost()))) {
                         cancel();
                         hooking.put(player.getUniqueId(), false);
                         return;

@@ -184,7 +184,7 @@ public class Attract extends BasePower {
 
         private PowerResult<Void> fire(Player player, Location location, ItemStack stack, Supplier<List<Entity>> supplier) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             new BukkitRunnable() {
                 int dur = getDuration();
 
@@ -212,11 +212,11 @@ public class Attract extends BasePower {
             double factor = Math.sqrt(getRadius() - 1.0) / getMaxSpeed();
             List<Entity> entities = supplier.get();
             if (entities.isEmpty()) return PowerResult.ok();
-            if (!getItem().consumeDurability(stack, getAttractingTickCost())) return PowerResult.ok();
+            if (!getItem().consumeDurability(player, stack, getAttractingTickCost())) return PowerResult.ok();
             for (Entity e : entities) {
                 if (e instanceof LivingEntity
                             && (isAttractPlayer() || !(e instanceof Player))) {
-                    if (!getItem().consumeDurability(stack, getAttractingEntityTickCost())) break;
+                    if (!getItem().consumeDurability(player, stack, getAttractingEntityTickCost())) break;
                     Location locTarget = e.getLocation();
                     Location locPlayer = location;
                     double d = locTarget.distance(locPlayer);

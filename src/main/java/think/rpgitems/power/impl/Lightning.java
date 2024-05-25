@@ -67,7 +67,7 @@ public class Lightning extends BasePower {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, Location location) {
             if (getRandom().nextInt(getChance()) == 0) {
-                if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+                if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 location.getWorld().strikeLightning(location);
                 Context.instance().putExpiringSeconds(player.getUniqueId(), "lightning.location", location, 3);
                 return PowerResult.ok();

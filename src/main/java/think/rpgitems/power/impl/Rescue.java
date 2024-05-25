@@ -108,7 +108,7 @@ public class Rescue extends BasePower {
 
         private PowerResult<Double> rescue(Player target, ItemStack stack, EntityDamageEvent event, boolean canceled) {
             if (!checkCooldown(getPower(), target, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(target, stack, getCost())) return PowerResult.cost();
             rescueTime.put(target.getUniqueId(), System.currentTimeMillis());
             target.sendTitle("", I18n.formatDefault("power.rescue.info"), 0, 40, 40);
             DamageCause cause = event.getCause();

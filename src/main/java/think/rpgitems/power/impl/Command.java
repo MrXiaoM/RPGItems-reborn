@@ -126,7 +126,7 @@ public class Command extends BasePower {
         public PowerResult<Void> fire(Player target, ItemStack stack) {
             if (!checkAndSetCooldown(getPower(), target, getCooldown(), true, false, getItem().getUid() + "." + getCommand()))
                 return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(target, stack, getCost())) return PowerResult.cost();
             return executeCommand(target);
         }
 

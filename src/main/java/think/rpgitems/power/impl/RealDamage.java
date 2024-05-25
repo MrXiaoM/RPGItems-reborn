@@ -79,7 +79,7 @@ public class RealDamage extends BasePower {
         public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             if (damage < getMinDamage()) return PowerResult.noop();
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (entity.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE)) {
                 PotionEffect e = entity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
                 if (e.getAmplifier() >= 4) return PowerResult.noop();

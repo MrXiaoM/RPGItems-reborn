@@ -1,5 +1,7 @@
 package think.rpgitems;
 
+import think.rpgitems.event.LoreUpdateEvent;
+import think.rpgitems.support.PlaceholderSupport;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.utils.RayTraceUtils;
 import org.bukkit.Bukkit;
@@ -320,7 +322,7 @@ public class Events implements Listener {
             if (rItem == null) return;
             UUID uuid = entity.getUniqueId();
             registerLocalItemStack(uuid, item);
-            ItemStack fakeItem = rItem.toItemStack();
+            ItemStack fakeItem = rItem.toItemStack(player);
             List<String> fakeLore = new ArrayList<>(1);
             fakeLore.add(uuid.toString());
             ItemMeta fakeItemItemMeta = fakeItem.getItemMeta();
@@ -525,10 +527,10 @@ public class Events implements Listener {
         PlayerInventory in = player.getInventory();
         for (int i = 0; i < in.getSize(); i++) {
             ItemStack item = in.getItem(i);
-            ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(item));
+            ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(player, item));
         }
         for (ItemStack item : player.getInventory().getArmorContents()) {
-            ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(item));
+            ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(player, item));
         }
         if (WGSupport.hasSupport() && WGSupport.useWorldGuard) {
             WGHandler.onPlayerJoin(e);
@@ -556,7 +558,7 @@ public class Events implements Listener {
                     e.setCancelled(true);
                     Bukkit.getScheduler().runTaskLater(RPGItems.plugin, () -> e.getArrow().remove(), 100L);
                 } else {
-                    RPGItem.updateItemStack(realItem);
+                    RPGItem.updateItemStack(e.getPlayer(), realItem);
                     e.getItem().setItemStack(realItem);
                 }
             }
@@ -577,10 +579,10 @@ public class Events implements Listener {
                 PlayerInventory in = p.getInventory();
                 for (int i = 0; i < in.getSize(); i++) {
                     ItemStack item = in.getItem(i);
-                    ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(item));
+                    ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(p, item));
                 }
                 for (ItemStack item : in.getArmorContents()) {
-                    ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(item));
+                    ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(p, item));
                 }
             }
         }.runTaskLater(plugin, 1L);
@@ -597,14 +599,14 @@ public class Events implements Listener {
     public void onPlayerChangeItem(PlayerItemHeldEvent ev) {
         Player player = ev.getPlayer();
         ItemStack item = player.getInventory().getItem(ev.getNewSlot());
-        ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(item));
+        ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(player, item));
         if (switchCooldown.contains(player.getUniqueId())) return;
         ItemStack[] armorContents = player.getInventory().getArmorContents();
         for (ItemStack stack : armorContents) {
-            ItemManager.toRPGItem(stack).ifPresent(rpgItem -> rpgItem.updateItem(stack));
+            ItemManager.toRPGItem(stack).ifPresent(rpgItem -> rpgItem.updateItem(player, stack));
         }
         ItemStack offhandItem = player.getInventory().getItemInOffHand();
-        ItemManager.toRPGItem(offhandItem).ifPresent(rpgItem -> rpgItem.updateItem(offhandItem));
+        ItemManager.toRPGItem(offhandItem).ifPresent(rpgItem -> rpgItem.updateItem(player, offhandItem));
         switchCooldown.add(player.getUniqueId());
         new BukkitRunnable() {
             @Override
@@ -621,13 +623,13 @@ public class Events implements Listener {
         try {
             while (it.hasNext()) {
                 ItemStack item = it.next();
-                ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(item));
+                ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(p, item));
             }
             PlayerInventory inventory1 = p.getInventory();
             it = inventory1.iterator();
             while (it.hasNext()) {
                 ItemStack item = it.next();
-                ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(item));
+                ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(p, item));
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
             logger.log(Level.WARNING, "Exception when InventoryOpenEvent. May be harmless.", ex);
@@ -1088,6 +1090,11 @@ public class Events implements Listener {
         if (rItem == null) return;
 
         rItem.power(player, event.getItemStack(), event, BaseTriggers.BEAM_END, null);
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onLoreUpdate(LoreUpdateEvent event) {
+        event.newLore = PlaceholderSupport.setPlaceholders(event.player, event.newLore);
     }
 
 }

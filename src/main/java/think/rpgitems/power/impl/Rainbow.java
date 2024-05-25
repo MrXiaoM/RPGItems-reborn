@@ -89,7 +89,7 @@ public class Rainbow extends BasePower {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1.0f, 1.0f);
             final ArrayList<FallingBlock> blocks = new ArrayList<>();
             for (int i = 0; i < getCount(); i++) {

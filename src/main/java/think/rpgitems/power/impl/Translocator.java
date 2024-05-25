@@ -114,7 +114,7 @@ public class Translocator extends BasePower {
                 return PowerResult.fail();
             }
             translocator.remove();
-            if (!getItem().consumeDurability(stack, getTpCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getTpCost())) return PowerResult.cost();
             Location newLoc = translocator.getLocation();
             Vector direction = player.getLocation().getDirection();
             newLoc.setDirection(direction);
@@ -151,7 +151,7 @@ public class Translocator extends BasePower {
         @Override
         public PowerResult<Boolean> swapToOffhand(Player player, ItemStack stack, PlayerSwapHandItemsEvent event) {
             if (!checkCooldown(getPower(), player, 0, true, true)) return PowerResult.ok(false);
-            if (!getItem().consumeDurability(stack, getSetupCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getSetupCost())) return PowerResult.cost();
             SpectralArrow arrow = player.launchProjectile(SpectralArrow.class, player.getLocation().getDirection().multiply(getSpeed()));
             arrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
             arrow.setPersistent(false);

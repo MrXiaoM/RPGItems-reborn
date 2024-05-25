@@ -235,7 +235,7 @@ public class Dummy extends BasePower {
                 }
                 if (isDoEnchReduceCost()) finalCost = damageCost - finalCost;
             }
-            if (!getItem().consumeDurability(stack, finalCost, isCheckDurabilityBound()))
+            if (!getItem().consumeDurability(player, stack, finalCost, isCheckDurabilityBound()))
                 return PowerResult.of(getCostResult());
             return PowerResult.of(getSuccessResult());
         }

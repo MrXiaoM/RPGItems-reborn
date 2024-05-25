@@ -101,7 +101,7 @@ public class Rumble extends BasePower {
         @Override
         public PowerResult<Void> fire(final Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             final Location location = player.getLocation().add(0, -0.2, 0);
             final Vector direction = player.getLocation().getDirection();
             return fire(player, location, direction);

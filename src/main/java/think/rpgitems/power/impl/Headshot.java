@@ -116,7 +116,7 @@ public class Headshot extends BasePower {
             }
             if (hs) {
                 Context.instance().putExpiringSeconds(player.getUniqueId(), "headshot.target", entity, 3);
-                if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+                if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 if (isSoundSelf()) {
                     player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 3);
                 }

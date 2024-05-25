@@ -57,7 +57,7 @@ public class ParticleTick extends ParticlePower {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getInterval(), false, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             spawnParticle(player);
             return PowerResult.ok();
         }

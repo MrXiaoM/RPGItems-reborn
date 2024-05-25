@@ -248,7 +248,7 @@ public class AOEDamage extends BasePower {
 
         private PowerResult<Void> fire(Player player, ItemStack stack, Supplier<List<LivingEntity>> supplier){
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             Context.instance().putTemp(player.getUniqueId(), DAMAGE_SOURCE, getNamespacedKey().toString());
             Context.instance().putTemp(player.getUniqueId(), OVERRIDING_DAMAGE, getDamage());
             Context.instance().putTemp(player.getUniqueId(), SUPPRESS_MELEE, isSuppressMelee());

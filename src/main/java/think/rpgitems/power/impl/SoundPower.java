@@ -160,7 +160,7 @@ public class SoundPower extends BasePower {
         }
 
         private PowerResult<Void> sound(Entity player, ItemStack stack, Location location) {
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player instanceof Player ? (Player) player : null, stack, getCost())) return PowerResult.cost();
             if (getDelay()>0){
                 new BukkitRunnable() {
                     @Override

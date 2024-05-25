@@ -111,7 +111,7 @@ public class PotionTick extends BasePower {
         private PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkAndSetCooldown(getPower(), player, getInterval(), false, true, getItem().getUid() + "." + "potiontick." + getEffect().getName()))
                 return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             double health = player.getHealth();
             boolean hasEffect = false;
             for (PotionEffect potionEffect : player.getActivePotionEffects()) {

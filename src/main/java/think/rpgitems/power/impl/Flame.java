@@ -55,7 +55,7 @@ public class Flame extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, Double value) {
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             entity.setFireTicks(getBurntime());
             return PowerResult.ok();
         }

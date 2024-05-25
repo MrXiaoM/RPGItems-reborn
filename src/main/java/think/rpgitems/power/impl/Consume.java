@@ -96,7 +96,7 @@ public class Consume extends BasePower {
 
         public PowerResult<Void> fire(final Player player, ItemStack s) {
             if (!checkCooldown(getPower(), player, getCooldown(), false, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(s, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, s, getCost())) return PowerResult.cost();
             int count = s.getAmount() - 1;
             if (count == 0) {
                 s.setAmount(0);

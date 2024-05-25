@@ -124,7 +124,7 @@ public class GunFu extends BasePower {
         @Override
         public PowerResult<Float> bowShoot(Player player, ItemStack stack, EntityShootBowEvent event) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (event.getProjectile() instanceof Projectile) {
                 return run(player, (Projectile) event.getProjectile(), event.getForce());
             }
@@ -170,7 +170,7 @@ public class GunFu extends BasePower {
         @Override
         public PowerResult<Void> projectileLaunch(Player player, ItemStack stack, ProjectileLaunchEvent event) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             Projectile projectile = event.getEntity();
             return run(player, projectile, 1).with(null);
         }

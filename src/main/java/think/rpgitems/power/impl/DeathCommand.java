@@ -88,7 +88,7 @@ public class DeathCommand extends BasePower {
         @Override
         public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             if (getRand().nextInt(getChance()) == 0) {
-                if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+                if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 Location loc = entity.getLocation();
                 int x = (int) loc.getX();
                 int y = (int) loc.getY();

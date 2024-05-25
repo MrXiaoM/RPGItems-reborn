@@ -198,10 +198,10 @@ public class Stuck extends BasePower {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCostAoe())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCostAoe())) return PowerResult.cost();
             List<LivingEntity> entities = getLivingEntitiesInCone(getNearestLivingEntities(getPower(), player.getEyeLocation(), player, getRange(), 0), player.getLocation().toVector(), getFacing(), player.getLocation().getDirection());
             entities.forEach(entity -> {
-                        if (!getItem().consumeDurability(stack, getCostPerEntity())) return;
+                        if (!getItem().consumeDurability(player, stack, getCostPerEntity())) return;
                         stucked.put(entity.getUniqueId(), System.currentTimeMillis());
                         entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, getDuration(), 10), true);
 //                    entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, duration, 128), true);
@@ -242,7 +242,7 @@ public class Stuck extends BasePower {
         public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (random.nextInt(getChance()) == 0) {
-                if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+                if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 stucked.put(entity.getUniqueId(), System.currentTimeMillis());
                 entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, getDuration(), 10), true);
                 // entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, duration, 128), true);

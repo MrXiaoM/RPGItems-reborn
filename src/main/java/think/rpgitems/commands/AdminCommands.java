@@ -517,7 +517,7 @@ public class AdminCommands extends RPGCommandReceiver {
             public void run() {
                 for (ItemStack item : player.getInventory()) {
                     Optional<RPGItem> rpgItem = ItemManager.toRPGItemByMeta(item);
-                    rpgItem.ifPresent(r -> r.updateItem(item));
+                    rpgItem.ifPresent(r -> r.updateItem(player, item));
                 }
             }
         }.runTaskLater(RPGItems.plugin, 1);

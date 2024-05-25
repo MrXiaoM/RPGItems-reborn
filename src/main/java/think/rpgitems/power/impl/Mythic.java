@@ -72,7 +72,7 @@ public class Mythic extends BasePower {
 
         public PowerResult<Void> fire(final Player player, ItemStack s) {
             if (!checkCooldown(getPower(), player, getCooldown(), false, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(s, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, s, getCost())) return PowerResult.cost();
 
             boolean result = MythicSupport.castSkill(player, getSkill());
 

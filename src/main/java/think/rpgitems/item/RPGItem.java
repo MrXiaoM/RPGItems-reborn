@@ -1,14 +1,11 @@
 package think.rpgitems.item;
 
-import think.rpgitems.utils.MessageType;
-import think.rpgitems.utils.nyaacore.Message;
-import think.rpgitems.utils.nyaacore.Pair;
-import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
-import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Multimap;
+import lombok.Getter;
+import lombok.Setter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -34,9 +31,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import think.rpgitems.commands.AdminCommands;
+import org.jetbrains.annotations.Nullable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.data.Context;
 import think.rpgitems.data.FactorModifier;
 import think.rpgitems.event.LoreUpdateEvent;
@@ -50,6 +48,11 @@ import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.support.MythicSupport;
 import think.rpgitems.utils.ColorHelper;
 import think.rpgitems.utils.MaterialUtils;
+import think.rpgitems.utils.MessageType;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
+import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -63,8 +66,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Getter;
-import lombok.Setter;
 
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
@@ -217,12 +218,20 @@ public class RPGItem {
         restore(s);
     }
 
+    @Deprecated
     public static void updateItemStack(ItemStack item) {
+        updateItemStack(null, item);
+    }
+    public static void updateItemStack(@Nullable Player player, ItemStack item) {
         Optional<RPGItem> rItem = ItemManager.toRPGItem(item);
-        rItem.ifPresent(r -> r.updateItem(item, false));
+        rItem.ifPresent(r -> r.updateItem(player, item, false));
     }
 
+    @Deprecated
     public static List<Modifier> getModifiers(ItemStack stack) {
+        return getModifiers(null, stack);
+    }
+    public static List<Modifier> getModifiers(@Nullable Player player, ItemStack stack) {
         Optional<String> opt = ItemTagUtils.getString(stack, NBT_ITEM_UUID);
         if (opt.isEmpty()) {
             Optional<RPGItem> rpgItemOpt = ItemManager.toRPGItemByMeta(stack);
@@ -230,7 +239,7 @@ public class RPGItem {
                 return Collections.emptyList();
             }
             RPGItem rpgItem = rpgItemOpt.get();
-            rpgItem.updateItem(stack);
+            rpgItem.updateItem(player, stack);
             Optional<String> opt1 = ItemTagUtils.getString(stack, NBT_ITEM_UUID);
             if (opt1.isEmpty()) {
                 return Collections.emptyList();
@@ -750,11 +759,21 @@ public class RPGItem {
     }
 
 
+    @Deprecated
     public void updateItem(ItemStack item) {
-        updateItem(item, false);
+        updateItem(null, item, false);
     }
 
+    @Deprecated
     public void updateItem(ItemStack item, boolean loreOnly) {
+        updateItem(null, item, loreOnly);
+    }
+
+    public void updateItem(@Nullable Player player, ItemStack item) {
+        updateItem(player, item, false);
+    }
+
+    public void updateItem(@Nullable Player player, ItemStack item, boolean loreOnly) {
         if (item == null) return;
         List<String> oldLore = item.getItemMeta() == null || item.getItemMeta().getLore() == null ? new ArrayList<>() : new ArrayList<>(item.getItemMeta().getLore());
         List<String> reservedLores = this.filterLores(item);
@@ -789,7 +808,7 @@ public class RPGItem {
             lore.add("mcMMO Ability Tool");
 
         lore.addAll(reservedLores);
-        LoreUpdateEvent event = new LoreUpdateEvent(this, item, oldLore, lore);
+        LoreUpdateEvent event = new LoreUpdateEvent(this, player, item, oldLore, lore);
         Bukkit.getPluginManager().callEvent(event);
         item = event.item;
         meta.setLore(event.newLore);
@@ -1043,7 +1062,7 @@ public class RPGItem {
         if (!canDoMeleeTo(stack, entity) || ItemManager.canUse(p, this) == Event.Result.DENY) {
             return -1;
         }
-        boolean can = consumeDurability(stack, getHittingCost());
+        boolean can = consumeDurability(p, stack, getHittingCost());
         if (!can) {
             return -1;
         }
@@ -1154,9 +1173,9 @@ public class RPGItem {
         }
         boolean can;
         if (!isHitCostByDamage()) {
-            can = consumeDurability(stack, getHitCost());
+            can = consumeDurability(p, stack, getHitCost());
         } else {
-            can = consumeDurability(stack, (int) (getHitCost() * originDamage / 100d));
+            can = consumeDurability(p, stack, (int) (getHitCost() * originDamage / 100d));
         }
         if (can && getArmour() > 0) {
             originDamage -= Math.round(originDamage * (((double) getArmour()) / 100d));
@@ -1173,7 +1192,7 @@ public class RPGItem {
      * @return If should process this event
      */
     public boolean breakBlock(Player p, ItemStack stack, Block block) {
-        return consumeDurability(stack, getBlockBreakingCost());
+        return consumeDurability(p, stack, getBlockBreakingCost());
     }
 
     private <TEvent extends Event, TPower extends Pimpl, TResult, TReturn> boolean triggerPreCheck(Player player, ItemStack i, TEvent event, Trigger<TEvent, TPower, TResult, TReturn> trigger, List<TPower> powers) {
@@ -1349,7 +1368,11 @@ public class RPGItem {
         return output;
     }
 
+    @Deprecated
     public ItemStack toItemStack() {
+        return toItemStack(null);
+    }
+    public ItemStack toItemStack(Player player) {
         ItemStack rStack = new ItemStack(getItem());
         ItemMeta meta = rStack.getItemMeta();
         PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
@@ -1362,12 +1385,16 @@ public class RPGItem {
         meta.setDisplayName(getDisplayName());
         rStack.setItemMeta(meta);
 
-        updateItem(rStack, false);
+        updateItem(player, rStack, false);
         return rStack;
     }
 
+    @Deprecated
     public void toModel(ItemStack itemStack) {
-        updateItem(itemStack);
+        toModel(null, itemStack);
+    }
+    public void toModel(@Nullable Player player, ItemStack itemStack) {
+        updateItem(player, itemStack);
         ItemMeta itemMeta = itemStack.getItemMeta();
         SubItemTagContainer meta = makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_META);
         meta.remove(TAG_OWNER);
@@ -1384,7 +1411,7 @@ public class RPGItem {
     }
 
     public void unModel(ItemStack itemStack, Player owner) {
-        updateItem(itemStack);
+        updateItem(owner, itemStack);
         ItemMeta itemMeta = itemStack.getItemMeta();
         SubItemTagContainer meta = makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_META);
         if (isCanBeOwned()) {
@@ -1427,7 +1454,7 @@ public class RPGItem {
         if (sender instanceof Player) {
             locale = ((Player) sender).getLocale();
             new Message("")
-                    .append(I18n.getInstance(((Player) sender).getLocale()).format("message.item.print"), toItemStack())
+                    .append(I18n.getInstance(((Player) sender).getLocale()).format("message.item.print"), toItemStack((Player) sender))
                     .send(sender);
         } else {
             List<String> lines = getTooltipLines();
@@ -1461,7 +1488,12 @@ public class RPGItem {
         }
     }
 
+    @Deprecated
     public void setItemStackDurability(ItemStack item, int val) {
+        setItemStackDurability(null, item, val);
+    }
+
+    public void setItemStackDurability(Player player, ItemStack item, int val) {
         ItemMeta itemMeta = item.getItemMeta();
         SubItemTagContainer tagContainer = makeTag(Objects.requireNonNull(itemMeta), TAG_META);
         if (getMaxDurability() != -1) {
@@ -1469,7 +1501,7 @@ public class RPGItem {
         }
         tagContainer.commit();
         item.setItemMeta(itemMeta);
-        this.updateItem(item, true);
+        this.updateItem(player, item, true);
     }
 
     public Optional<Integer> getItemStackDurability(ItemStack item) {
@@ -1488,11 +1520,21 @@ public class RPGItem {
         return Optional.of(durability);
     }
 
+    @Deprecated
     public boolean consumeDurability(ItemStack item, int val) {
-        return consumeDurability(item, val, true);
+        return consumeDurability(null, item, val, true);
     }
 
+    public boolean consumeDurability(@Nullable Player player, ItemStack item, int val) {
+        return consumeDurability(player, item, val, true);
+    }
+
+    @Deprecated
     public boolean consumeDurability(ItemStack item, int val, boolean checkbound) {
+        return consumeDurability(null, item, val, checkbound);
+    }
+
+    public boolean consumeDurability(@Nullable Player player, ItemStack item, int val, boolean checkbound) {
         if (val == 0) return true;
         int durability;
         ItemMeta itemMeta = item.getItemMeta();
@@ -1521,13 +1563,13 @@ public class RPGItem {
             set(tagContainer, TAG_DURABILITY, durability);
             tagContainer.commit();
             item.setItemMeta(itemMeta);
-            this.updateItem(item, true);
+            this.updateItem(player, item, true);
         }
         return true;
     }
 
     public void give(Player player, int count, boolean wear) {
-        ItemStack itemStack = toItemStack();
+        ItemStack itemStack = toItemStack(player);
         itemStack.setAmount(count);
         if (wear) {
             if (
@@ -1785,14 +1827,17 @@ public class RPGItem {
         if (sender instanceof Player) {
             locale = ((Player) sender).getLocale();
         }
-        return getComponent(locale);
+        return getComponent(sender instanceof Player ? (Player) sender : null, locale);
     }
 
     public BaseComponent getComponent(String locale) {
+        return getComponent(null, locale);
+    }
+    public BaseComponent getComponent(@Nullable Player player, String locale) {
         BaseComponent msg = new TextComponent(getDisplayName());
         msg.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/rpgitem " + getName()));
         HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_ITEM,
-                new BaseComponent[]{new TextComponent(ItemStackUtils.itemToJson(toItemStack()))});
+                new BaseComponent[]{new TextComponent(ItemStackUtils.itemToJson(toItemStack(player)))});
         msg.setHoverEvent(hover);
         return msg;
     }

@@ -33,8 +33,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static think.rpgitems.item.RPGItem.getModifiers;
-
 public class Interceptor {
     private static final Cache<String, Pair<origPowerHolder, Power>> POWER_CACHE = CacheBuilder.newBuilder().weakValues().build();
     private final Power orig;
@@ -129,8 +127,8 @@ public class Interceptor {
             if (getters.containsKey(method)) {
                 PropertyInstance propertyInstance = getters.get(method);
                 Class<?> type = propertyInstance.field().getType();
-                List<Modifier> playerModifiers = getModifiers(player);
-                List<Modifier> stackModifiers = getModifiers(stack);
+                List<Modifier> playerModifiers = RPGItem.getModifiers(player);
+                List<Modifier> stackModifiers = RPGItem.getModifiers(player, stack);
                 List<Modifier> modifiers = Stream.concat(playerModifiers.stream(), stackModifiers.stream()).sorted(Comparator.comparing(Modifier::priority)).toList();
                 // Numeric modifiers
                 if (type == int.class || type == Integer.class || type == float.class || type == Float.class || type == double.class || type == Double.class) {

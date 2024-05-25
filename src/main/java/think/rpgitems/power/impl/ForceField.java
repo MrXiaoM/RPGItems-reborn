@@ -262,7 +262,7 @@ public class ForceField extends BasePower {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
             if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(stack, getCost())) return PowerResult.cost();
+            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
             World w = player.getWorld();
             int x = player.getLocation().getBlockX();
             int y = player.getLocation().getBlockY();

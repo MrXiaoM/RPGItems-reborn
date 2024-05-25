@@ -181,7 +181,7 @@ public class Repair extends BasePower {
                     break;
                 }
                 if (removeItem(player.getInventory(), getMaterial(), 1)) {
-                    getItem().setItemStackDurability(stack, Math.min(itemDurability + getDurability(), max));
+                    getItem().setItemStackDurability(player, stack, Math.min(itemDurability + getDurability(), max));
                     repairCount++;
                 } else {
                     if (isShowFailMsg()) {

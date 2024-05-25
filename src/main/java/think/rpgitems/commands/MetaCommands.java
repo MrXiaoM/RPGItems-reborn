@@ -1,21 +1,19 @@
 package think.rpgitems.commands;
 
+import org.bukkit.command.CommandSender;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
-import think.rpgitems.utils.nyaacore.Message;
-import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
-import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.RPGCommandReceiver;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static think.rpgitems.commands.AdminCommands.filtered;
-import static think.rpgitems.commands.AdminCommands.getItem;
+import static think.rpgitems.commands.AdminCommands.*;
 
 public class MetaCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
@@ -34,10 +32,7 @@ public class MetaCommands extends RPGCommandReceiver {
     //all prop in RPGItem will be able to modify here.
     @SubCommand(value = "quality", tabCompleter = "qualityCompleter")
     public void onQuality(CommandSender sender, Arguments arguments){
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(arguments.nextString(), sender);
         String quality = arguments.nextString();
         item.setQuality(quality);
@@ -58,10 +53,7 @@ public class MetaCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "type", tabCompleter = "typeCompleter")
     public void onType(CommandSender sender, Arguments arguments){
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(arguments.nextString(), sender);
         String type = arguments.nextString();
         item.setType(type);

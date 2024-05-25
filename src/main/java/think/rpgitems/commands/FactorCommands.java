@@ -1,7 +1,6 @@
 package think.rpgitems.commands;
 
 import com.udojava.evalex.Expression;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
@@ -34,10 +33,7 @@ public class FactorCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "value", tabCompleter = "valueCompleter")
     public void value(CommandSender sender, Arguments args){
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(args.nextString(), sender);
         String value = args.nextString(null);
         if (value != null) {
@@ -57,10 +53,7 @@ public class FactorCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "modifier", tabCompleter = "modifierCompleter")
     public void modifier(CommandSender sender, Arguments args) {
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(args.nextString(), sender);
         String value = args.nextString(null);
         if ("set".equalsIgnoreCase(value)) {

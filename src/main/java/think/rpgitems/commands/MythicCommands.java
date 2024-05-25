@@ -30,10 +30,7 @@ public class MythicCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "skillDamageAdd", tabCompleter = "skillDamageAddCompleter")
     public void skillDamageAdd(CommandSender sender, Arguments arguments){
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(arguments.nextString(), sender);
         String type = arguments.nextString();
         if (type.equalsIgnoreCase("damage")) {

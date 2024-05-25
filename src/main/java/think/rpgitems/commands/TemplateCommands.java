@@ -19,6 +19,8 @@ import think.rpgitems.power.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static think.rpgitems.commands.AdminCommands.readOnly;
+
 public class TemplateCommands extends RPGCommandReceiver {
     public TemplateCommands(RPGItems plugin, LanguageRepository i18n) {
         super(plugin, i18n);
@@ -31,10 +33,7 @@ public class TemplateCommands extends RPGCommandReceiver {
 
     @SubCommand("create")
     public void onCreate(CommandSender sender, Arguments arguments){
-        if (RPGItems.plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         String itemName = arguments.nextString();
         List<String> placeHolder = new ArrayList<>();
         while (arguments.remains() > 0){
@@ -56,10 +55,7 @@ public class TemplateCommands extends RPGCommandReceiver {
 
     @SubCommand("delete")
     public void onDelete(CommandSender sender, Arguments arguments){
-        if (RPGItems.plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         String itemName = arguments.nextString();
         RPGItem rpgItem = ItemManager.getItem(itemName).orElseThrow(BadCommandException::new);
         rpgItem.setTemplate(false);
@@ -68,10 +64,7 @@ public class TemplateCommands extends RPGCommandReceiver {
 
     @SubCommand("apply")
     public void onApply(CommandSender sender, Arguments arguments){
-        if (RPGItems.plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         String itemName = arguments.nextString();
         RPGItem target = ItemManager.getItem(itemName).orElseThrow(BadCommandException::new);
         boolean isTemplate = target.isTemplate();
@@ -110,10 +103,7 @@ public class TemplateCommands extends RPGCommandReceiver {
 
         @SubCommand("add")
         public void onAdd(CommandSender sender, Arguments arguments){
-            if (RPGItems.plugin.cfg.readonly) {
-                sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-                return;
-            }
+            if (readOnly(sender)) return;
             String itemName = arguments.nextString();
 
             RPGItem rpgItem = ItemManager.getItem(itemName).orElse(null);
@@ -146,10 +136,7 @@ public class TemplateCommands extends RPGCommandReceiver {
 
         @SubCommand("remove")
         public void onRemove(CommandSender sender, Arguments arguments){
-            if (RPGItems.plugin.cfg.readonly) {
-                sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-                return;
-            }
+            if (readOnly(sender)) return;
             String itemName = arguments.nextString();
             String toRemove = arguments.nextString();
             RPGItem rpgItem = ItemManager.getItem(itemName).orElse(null);

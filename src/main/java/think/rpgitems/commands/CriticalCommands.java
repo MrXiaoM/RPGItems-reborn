@@ -31,10 +31,7 @@ public class CriticalCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "normal", tabCompleter = "normalCompleter")
     public void normal(CommandSender sender, Arguments arguments){
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(arguments.nextString(), sender);
         String type = arguments.nextString();
         if (type.equalsIgnoreCase("rate")) {
@@ -80,10 +77,7 @@ public class CriticalCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "back", tabCompleter = "normalCompleter")
     public void back(CommandSender sender, Arguments arguments){
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(arguments.nextString(), sender);
         String type = arguments.nextString();
         if (type.equalsIgnoreCase("rate")) {
@@ -116,10 +110,7 @@ public class CriticalCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "anti", tabCompleter = "antiCompleter")
     public void anti(CommandSender sender, Arguments arguments){
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(arguments.nextString(), sender);
         String type = arguments.nextString();
         if (type.equalsIgnoreCase("rate")) {

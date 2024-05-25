@@ -61,10 +61,7 @@ public class TriggerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "add", tabCompleter = "addCompleter")
     public void add(CommandSender sender, Arguments args) {
-        if (RPGItems.plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         String itemStr = args.next();
         String powerStr = args.next();
         if (itemStr == null || itemStr.equals("help")) {
@@ -118,10 +115,7 @@ public class TriggerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "prop", tabCompleter = "propCompleter")
     public void prop(CommandSender sender, Arguments args) throws IllegalAccessException {
-        if (RPGItems.plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(args.nextString(), sender);
         if (args.top() == null) {
             item.getTriggers().forEach((n, t) -> showTrigger(sender, item, t));
@@ -170,10 +164,7 @@ public class TriggerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "remove", tabCompleter = "removeCompleter")
     public void remove(CommandSender sender, Arguments args) {
-        if (RPGItems.plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(args.nextString(), sender);
         String name = args.nextString();
         Trigger trigger = item.getTriggers().get(name);

@@ -71,10 +71,7 @@ public class MarkerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "add", tabCompleter = "addCompleter")
     public void add(CommandSender sender, Arguments args) {
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         String itemStr = args.next();
         String markerStr = args.next();
         if (itemStr == null || itemStr.equals("help") || markerStr == null) {
@@ -167,10 +164,7 @@ public class MarkerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "prop", tabCompleter = "propCompleter")
     public void prop(CommandSender sender, Arguments args) throws IllegalAccessException {
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(args.nextString(), sender);
         if (args.top() == null) {
             for (int i = 0; i < item.getMarkers().size(); i++) {
@@ -218,10 +212,7 @@ public class MarkerCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "remove", tabCompleter = "removeCompleter")
     public void remove(CommandSender sender, Arguments args) {
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
+        if (readOnly(sender)) return;
         RPGItem item = getItem(args.nextString(), sender);
         Marker marker = nextMarker(item, sender, args);
         try {

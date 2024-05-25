@@ -1099,6 +1099,15 @@ manual:
       usage: '&f/rpgitem meta &a[help]'
     description: 设置物品元数据
     usage: '&f/rpgitem meta &a{神器} <&fquality&a/&ftype&a> <值>'
+  factor:
+    description: '展示/设置物品的元素选项
+    可用的参数:
+    
+    value - 获取或设置物品当前元素
+    usage: '&f/rpgitem factor &a<选项> {神器} <选项...>'
+    value:
+      description: '展示/设置物品的元素'
+      usage: '&f/rpgitem factor value &a{神器} [元素]'
   critical:
     description: '展示/设置物品的暴击、抗暴选项
     可用的参数：

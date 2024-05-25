@@ -1,17 +1,5 @@
 package think.rpgitems.commands;
 
-import think.rpgitems.Configuration;
-import think.rpgitems.I18n;
-import think.rpgitems.RPGItems;
-import think.rpgitems.utils.MessageType;
-import think.rpgitems.utils.nyaacore.Message;
-import think.rpgitems.utils.nyaacore.Pair;
-import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
-import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
-import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
-import think.rpgitems.utils.nyaacore.utils.HexColorUtils;
-import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
-import think.rpgitems.utils.nyaacore.utils.OfflinePlayerUtils;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -21,7 +9,10 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang.NotImplementedException;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -34,13 +25,24 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+import think.rpgitems.I18n;
+import think.rpgitems.RPGItems;
 import think.rpgitems.item.ItemGroup;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.MaterialUtils;
+import think.rpgitems.utils.MessageType;
 import think.rpgitems.utils.NetworkUtils;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
+import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
+import think.rpgitems.utils.nyaacore.utils.HexColorUtils;
+import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
+import think.rpgitems.utils.nyaacore.utils.OfflinePlayerUtils;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -150,6 +152,9 @@ public class AdminCommands extends RPGCommandReceiver {
 
     @SubCommand("critical")
     public CriticalCommands critical;
+
+    @SubCommand("factor")
+    public FactorCommands factor;
 
     @SubCommand("marker")
     public MarkerCommands marker;
@@ -550,25 +555,6 @@ public class AdminCommands extends RPGCommandReceiver {
             ItemManager.save(item);
         } else {
             msgs(sender, "message.display.get", item.getName(), item.getDisplayName());
-        }
-    }
-
-    @SubCommand(value = "factor", tabCompleter = "itemCompleter")
-    public void itemFactor(CommandSender sender, Arguments args) {
-        if (plugin.cfg.readonly) {
-            sender.sendMessage(ChatColor.YELLOW + "[RPGItems] Read-Only.");
-            return;
-        }
-        RPGItem item = getItem(args.nextString(), sender);
-        String value = args.nextString(null);
-        if (value != null) {
-            if (value.equalsIgnoreCase("none")) value = "";
-            item.setFactor(value);
-            msgs(sender, "message.factor.set", item.getName(), item.getFactor());
-            ItemManager.refreshItem();
-            ItemManager.save(item);
-        } else {
-            msgs(sender, "message.factor.get", item.getName(), item.getFactor());
         }
     }
 

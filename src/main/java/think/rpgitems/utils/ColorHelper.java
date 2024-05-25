@@ -1,12 +1,18 @@
 package think.rpgitems.utils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +20,20 @@ public class ColorHelper {
     private static final Pattern startWithColor = Pattern.compile("^(&[LMNKOlmnko])+");
     private static final Pattern gradientPattern = Pattern.compile("\\{(#[ABCDEFabcdef0123456789]{6}):(#[ABCDEFabcdef0123456789]{6}):(.*)}");
     private static final Pattern hexPattern = Pattern.compile("&(#[ABCDEFabcdef0123456789]{6})");
+    private static final Pattern translatePattern = Pattern.compile("<translate:(.*?)>");
+
+    public static void parseAndSend(CommandSender sender, String s) {
+        net.kyori.adventure.text.TextComponent.Builder builder = Component.text();
+        split(translatePattern, parseColor(s), regexResult -> {
+            if (!regexResult.isMatched) {
+                builder.append(LegacyComponentSerializer.legacySection().deserialize(regexResult.text));
+            } else {
+                TranslatableComponent translatable = Component.translatable(regexResult.result.group(1));
+                builder.append(translatable);
+            }
+        });
+        sender.sendMessage(builder);
+    }
 
     @SuppressWarnings({"deprecation"})
     public static BaseComponent bungee(String s) {
@@ -111,6 +131,23 @@ public class ColorHelper {
         return (r << 16) + (g << 8) + b;
     }
 
+    public static void split(Pattern regex, String s, Consumer<RegexResult> consumer) {
+        int index = 0;
+        Matcher m = regex.matcher(s);
+        while (m.find()) {
+            int first = m.start();
+            int last = m.end();
+            if (first > index) {
+                consumer.accept(new RegexResult(null, s.substring(index, first)));
+            }
+            consumer.accept(new RegexResult(m.toMatchResult(), s.substring(first, last)));
+            index = last;
+        }
+        if (index < s.length()) {
+            consumer.accept(new RegexResult(null, s.substring(index)));
+        }
+    }
+
     public static <T> List<T> split(Pattern regex, String s, Function<RegexResult, T> transform) {
         List<T> list = new ArrayList<>();
         int index = 0;
@@ -119,25 +156,27 @@ public class ColorHelper {
             int first = m.start();
             int last = m.end();
             if (first > index) {
-                T value = transform.apply(new RegexResult(false, s.substring(index, first)));
+                T value = transform.apply(new RegexResult(null, s.substring(index, first)));
                 if (value != null) list.add(value);
             }
-            T value = transform.apply(new RegexResult(true, s.substring(first, last)));
+            T value = transform.apply(new RegexResult(m.toMatchResult(), s.substring(first, last)));
             if (value != null) list.add(value);
             index = last;
         }
         if (index < s.length()) {
-            T value = transform.apply(new RegexResult(false, s.substring(index)));
+            T value = transform.apply(new RegexResult(null, s.substring(index)));
             if (value != null) list.add(value);
         }
         return list;
     }
     public static class RegexResult {
-        public boolean isMatched;
-        public String text;
+        public final MatchResult result;
+        public final boolean isMatched;
+        public final String text;
 
-        public RegexResult(boolean isMatched, String text) {
-            this.isMatched = isMatched;
+        public RegexResult(MatchResult result, String text) {
+            this.result = result;
+            this.isMatched = result != null;
             this.text = text;
         }
     }

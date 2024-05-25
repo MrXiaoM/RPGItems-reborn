@@ -60,9 +60,9 @@ public class Events implements Listener {
     public static final String SUPPRESS_PROJECTILE = "SuppressProjectile";
     public static final String DAMAGE_SOURCE_ITEM = "DamageSourceItem";
 
-    private static HashSet<Integer> removeProjectiles = new HashSet<>();
-    private static HashMap<Integer, Integer> rpgProjectiles = new HashMap<>();
-    private static Map<UUID, ItemStack> localItemStacks = new HashMap<>();
+    private static final Set<Integer> removeProjectiles = new HashSet<>();
+    private static final Map<Integer, Integer> rpgProjectiles = new HashMap<>();
+    private static final Map<UUID, ItemStack> localItemStacks = new HashMap<>();
 
     private static RPGItem projectileRpgItem;
     private static ItemStack projectileItemStack;
@@ -98,7 +98,7 @@ public class Events implements Listener {
         return localItemStacks.get(entityId);
     }
 
-    private static Map<UUID, UUID> projectileRegisterMap = new WeakHashMap<>();
+    private static final Map<UUID, UUID> projectileRegisterMap = new WeakHashMap<>();
 
     public static void registerRPGProjectile(RPGItem rpgItem, ItemStack itemStack, Player player, LivingEntity source) {
         if (projectilePlayer != null) {

@@ -1,6 +1,5 @@
 package think.rpgitems.commands;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
@@ -36,21 +35,21 @@ public class MythicCommands extends RPGCommandReceiver {
         if (type.equalsIgnoreCase("damage")) {
             Double rate = arguments.nextDouble((Double) null);
             if (rate != null) {
-                item.setCriticalRate(rate);
-                msgs(sender, "message.mythic.skill-damage.damage.set", item.getName(), item.getCriticalRate());
+                item.setMythicSkillDamage(rate);
+                msgs(sender, "message.mythic.skill-damage.damage.set", item.getName(), item.getMythicSkillDamage());
                 ItemManager.save(item);
                 return;
             }
         } else if (type.equalsIgnoreCase("multiple")) {
             Double damage = arguments.nextDouble((Double) null);
             if (damage != null) {
-                item.setCriticalDamage(damage);
-                msgs(sender, "message.mythic.skill-damage.multiple.set", item.getName(), item.getCriticalDamage());
+                item.setMythicSkillDamageMultiple(damage);
+                msgs(sender, "message.mythic.skill-damage.multiple.set", item.getName(), item.getMythicSkillDamageMultiple());
                 ItemManager.save(item);
                 return;
             }
         }
-        msgs(sender, "message.mythic.skill-damage.get", item.getName(), item.getCriticalRate(), item.getCriticalDamage(), item.getCriticalMultiple());
+        msgs(sender, "message.mythic.skill-damage.get", item.getName(), item.getMythicSkillDamage(), item.getMythicSkillDamageMultiple());
     }
 
     private List<String> skillDamageAddCompleter(CommandSender sender, Arguments arguments){

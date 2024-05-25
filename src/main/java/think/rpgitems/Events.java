@@ -70,20 +70,6 @@ public class Events implements Listener {
     private static ItemStack projectileItemStack;
     private static Player projectilePlayer;
 
-    static private boolean canStack(ItemStack a, ItemStack b) {
-        if (a != null && a.getType() == Material.AIR) a = null;
-        if (b != null && b.getType() == Material.AIR) b = null;
-        if (a == null && b == null) return true;
-        if (a != null && b != null) {
-            ItemStack ap = a.clone(), bp = b.clone();
-            ap.setAmount(1);
-            bp.setAmount(1);
-            return ap.equals(bp);
-        } else {
-            return false;
-        }
-    }
-
     public static void registerLocalItemStack(UUID entityId, ItemStack item) {
         localItemStacks.put(entityId, item);
     }
@@ -312,6 +298,8 @@ public class Events implements Listener {
             return;
         }
 
+        if (player == null) return;
+
         ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
         ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
         ItemStack item = itemInMainHand;
@@ -382,14 +370,14 @@ public class Events implements Listener {
         RPGItem rItem = ItemManager.toRPGItem(e.getItem()).orElse(null);
         if (rItem == null) return;
         Entity playerTarget = RayTraceUtils.getTargetEntity(player);
-        if (!(playerTarget instanceof ItemFrame) && (im.isEdible() || im.isRecord() || isPlacable(im) || isItemConsumer(e.getClickedBlock()))){
+        if (!(playerTarget instanceof ItemFrame) && (im.isEdible() || im.isRecord() || isPlaceable(im) || isItemConsumer(e.getClickedBlock()))){
             e.setCancelled(true);
         }
         if (e.getHand() == EquipmentSlot.OFF_HAND) {
             rItem.power(player, e.getItem(), e, BaseTriggers.OFFHAND_CLICK);
         } else if (action == Action.RIGHT_CLICK_AIR) {
             rItem.power(player, e.getItem(), e, BaseTriggers.RIGHT_CLICK);
-        } else if (action == Action.RIGHT_CLICK_BLOCK &&
+        } else if (action == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock() != null &&
                 !(e.getClickedBlock().getType().isInteractable() && !player.isSneaking())) {
             rItem.power(player, e.getItem(), e, BaseTriggers.RIGHT_CLICK);
         } else if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
@@ -397,18 +385,10 @@ public class Events implements Listener {
         }
     }
 
-    private boolean isPlacable(Material im) {
+    private boolean isPlaceable(Material im) {
         return switch (im) {
+            //<editor-fold defaultstate="collapsed" desc="isPlacable">
             case ARMOR_STAND, MINECART, CHEST_MINECART, COMMAND_BLOCK_MINECART, FURNACE_MINECART, TNT_MINECART, HOPPER_MINECART, END_CRYSTAL, PRISMARINE_CRYSTALS, BUCKET, LAVA_BUCKET, WATER_BUCKET, COD_BUCKET, PUFFERFISH_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET, SADDLE, LEAD, BOWL ->
-                    true;
-            default -> false;
-        };
-    }
-
-    private boolean isTools(Material im) {
-        return switch (im) {
-            //<editor-fold>
-            case BOW, CROSSBOW, DIAMOND_AXE, GOLDEN_AXE, IRON_AXE, STONE_AXE, WOODEN_AXE, DIAMOND_PICKAXE, GOLDEN_PICKAXE, IRON_PICKAXE, STONE_PICKAXE, WOODEN_PICKAXE, DIAMOND_HOE, GOLDEN_HOE, IRON_HOE, STONE_HOE, WOODEN_HOE, DIAMOND_SHOVEL, GOLDEN_SHOVEL, IRON_SHOVEL, STONE_SHOVEL, WOODEN_SHOVEL, FISHING_ROD, SHEARS, LEAD, FLINT_AND_STEEL ->
                 //</editor-fold>
                     true;
             default -> false;
@@ -557,7 +537,7 @@ public class Events implements Listener {
         }
         ItemStack tridentItem = e.getItem().getItemStack();
         ItemMeta itemMeta = tridentItem.getItemMeta();
-        if (!rpgProjectiles.containsKey(e.getArrow().getEntityId()) || !itemMeta.hasLore() || itemMeta.getLore().isEmpty()) {
+        if (!rpgProjectiles.containsKey(e.getArrow().getEntityId()) || !itemMeta.hasLore() || itemMeta.getLore() == null || itemMeta.getLore().isEmpty()) {
             return;
         }
         try {
@@ -602,7 +582,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
-        updatePlayerInventory(e.getInventory(), (Player) e.getPlayer(), e);
+        updatePlayerInventory(e.getInventory(), (Player) e.getPlayer());
     }
 
     List<UUID> switchCooldown = new ArrayList<>();
@@ -629,9 +609,8 @@ public class Events implements Listener {
     }
 
 
-    private void updatePlayerInventory(Inventory inventory, Player p, InventoryEvent e) {
-        Inventory in = inventory;
-        Iterator<ItemStack> it = in.iterator();
+    private void updatePlayerInventory(Inventory inventory, Player p) {
+        Iterator<ItemStack> it = inventory.iterator();
         try {
             while (it.hasNext()) {
                 ItemStack item = it.next();
@@ -691,7 +670,7 @@ public class Events implements Listener {
         if (e.getInventory().getHolder() == null || e.getInventory().getLocation() == null)
             return;
         if (e.getInventory().getType() != InventoryType.CHEST) {
-            updatePlayerInventory(e.getInventory(), (Player) e.getPlayer(), e);
+            updatePlayerInventory(e.getInventory(), (Player) e.getPlayer());
         }
     }
 
@@ -896,20 +875,11 @@ public class Events implements Listener {
             return -1;
         }
         ItemStack item = player.getInventory().getItemInMainHand();
-        RPGItem hItem = ItemManager.toRPGItem(item).orElse(null);
 
         if (hasLocalItemStack(projectile.getUniqueId())) {
             item = getLocalItemStack(projectile.getUniqueId());
             rItem = ItemManager.toRPGItem(item).orElse(null);
             if (rItem == null) throw new IllegalStateException();
-        } else {
-            if (rItem != hItem) {
-//                item = player.getInventory().getItemInOffHand();
-                hItem = ItemManager.toRPGItem(item).orElse(null);
-                if (rItem != hItem) {
-//                    return;
-                }
-            }
         }
 
         Boolean suppressProjectile = Context.instance().getBoolean(player.getUniqueId(), SUPPRESS_PROJECTILE);
@@ -1016,7 +986,7 @@ public class Events implements Listener {
     }
 
     private void triggerRescue(Player entity, EntityDamageEvent ev) {
-        double ret = ev.getDamage();
+        //double ret = ev.getDamage();
         for (ItemStack item : entity.getInventory().getContents()) {
             RPGItem ri = ItemManager.toRPGItem(item).orElse(null);
             if (ri == null) continue;
@@ -1061,16 +1031,6 @@ public class Events implements Listener {
         if (rItem == null)return;
 
         rItem.power(player, event.getItemStack(), event, BaseTriggers.BEAM_HIT_BLOCK, null);
-//        ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
-//        ItemStack[] contents = player.getInventory().getContents();
-//        for (ItemStack content : contents) {
-//            if (content == null) continue;
-//            if (content.equals(itemInMainHand))continue;
-//            RPGItem rpgItem = ItemManager.toRPGItem(content).orElse(null);
-//            if (rpgItem == null) continue;
-//
-//            rpgItem.power(player, content, event, BaseTriggers.BEAM_HIT_BLOCK, null);
-//        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -1082,15 +1042,6 @@ public class Events implements Listener {
         if (rItem == null)return;
 
         rItem.power(player, event.getItemStack(), event, BaseTriggers.BEAM_HIT_ENTITY, null);
-//        ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
-//        ItemStack[] contents = player.getInventory().getContents();
-//        for (ItemStack content : contents) {
-//            if (content == null) continue;
-//            RPGItem rpgItem = ItemManager.toRPGItem(content).orElse(null);
-//            if (rpgItem == null) continue;
-//
-//            rpgItem.power(player, content, event, BaseTriggers.BEAM_HIT_ENTITY, null);
-//        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)

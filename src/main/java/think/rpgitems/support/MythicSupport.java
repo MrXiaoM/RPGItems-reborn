@@ -10,7 +10,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.persistence.PersistentDataType;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
@@ -35,24 +34,12 @@ public class MythicSupport implements Listener {
     public void onDamage(MythicDamageEvent e) {
         Entity entity = BukkitAdapter.adapt(e.getCaster().getEntity());
         if (entity instanceof LivingEntity living) {
-            EntityEquipment equipment = living.getEquipment();
-            if (equipment != null) {
-                RPGItem rpgHelmet = ItemManager.toRPGItem(equipment.getHelmet()).orElse(null);
-                RPGItem rpgChestplate = ItemManager.toRPGItem(equipment.getChestplate()).orElse(null);
-                RPGItem rpgLeggings = ItemManager.toRPGItem(equipment.getLeggings()).orElse(null);
-                RPGItem rpgBoots = ItemManager.toRPGItem(equipment.getHelmet()).orElse(null);
-                RPGItem rpgMainHand = ItemManager.toRPGItem(equipment.getItemInMainHand()).orElse(null);
-                RPGItem rpgOffHand = ItemManager.toRPGItem(equipment.getItemInOffHand()).orElse(null);
-                double damage = e.getDamage();
-                damage = processDamage(rpgHelmet, damage);
-                damage = processDamage(rpgChestplate, damage);
-                damage = processDamage(rpgLeggings, damage);
-                damage = processDamage(rpgBoots, damage);
-                damage = processDamage(rpgMainHand, damage);
-                damage = processDamage(rpgOffHand, damage);
-                if (damage != e.getDamage()) {
-                    e.setDamage(damage);
-                }
+            double damage = e.getDamage();
+            for (RPGItem rpg : ItemManager.getEquipments(living).values()) {
+                damage = processDamage(rpg, damage);
+            }
+            if (damage != e.getDamage()) {
+                e.setDamage(damage);
             }
         }
     }

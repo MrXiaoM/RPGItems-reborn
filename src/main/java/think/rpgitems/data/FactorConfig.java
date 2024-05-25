@@ -82,7 +82,6 @@ public class FactorConfig implements ISerializable {
 
     public double getDamage(LivingEntity damager, LivingEntity entity, double damage) {
         double finDamage = damage;
-        Collection<RPGItem> items;
         Factor factorDamager = getFactor(damager);
         Factor factorEntity = getFactor(entity);
         if (factorEntity != null && factorDamager != null) {
@@ -100,6 +99,10 @@ public class FactorConfig implements ISerializable {
                                 "originalDamage=" + damage + ", " +
                                 "expression=`" + expression + "`", t);
             }
+        }
+
+        Collection<RPGItem> items;
+        if (factorEntity != null) {
             // attack damage override
             items = ItemManager.getEquipments(damager).values();
             for (RPGItem rpg : items) {
@@ -108,6 +111,8 @@ public class FactorConfig implements ISerializable {
                     finDamage = modifier.attack(factorEntity.id, finDamage);
                 }
             }
+        }
+        if (factorDamager != null) {
             // defend damage override
             items = ItemManager.getEquipments(entity).values();
             for (RPGItem rpg : items) {
@@ -117,6 +122,7 @@ public class FactorConfig implements ISerializable {
                 }
             }
         }
+        
         return finDamage;
     }
 }

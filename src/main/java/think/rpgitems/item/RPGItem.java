@@ -55,6 +55,8 @@ import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
@@ -140,7 +142,7 @@ public class RPGItem {
     @Getter @Setter private double criticalBackMultiple;
     @Getter @Setter private double dodgeRate;
     @Setter private MessageType dodgeMessageType = MessageType.TITLE;
-    @Getter @Setter private String dodgeMessage = "&e当心\n&f躲避判定成功";
+    @Getter @Setter private String dodgeMessage = I18n.formatDefault("item.dodge_default").replace("\\n", "\n");
     @Getter @Setter private double criticalAntiRate;
 
     @Getter @Setter private double mythicSkillDamage = 0;
@@ -900,7 +902,11 @@ public class RPGItem {
             LoreUpdateEvent.Post post = new LoreUpdateEvent.Post(event, this, item);
             Bukkit.getPluginManager().callEvent(post);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            try (PrintWriter pw = new PrintWriter(sw)) {
+                e.printStackTrace(pw);
+            }
+            plugin.getLogger().warning(sw.toString());
         }
     }
 
@@ -1351,6 +1357,9 @@ public class RPGItem {
         // compute armorMinLen
         int armorMinLen = 0;
         String damageStr = null;
+        String criticalStr = null;
+        String mythicSkillStr = null;
+        String mythicSkillStr2 = null;
         if (isShowArmourLore()) {
             if (getArmour() != 0) {
                 damageStr = getArmour() + "% " + I18n.formatDefault("item.armour");
@@ -1365,6 +1374,13 @@ public class RPGItem {
                     damageStr += I18n.formatDefault("item.damage", getDamageMin() == getDamageMax() ? String.valueOf(getDamageMin()) : getDamageMin() + "-" + getDamageMax());
                 }
             }
+            if (getCriticalRate() > 0) {
+                criticalStr = getDamageText(getCriticalDamage(), getCriticalMultiple(), "item.critical_damage");
+            }
+            mythicSkillStr = getDamageText(getMythicSkillDamage(), getMythicSkillDamageMultiple(), "item.mythic_skill.damage");
+            if (getMythicSkillCriticalRate() > 0) {
+                mythicSkillStr2 = getDamageText(getMythicSkillCriticalDamage(), getMythicSkillCriticalDamageMultiple(), "item.mythic_skill.critical_damage");
+            }
             if (damageStr != null) {
                 armorMinLen = Math.max(armorMinLen, Utils.getStringWidth(ChatColor.stripColor(damageStr)));
             }
@@ -1372,12 +1388,37 @@ public class RPGItem {
         tooltipWidth = Math.max(width, armorMinLen);
 
         if (isShowArmourLore()) {
-            if (damageStr != null) {
-                output.add(1, ChatColor.WHITE + damageStr);
-            }
+            if (mythicSkillStr2 != null) output.add(1, ChatColor.WHITE + mythicSkillStr2);
+            if (mythicSkillStr != null) output.add(1, ChatColor.WHITE + mythicSkillStr);
+            if (criticalStr != null) output.add(1, ChatColor.WHITE + criticalStr);
+            if (damageStr != null) output.add(1, ChatColor.WHITE + damageStr);
         }
 
         return output;
+    }
+
+    @Nullable
+    private String getDamageText(double dmg, double dmgMultiple, String path) {
+        if (dmg > 0 && dmgMultiple <= 0) {
+            return I18n.formatDefault(path + ".normal",
+                    String.valueOf(dmg)
+            );
+        } else if (dmgMultiple > 0) {
+            String symbol = "";
+            if (dmgMultiple > 1) symbol = "+";
+            if (dmgMultiple < 1) symbol = "-";
+            if (dmg > 0) {
+                return I18n.formatDefault(path + ".normal_multiple",
+                        String.valueOf(dmg),
+                        symbol + (dmgMultiple * 100) + "%"
+                );
+            }else {
+                return I18n.formatDefault(path + ".multiple",
+                        symbol + (dmgMultiple * 100) + "%"
+                );
+            }
+        }
+        return null;
     }
 
     @Deprecated
@@ -1415,7 +1456,11 @@ public class RPGItem {
         try {
             ItemTagUtils.setBoolean(itemStack, NBT_IS_MODEL, true);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            try (PrintWriter pw = new PrintWriter(sw)) {
+                e.printStackTrace(pw);
+            }
+            plugin.getLogger().warning(sw.toString());
         }
         meta.commit();
         itemMeta.setDisplayName(getDisplayName());
@@ -1940,7 +1985,11 @@ public class RPGItem {
                 strings.add(s);
                 valMap.put(s, origVal);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                StringWriter sw = new StringWriter();
+                try (PrintWriter pw = new PrintWriter(sw)) {
+                    e.printStackTrace(pw);
+                }
+                plugin.getLogger().warning(sw.toString());
                 throw new RuntimeException();
             }
         });
@@ -1960,7 +2009,11 @@ public class RPGItem {
                     try {
                         setPropVal(replaced.getClass(), propName, replaced, origVal);
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        StringWriter sw = new StringWriter();
+                        try (PrintWriter pw = new PrintWriter(sw)) {
+                            e.printStackTrace(pw);
+                        }
+                        plugin.getLogger().warning(sw.toString());
                         throw new RuntimeException();
                     }
                 }

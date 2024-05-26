@@ -1457,6 +1457,20 @@ item:
   additionaldamage: 附加 %s 伤害
   multiplydamage: '%s 倍伤害'
   damage: '%s 伤害'
+  critical_damage:
+    normal: +%s 暴击伤害
+    multiple: %s 暴击伤害
+    normal_multiple: +%s 并 %s 暴击伤害
+  mythic_skill:
+    damage:
+      normal: %s 技能伤害
+      multiple: %s%% 技能伤害
+      normal_multiple: %s 并 %s%% 技能伤害
+    critical_damage:
+      normal: %s 技能暴击
+      multiple: %s%% 技能暴击
+      normal_multiple: %s 并 %s%% 技能暴击
+  dodge_default: '&e当心\n&f躲避判定成功'
 internal:
   info:
     errorusing_language: "当前使用语言: %s"

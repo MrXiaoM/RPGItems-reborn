@@ -63,6 +63,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
 
     List<Plugin> managedPlugins = new ArrayList<>();
     public Configuration cfg;
+    public GuiManager gui;
     private final NyaaCoreLoader nyaaCoreLoader = new NyaaCoreLoader(this);
 
 
@@ -245,6 +246,8 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
             return;
         }
 
+        gui = new GuiManager(this);
+
         new AdminCommands(this).registerToBukkit(getCommand("rpgitem"));
         new UserCommands(this).registerToBukkit(getCommand("rpgitems"));
 
@@ -315,6 +318,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         }
         managedPlugins.clear();
         nyaaCoreLoader.onDisable();
+        if (gui != null) gui.onDisable();
     }
 
     private void unregisterCommand(String name) {

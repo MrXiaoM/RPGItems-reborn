@@ -6,6 +6,7 @@ import think.rpgitems.item.RPGItem;
 
 import java.util.Objects;
 
+import static think.rpgitems.RPGItems.plugin;
 import static think.rpgitems.item.ItemManager.parseItemInfo;
 
 public class RPGItems {
@@ -16,11 +17,15 @@ public class RPGItems {
      * @param itemstack The item to converted
      * @return The RPGItem or null
      */
-    public RPGItem toRPGItem(ItemStack itemstack) {
+    public static RPGItem toRPGItem(ItemStack itemstack) {
         return ItemManager.toRPGItemByMeta(itemstack).orElse(null);
     }
 
-    public boolean isEqual(ItemStack a, ItemStack b) {
+    public static boolean isEquals(ItemStack a, ItemStack b) {
         return Objects.equals(parseItemInfo(a), parseItemInfo(b));
+    }
+
+    public static void openGui(IGui gui) {
+        plugin.gui.openGui(gui);
     }
 }

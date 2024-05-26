@@ -436,6 +436,10 @@ message:
     set: 物品 {itemName} 的 attribute mode 设置为 %s
   custom_model_data:
     set: 物品的自定义模型ID已设置为 %d
+  gui:
+    disable-title:
+      title: '&e请等等'
+      subtitle: '&f管理员正在更新插件'
 power:
   airborne: '&a攻击在滑翔时增加 %d%%'
   charge: '&a攻击随速度增加，并在疾跑时增加 %d%%'

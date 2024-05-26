@@ -2,7 +2,6 @@ package think.rpgitems.commands;
 
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
-import think.rpgitems.utils.nyaacore.LanguageRepository;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
@@ -23,8 +22,8 @@ import java.util.stream.Stream;
 
 public class WikiCommand extends RPGCommandReceiver {
 
-    public WikiCommand(RPGItems plugin, LanguageRepository i18n) {
-        super(plugin, i18n);
+    public WikiCommand(RPGItems plugin) {
+        super(plugin);
     }
 
     @SubCommand(isDefaultCommand = true)

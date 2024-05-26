@@ -244,10 +244,9 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
             });
             return;
         }
-        new AdminCommands(this, I18n.getInstance(cfg.language))
-                .registerToBukkit(getCommand("rpgitem"));
-        new UserCommands(this, I18n.getInstance(cfg.language))
-                .registerToBukkit(getCommand("rpgitems"));
+
+        new AdminCommands(this).registerToBukkit(getCommand("rpgitem"));
+        new UserCommands(this).registerToBukkit(getCommand("rpgitems"));
 
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(new MythicSupport(), this);

@@ -1,13 +1,6 @@
 package think.rpgitems.commands;
 
-import think.rpgitems.I18n;
-import think.rpgitems.RPGItems;
-import think.rpgitems.utils.nyaacore.Pair;
-import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
-import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
-import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
@@ -16,10 +9,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import think.rpgitems.RPGItems;
 import think.rpgitems.item.RPGItem;
-import think.rpgitems.power.*;
+import think.rpgitems.power.Completion;
+import think.rpgitems.power.PowerManager;
+import think.rpgitems.power.RPGCommandReceiver;
+import think.rpgitems.power.UnknownExtensionException;
 import think.rpgitems.power.propertymodifier.Modifier;
 import think.rpgitems.utils.ItemTagUtils;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
+import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -31,11 +32,12 @@ import static think.rpgitems.item.RPGItem.TAG_MODIFIER;
 import static think.rpgitems.item.RPGItem.TAG_VERSION;
 import static think.rpgitems.utils.ItemTagUtils.*;
 
+@SuppressWarnings({"rawtypes"})
 public class ModifierCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
 
-    public ModifierCommands(RPGItems plugin, I18n i18n) {
-        super(plugin, i18n);
+    public ModifierCommands(RPGItems plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
@@ -170,7 +172,7 @@ public class ModifierCommands extends RPGCommandReceiver {
                 String baseStr = arguments.top();
                 Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, arguments, baseStr);
                 PersistentDataContainer container = rootContainer.getValue();
-                Pair<Integer, Modifier> nextModifier = nextModifier(container, sender, arguments);
+                Pair<Integer, Modifier> nextModifier = nextModifier(container, arguments);
                 Modifier modifier = nextModifier.getValue();
                 return resolveProperties(sender, null, modifier.getClass(), modifier.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
             }
@@ -185,7 +187,7 @@ public class ModifierCommands extends RPGCommandReceiver {
         Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, args, baseStr);
         PersistentDataContainer container = rootContainer.getValue();
         try {
-            Pair<Integer, Modifier> modifierPair = nextModifier(container, sender, args);
+            Pair<Integer, Modifier> modifierPair = nextModifier(container, args);
             Modifier modifier = modifierPair.getValue();
             if (args.top() == null) {
                 showModifier(sender, modifier);
@@ -217,7 +219,7 @@ public class ModifierCommands extends RPGCommandReceiver {
         );
     }
 
-    public Pair<Integer, Modifier> nextModifier(PersistentDataContainer container, CommandSender sender, Arguments args) {
+    public Pair<Integer, Modifier> nextModifier(PersistentDataContainer container, Arguments args) {
         SubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
         List<Modifier> modifiers = RPGItem.getModifiers(modifierContainer);
         String next = args.nextString();
@@ -235,7 +237,7 @@ public class ModifierCommands extends RPGCommandReceiver {
         Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, args, baseStr);
         PersistentDataContainer container = rootContainer.getValue();
         try {
-            Pair<Integer, Modifier> modifierPair = nextModifier(container, sender, args);
+            Pair<Integer, Modifier> modifierPair = nextModifier(container, args);
             SubItemTagContainer modifierContainer = makeTag(container, TAG_MODIFIER);
             set(modifierContainer, TAG_VERSION, UUID.randomUUID());
             NamespacedKey currentKey = PowerManager.parseKey(String.valueOf(modifierPair.getKey()));
@@ -272,7 +274,7 @@ public class ModifierCommands extends RPGCommandReceiver {
                                                     .filter(i -> i.getKey().contains(nameSearch))
                                                     .sorted(Comparator.comparing(NamespacedKey::getKey))
                                                     .toList();
-        if (modifiers.size() == 0) {
+        if (modifiers.isEmpty()) {
             msgs(sender, "message.modifier.not_found", nameSearch);
             return;
         }
@@ -283,7 +285,7 @@ public class ModifierCommands extends RPGCommandReceiver {
         stream = stream
                          .skip((long) (page - 1) * perPage)
                          .limit(perPage);
-        sender.sendMessage(ChatColor.AQUA + "Modifiers: " + page + " / " + max);
+        msgs(sender, "message.modifier.page-header", page, max);
 
         stream.forEach(
                 modifier -> {
@@ -294,6 +296,6 @@ public class ModifierCommands extends RPGCommandReceiver {
                     );
                     msgs(sender, "message.line_separator");
                 });
-        sender.sendMessage(ChatColor.AQUA + "Modifiers: " + page + " / " + max);
+        msgs(sender, "message.modifier.page-footer", page, max);
     }
 }

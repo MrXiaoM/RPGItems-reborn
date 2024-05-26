@@ -1,18 +1,17 @@
 package think.rpgitems.commands;
 
-import think.rpgitems.RPGItems;
-import think.rpgitems.utils.nyaacore.LanguageRepository;
-import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
-import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
-import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
+import think.rpgitems.RPGItems;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.Completion;
 import think.rpgitems.power.RPGCommandReceiver;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
+import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 
 import java.util.Optional;
 
@@ -22,11 +21,9 @@ import static think.rpgitems.utils.ItemTagUtils.getTag;
 import static think.rpgitems.utils.ItemTagUtils.optBoolean;
 
 public class UserCommands extends RPGCommandReceiver {
-    private final RPGItems plugin;
 
-    public UserCommands(RPGItems plugin, LanguageRepository i18n) {
-        super(plugin, i18n);
-        this.plugin = plugin;
+    public UserCommands(RPGItems plugin) {
+        super(plugin);
     }
 
     @Override

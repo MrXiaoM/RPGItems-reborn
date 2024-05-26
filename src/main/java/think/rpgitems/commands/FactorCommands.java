@@ -7,6 +7,7 @@ import think.rpgitems.RPGItems;
 import think.rpgitems.data.FactorModifier;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
+import think.rpgitems.power.Completion;
 import think.rpgitems.power.RPGCommandReceiver;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
@@ -21,8 +22,8 @@ import static think.rpgitems.commands.AdminCommands.*;
 public class FactorCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
 
-    public FactorCommands(RPGItems plugin, I18n i18n) {
-        super(plugin, i18n);
+    public FactorCommands(RPGItems plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
@@ -123,6 +124,7 @@ public class FactorCommands extends RPGCommandReceiver {
         printHelp(sender, args);
     }
 
+    @Completion("")
     private List<String> valueCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         if (arguments.remains() == 1) {
@@ -130,6 +132,7 @@ public class FactorCommands extends RPGCommandReceiver {
         }
         return filtered(arguments, completeStr);
     }
+    @Completion("")
     private List<String> modifierCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {

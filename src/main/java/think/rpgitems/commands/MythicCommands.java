@@ -1,10 +1,10 @@
 package think.rpgitems.commands;
 
 import org.bukkit.command.CommandSender;
-import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
+import think.rpgitems.power.Completion;
 import think.rpgitems.power.RPGCommandReceiver;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
@@ -15,11 +15,8 @@ import java.util.List;
 import static think.rpgitems.commands.AdminCommands.*;
 
 public class MythicCommands extends RPGCommandReceiver {
-    private final RPGItems plugin;
-
-    public MythicCommands(RPGItems plugin, I18n i18n) {
-        super(plugin, i18n);
-        this.plugin = plugin;
+    public MythicCommands(RPGItems plugin) {
+        super(plugin);
     }
 
     @Override
@@ -81,6 +78,7 @@ public class MythicCommands extends RPGCommandReceiver {
         msgs(sender, "message.mythic.skill-damage.get", item.getName(), item.getMythicSkillDamage(), item.getMythicSkillDamageMultiple());
     }
 
+    @Completion("")
     private List<String> skillDamageAddCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {

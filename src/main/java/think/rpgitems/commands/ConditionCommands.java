@@ -1,17 +1,16 @@
 package think.rpgitems.commands;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.command.CommandSender;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
+import think.rpgitems.power.*;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
-import org.bukkit.ChatColor;
-import org.bukkit.NamespacedKey;
-import org.bukkit.command.CommandSender;
-import think.rpgitems.item.ItemManager;
-import think.rpgitems.item.RPGItem;
-import think.rpgitems.power.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,11 +21,12 @@ import java.util.stream.Stream;
 
 import static think.rpgitems.commands.AdminCommands.*;
 
+@SuppressWarnings({"rawtypes"})
 public class ConditionCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
 
-    public ConditionCommands(RPGItems plugin, I18n i18n) {
-        super(plugin, i18n);
+    public ConditionCommands(RPGItems plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
@@ -104,17 +104,16 @@ public class ConditionCommands extends RPGCommandReceiver {
     public List<String> propCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1:
-                completeStr.addAll(ItemManager.itemNames());
-                break;
-            case 2:
+            case 1 -> completeStr.addAll(ItemManager.itemNames());
+            case 2 -> {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 completeStr.addAll(IntStream.range(0, item.getConditions().size()).mapToObj(i -> i + "-" + item.getConditions().get(i).getNamespacedKey()).toList());
-                break;
-            default:
-                item = getItem(arguments.nextString(), sender);
+            }
+            default -> {
+                RPGItem item = getItem(arguments.nextString(), sender);
                 Condition<?> nextCondition = nextCondition(item, sender, arguments);
                 return resolveProperties(sender, item, nextCondition.getClass(), nextCondition.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
+            }
         }
         return filtered(arguments, completeStr);
     }
@@ -223,7 +222,7 @@ public class ConditionCommands extends RPGCommandReceiver {
                     nth = i;
                 }
             }
-            if (nth < 0 || nth > conditions.size()){
+            if (nth < 0) {
                 msgs(sender, "message.num_out_of_range", nth, 0, conditions.size());
                 return;
             }
@@ -246,7 +245,7 @@ public class ConditionCommands extends RPGCommandReceiver {
                                                      .filter(i -> i.getKey().contains(nameSearch))
                                                      .sorted(Comparator.comparing(NamespacedKey::getKey))
                                                      .toList();
-        if (conditions.size() == 0) {
+        if (conditions.isEmpty()) {
             msgs(sender, "message.condition.not_found", nameSearch);
             return;
         }
@@ -257,7 +256,7 @@ public class ConditionCommands extends RPGCommandReceiver {
         stream = stream
                          .skip((long) (page - 1) * perPage)
                          .limit(perPage);
-        sender.sendMessage(ChatColor.AQUA + "Conditions: " + page + " / " + max);
+        msgs(sender, "message.condition.page-header", page, max);
 
         stream.forEach(
                 condition -> {
@@ -268,6 +267,6 @@ public class ConditionCommands extends RPGCommandReceiver {
                     );
                     msgs(sender, "message.line_separator");
                 });
-        sender.sendMessage(ChatColor.AQUA + "Conditions: " + page + " / " + max);
+        msgs(sender, "message.condition.page-footer", page, max);
     }
 }

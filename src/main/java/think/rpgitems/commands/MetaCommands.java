@@ -5,6 +5,7 @@ import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
+import think.rpgitems.power.Completion;
 import think.rpgitems.power.RPGCommandReceiver;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
@@ -18,8 +19,8 @@ import static think.rpgitems.commands.AdminCommands.*;
 public class MetaCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
 
-    public MetaCommands(RPGItems plugin, I18n i18n) {
-        super(plugin, i18n);
+    public MetaCommands(RPGItems plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
@@ -42,6 +43,7 @@ public class MetaCommands extends RPGCommandReceiver {
         ItemManager.save(item);
     }
 
+    @Completion("")
     private List<String> qualityCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
@@ -60,6 +62,7 @@ public class MetaCommands extends RPGCommandReceiver {
         ItemManager.save(item);
     }
 
+    @Completion("")
     private List<String> typeCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         if (arguments.remains() == 1) {

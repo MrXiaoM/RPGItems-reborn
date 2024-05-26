@@ -1173,9 +1173,6 @@ manual:
       usage: /rpgitem power [help]
     description: Set marker for an item.
     usage: /rpgitem marker [option] {item} <properties> [optionalProperties]
-  modifier:
-    description: Set modifer for an item.(TBD)
-    usage: /rpgitem modifier [option] {item} <properties> [optionalProperties]
   note:
     description: Set an item's information.
     usage: /rpgitem note {item} <value>
@@ -1192,36 +1189,29 @@ manual:
     description: Save all items.
     usage: /rpgitem save-all
   template:
+    description: Set an item template.
+    usage: /rpgitem template [option]
     create:
       description: Create a template with item
+      usage: /rpgitem <power|condition|marker|modifier> add {item} <properties>
+    add:
+      description: Add power/condition/marker/modifier to an item
+      usage: /rpgitem <power|condition|marker|modifier> add {item} <properties>
+    reorder:
+      description: Change item's power
+      usage: /rpgitem power reorder {item} <power> <power>
+    prop:
+      description: Display/change Item's power/conditon/marker/modifier.
+      usage: /rpgitem <power|condition|marker|modifier> prop {item} [optionalProperties]
     apply:
       description: Apply the template to items.
       usage: /rpgitem template apply {item}
-    description: Set an item template.
-    usage: /rpgitem template [option]
-  trigger:
-    description: Set trigger for an item.
-    usage: /rpgitem trigger [option] {item} <properties>
-  add:
-    description: Add power/condition/marker/modifier to an item
-    usage: /rpgitem <power|condition|marker|modifier> add {item} <properties>
-  reorder:
-    description: Change item's power
-    usage: /rpgitem power reorder {item} <power> <power>
-  prop:
-    description: Display/change Item's power/conditon/marker/modifier.
-    usage: /rpgitem <power|condition|marker|modifier> prop {item} [optionalProperties]
-  apply:
-    description: Apply the template to items.
-    usage: /rpgitem template apply {item}
-    delete:
-      description: Delete specific template.
-      usage: /rpgitem template delete {item}
-    placeholder:
-      description: Set powers placeholder of the template,the parameters specified by the placeholder will not change when template is applied.
-      usage: /rpgitem template placeholder <option> {item} <powerId:property>
-    description: Set an item template.
-    usage: /rpgitem template [option]
+      delete:
+        description: Delete specific template.
+        usage: /rpgitem template delete {item}
+      placeholder:
+        description: Set powers placeholder of the template,the parameters specified by the placeholder will not change when template is applied.
+        usage: /rpgitem template placeholder <option> {item} <powerId:property>
   trigger:
     description: Set trigger for an item.
     usage: /rpgitem trigger [option] {item} <properties>
@@ -1250,3 +1240,37 @@ item:
   additionaldamage: "Additional %s Damage"
   multiplydamage: "Times %s Damage"
   damage: "%s Damage"
+internal:
+  info:
+    errorusing_language: "Now using language: %s"
+    command_complete: "Command Executed!"
+    usage_prompt: "Usage: %s"
+  error:
+    bad_subcommand: "Bad subcommand handler: %s"
+    not_player: "Only players can do this"
+    no_item_hand: "No item in main hand"
+    no_item_offhand: "No item in off hand"
+    command_exception: "Internal server error. Unable to run command."
+    no_required_permission: "You do not have the required permission: %s"
+    invalid_command_arg: "Invalid command line arguments."
+
+    bad_int: "Not a valid integer: %s"
+    bad_double: "Not a valid number: %s"
+    bad_enum: "Not valid for enum type: %s. Values: %s"
+    bad_decimal_pattern: "Not a valid pattern: %s"
+
+    no_more_int: "No more integers in argument"
+    no_more_double: "No more numbers in argument"
+    no_more_enum: "No more enum values in argument"
+    no_more_bool: "No more booleans in argument"
+    no_more_string: "No more strings in argument"
+    no_more_player: "No more player name in argument"
+    no_more_entity: "No more entity id in argument"
+
+    assert_fail: "Command assertion fail, Expect: %s, Actual: %s"
+    player_not_found: "Cannot find player \"%s\""
+    entity_not_found: "Cannot find entity \"%s\""
+  named_argument:
+    missing_arg: "Missing argument: %s"
+    not_int: "Argument \"%s\" is not an integer: %s"
+    not_double: "Argument \"%s\" is not a double: %s"

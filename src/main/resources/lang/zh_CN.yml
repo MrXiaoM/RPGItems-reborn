@@ -273,6 +273,8 @@ message:
     property_value: '&b-| &r%s'
     no_description: '暂无说明'
   power:
+    page-header: '&b技能列表: %d / %d'
+    page-footer: '&b技能列表: %d / %d'
     ok: 技能 %s 已添加至 %d 号位
     unknown: 未知技能 %s
     removed: 技能 %s 已从 %d 号位移除
@@ -285,6 +287,8 @@ message:
     change: 物品技能参数已更改
     description: "&3&l描述: '&r%s'"
   marker:
+    page-header: '&b标志列表: %d / %d'
+    page-footer: '&b标志列表: %d / %d'
     ok: 标志 %s 已添加
     unknown: 未知标志 %s
     removed: 标志 %s 已移除
@@ -294,6 +298,8 @@ message:
     change: 物品标志参数已更改
     description: "&3&l描述: '&r%s'"
   condition:
+    page-header: '&b条件列表: %d / %d'
+    page-footer: '&b条件列表: %d / %d'
     ok: 条件 %s 已添加
     unknown: 未知条件 %s
     removed: 条件 %s 已移除
@@ -303,6 +309,8 @@ message:
     change: 物品条件参数已更改
     description: "&3&l描述: '&r%s'"
   trigger:
+    page-header: '&b触发列表: %d / %d'
+    page-footer: '&b触发列表: %d / %d'
     ok: 触发 %s 已添加
     unknown_base: '未知基触发 %s。可选项：%s'
     unknown: 未知触发 %s
@@ -312,6 +320,8 @@ message:
     show: '触发 %s - base %s (%s)：%s'
     description: "&3&l描述: '&r%s'"
   modifier:
+    page-header: '&b修饰列表: %d / %d'
+    page-footer: '&b修饰列表: %d / %d'
     ok: 修饰 %s 已添加
     unknown: 未知修饰 %s
     removed: 修饰 %s 已移除
@@ -1449,35 +1459,35 @@ item:
   damage: '%s 伤害'
 internal:
   info:
-    errorusing_language: "Now using language: %s"
-    command_complete: "Command Executed!"
-    usage_prompt: "Usage: %s"
+    errorusing_language: "当前使用语言: %s"
+    command_complete: "命令已执行!"
+    usage_prompt: "用法: %s"
   error:
-    bad_subcommand: "Bad subcommand handler: %s"
-    not_player: "Only players can do this"
-    no_item_hand: "No item in main hand"
-    no_item_offhand: "No item in off hand"
+    bad_subcommand: "错误的子命令处理器: %s"
+    not_player: "只有玩家能执行该操作"
+    no_item_hand: "需要主手持有物品"
+    no_item_offhand: "需要副手持有物品"
     command_exception: 执行命令时出现一个内部错误， 请前往控制台查看详细
-    no_required_permission: "You do not have the required permission: %s"
-    invalid_command_arg: "Invalid command line arguments."
+    no_required_permission: "你没有执行该命令的权限: %s"
+    invalid_command_arg: "无效的命令参数."
 
-    bad_int: "Not a valid integer: %s"
-    bad_double: "Not a valid number: %s"
-    bad_enum: "Not valid for enum type: %s. Values: %s"
-    bad_decimal_pattern: "Not a valid pattern: %s"
+    bad_int: "输入的不是整数: %s"
+    bad_double: "输入的不是实数: %s"
+    bad_enum: "输入的枚举类型无效: %s. 可用值: %s"
+    bad_decimal_pattern: "输入的数字格式不正确: %s"
 
-    no_more_int: "No more integers in argument"
-    no_more_double: "No more numbers in argument"
-    no_more_enum: "No more enum values in argument"
-    no_more_bool: "No more booleans in argument"
-    no_more_string: "No more strings in argument"
-    no_more_player: "No more player name in argument"
-    no_more_entity: "No more entity id in argument"
+    no_more_int: "命令参数中没有更多的整数了"
+    no_more_double: "命令参数中没有更多的实数了"
+    no_more_enum: "命令参数中没有更多的枚举值了"
+    no_more_bool: "命令参数中没有更多的布尔值了"
+    no_more_string: "命令参数中没有更多的字符串了"
+    no_more_player: "命令参数中没有更多的玩家名了"
+    no_more_entity: "命令参数中没有更多的实体ID了"
 
-    assert_fail: "Command assertion fail, Expect: %s, Actual: %s"
-    player_not_found: "Cannot find player \"%s\""
-    entity_not_found: "Cannot find entity \"%s\""
+    assert_fail: "命令断言失败, 预期: %s, 实际: %s"
+    player_not_found: "无法找到玩家 \"%s\""
+    entity_not_found: "无法找到实体 \"%s\""
   named_argument:
-    missing_arg: "Missing argument: %s"
-    not_int: "Argument \"%s\" is not an integer: %s"
-    not_double: "Argument \"%s\" is not a double: %s"
+    missing_arg: "缺少参数: %s"
+    not_int: "参数 \"%s\" 不是一个整数: %s"
+    not_double: "参数 \"%s\" 不是一个实数: %s"

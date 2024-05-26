@@ -1,29 +1,34 @@
 package think.rpgitems.commands;
 
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
-import think.rpgitems.utils.nyaacore.ILocalizer;
-import think.rpgitems.utils.nyaacore.LanguageRepository;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
+import think.rpgitems.power.PlaceholderHolder;
+import think.rpgitems.power.Property;
+import think.rpgitems.power.RPGCommandReceiver;
+import think.rpgitems.power.UnknownPowerException;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
 import think.rpgitems.utils.nyaacore.cmdreceiver.CommandReceiver;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
-import think.rpgitems.item.ItemManager;
-import think.rpgitems.item.RPGItem;
-import think.rpgitems.power.*;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static think.rpgitems.commands.AdminCommands.readOnly;
 
 public class TemplateCommands extends RPGCommandReceiver {
-    public TemplateCommands(RPGItems plugin, LanguageRepository i18n) {
-        super(plugin, i18n);
+    public TemplateCommands(RPGItems plugin) {
+        super(plugin);
     }
 
     @Override
@@ -79,7 +84,11 @@ public class TemplateCommands extends RPGCommandReceiver {
                     try {
                         rpgItem.updateFromTemplate(target);
                     } catch (UnknownPowerException e) {
-                        e.printStackTrace();
+                        StringWriter sw = new StringWriter();
+                        try (PrintWriter pw = new PrintWriter(sw)) {
+                            e.printStackTrace(pw);
+                        }
+                        logger.warning(sw.toString());
                         sender.sendMessage("error applying template: " + e);
                     }
                     toUpdate.add(rpgItem);
@@ -89,16 +98,15 @@ public class TemplateCommands extends RPGCommandReceiver {
     }
 
     @SubCommand("placeholder")
-    PlaceholderCommands placeholderCommands = new PlaceholderCommands(RPGItems.plugin, I18n.getInstance(RPGItems.plugin.cfg.language));
+    PlaceholderCommands placeholderCommands = new PlaceholderCommands(RPGItems.plugin);
 
     public static class PlaceholderCommands extends CommandReceiver{
 
         /**
          * @param plugin for logging purpose only
-         * @param _i18n
          */
-        public PlaceholderCommands(Plugin plugin, ILocalizer _i18n) {
-            super(plugin, _i18n);
+        public PlaceholderCommands(Plugin plugin) {
+            super(plugin);
         }
 
         @SubCommand("add")
@@ -186,9 +194,7 @@ public class TemplateCommands extends RPGCommandReceiver {
     /**
      * check syntax of placeholders
      * &lt;placeholderId:propName&gt;
-     * @param rpgItem
-     * @param placeHolder
-     * @return bad place holders
+     * @return bad placeholders
      */
     private static List<String> checkPlaceHolder(RPGItem rpgItem, List<String> placeHolder) {
         List<String> ret = new ArrayList<>();

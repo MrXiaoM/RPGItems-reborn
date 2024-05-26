@@ -1,39 +1,37 @@
 package think.rpgitems.utils.nyaacore.cmdreceiver;
 
 import org.bukkit.command.*;
-import org.jetbrains.annotations.NotNull;
-import think.rpgitems.utils.nyaacore.ILocalizer;
-import think.rpgitems.utils.nyaacore.LanguageRepository;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import think.rpgitems.I18n;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
 
-    // Language class is passed in for message support
-    private final ILocalizer i18n;
     // All subcommands
     private final Map<String, ISubCommandInfo> subCommands = new HashMap<>();
     // Default subcommand
     private ISubCommandInfo defaultSubCommand = null;
-
+    protected Logger logger;
     /**
      * @param plugin for logging purpose only
      */
     @SuppressWarnings("rawtypes")
-    public CommandReceiver(Plugin plugin, ILocalizer _i18n) {
+    public CommandReceiver(Plugin plugin) {
         if (plugin == null) throw new IllegalArgumentException();
-        if (_i18n == null)
-            _i18n = new LanguageRepository.InternalOnlyRepository(plugin);
-        this.i18n = _i18n;
-
+        
+        this.logger = plugin.getLogger();
+        
         // Collect all methods
         Class cls = getClass();
         Set<Method> allMethods = new HashSet<>();
@@ -51,20 +49,20 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
         }
 
         Stream.concat(
-                allMethods.stream().map(m -> parseSubCommandAnnotation(plugin, m)),
+                allMethods.stream().map(this::parseSubCommandAnnotation),
                 allFields.stream().map(f -> parseSubCommandAnnotation(plugin, f))
         ).forEach(scInfo -> {
             if (scInfo == null) return;
             if (scInfo.name != null) {
                 if (subCommands.containsKey(scInfo.name)) {
-                    // TODO dup sub command
+                    logger.warning("There is a sub command named '" + scInfo.name + "' already existed! Old sub command has been overwritten.");
                 }
                 subCommands.put(scInfo.name, scInfo);
             }
 
             if (scInfo.isDefault) {
                 if (defaultSubCommand != null) {
-                    // TODO dup default subcommand
+                    logger.warning("There is a default sub command of '" + scInfo.instance.getClass().getSimpleName() + "' already existed! Old sub command has been overwritten.");
                 }
                 defaultSubCommand = scInfo;
             }
@@ -86,12 +84,10 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static CommandReceiver newInstance(Class cls, Object arg1, Object arg2) throws ReflectiveOperationException {
+    private static CommandReceiver newInstance(Class cls, Object arg1) throws ReflectiveOperationException {
         for (Constructor c : cls.getConstructors()) {
-            if (c.getParameterCount() == 2 &&
-                    c.getParameterTypes()[0].isAssignableFrom(arg1.getClass()) &&
-                    c.getParameterTypes()[1].isAssignableFrom(arg2.getClass())) {
-                return (CommandReceiver) c.newInstance(arg1, arg2);
+            if (c.getParameterCount() == 2 && c.getParameterTypes()[0].isAssignableFrom(arg1.getClass())) {
+                return (CommandReceiver) c.newInstance(arg1);
             }
         }
         throw new NoSuchMethodException("no matching constructor found");
@@ -100,30 +96,6 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
     public static Player asPlayer(CommandSender target) {
         if (target instanceof Player) {
             return (Player) target;
-        } else {
-            throw new NotPlayerException();
-        }
-    }
-
-    public static ItemStack getItemInHand(CommandSender se) {
-        if (se instanceof Player p) {
-            ItemStack i = p.getInventory().getItemInMainHand();
-            if (!i.getType().isAir()) {
-                return i;
-            }
-            throw new NoItemInHandException(false);
-        } else {
-            throw new NotPlayerException();
-        }
-    }
-
-    public static ItemStack getItemInOffHand(CommandSender se) {
-        if (se instanceof Player p) {
-            ItemStack i = p.getInventory().getItemInOffHand();
-            if (!i.getType().isAir()) {
-                return i;
-            }
-            throw new NoItemInHandException(true);
         } else {
             throw new NotPlayerException();
         }
@@ -148,10 +120,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
         return false;
     }
 
-    /**
-     * @param plugin for logging purpose only
-     */
-    private SubCommandInfoReflect parseSubCommandAnnotation(Plugin plugin, Method m) {
+    private SubCommandInfoReflect parseSubCommandAnnotation(Method m) {
         SubCommand scAnno = m.getAnnotation(SubCommand.class);
         if (scAnno == null) return null;
 
@@ -159,7 +128,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
         if (!(params.length == 2 &&
                 params[0] == CommandSender.class &&
                 params[1] == Arguments.class)) {
-            plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", m.toString()));
+            logger.warning(I18n.formatDefault("internal.error.bad_subcommand", m.toString()));
             return null; // incorrect method signature
         }
         m.setAccessible(true);
@@ -170,15 +139,19 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
                 tabm = m.getDeclaringClass().getDeclaredMethod(scAnno.tabCompleter(), CommandSender.class, Arguments.class);
                 tabm.setAccessible(true);
             } catch (NoSuchMethodException ex) {
-                ex.printStackTrace();
-                plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", m.toString()));
+                StringWriter sw = new StringWriter();
+                try (PrintWriter pw = new PrintWriter(sw)) {
+                    ex.printStackTrace(pw);
+                }
+                logger.warning(sw.toString());
+                logger.warning(I18n.formatDefault("internal.error.bad_subcommand", m.toString()));
                 return null;
             }
         }
 
         if (!scAnno.value().isEmpty() && scAnno.isDefaultCommand()) {
             // cannot be both subcommand and default command
-            plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", m.toString()));
+            logger.warning(I18n.formatDefault("internal.error.bad_subcommand", m.toString()));
             return null;
         } else if (!scAnno.value().isEmpty()) {
             // subcommand
@@ -191,7 +164,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
             return new SubCommandInfoReflect(this, null, perm, false, m, null, null, true, tabm);
         } else {
             // not subcommand nor default command, remove the annotation
-            plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", m.toString()));
+            logger.warning(I18n.formatDefault("internal.error.bad_subcommand", m.toString()));
             return null;
         }
     }
@@ -204,30 +177,34 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
         if (scAnno == null) return null;
 
         if (!CommandReceiver.class.isAssignableFrom(f.getType())) {
-            plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", f.toString()));
+            logger.warning(I18n.formatDefault("internal.error.bad_subcommand", f.toString()));
             return null; // incorrect field type
         }
 
         if (!scAnno.tabCompleter().isEmpty()) {
-            plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", f.toString()));
+            logger.warning(I18n.formatDefault("internal.error.bad_subcommand", f.toString()));
             return null; // field-based subcommand does not need method-based tabcompletion
         }
 
         // try to instantiate sub command receiver
         CommandReceiver obj;
         try {
-            obj = newInstance(f.getType(), plugin, i18n);
+            obj = newInstance(f.getType(), plugin);
             f.setAccessible(true);
             f.set(this, obj);
         } catch (ReflectiveOperationException ex) {
-            plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", f.toString()));
-            ex.printStackTrace();
+            StringWriter sw = new StringWriter();
+            try (PrintWriter pw = new PrintWriter(sw)) {
+                ex.printStackTrace(pw);
+            }
+            logger.warning(sw.toString());
+            logger.warning(I18n.formatDefault("internal.error.bad_subcommand", f.toString()));
             return null;
         }
 
         if (!scAnno.value().isEmpty() && scAnno.isDefaultCommand()) {
             // cannot be both subcommand and default command
-            plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", f.toString()));
+            logger.warning(I18n.formatDefault("internal.error.bad_subcommand", f.toString()));
             return null;
         } else if (!scAnno.value().isEmpty()) {
             // subcommand
@@ -240,7 +217,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
             return new SubCommandInfoReflect(this, null, perm, true, null, f, obj, true, null);
         } else {
             // not subcommand nor default command, remove the annotation
-            plugin.getLogger().warning(i18n.getFormatted("internal.error.bad_subcommand", f.toString()));
+            logger.warning(I18n.formatDefault("internal.error.bad_subcommand", f.toString()));
             return null;
         }
     }
@@ -332,11 +309,15 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
                 msg(sender, "internal.error.invalid_command_arg");
             }
             msg(sender, "internal.info.usage_prompt",
-                    getHelpContent("usage", subCommand));
+                    getHelpContent(sender, "usage", subCommand));
         } catch (NoPermissionException ex) {
             msg(sender, "internal.error.no_required_permission", ex.getMessage());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            StringWriter sw = new StringWriter();
+            try (PrintWriter pw = new PrintWriter(sw)) {
+                ex.printStackTrace(pw);
+            }
+            logger.warning(sw.toString());
             msg(sender, "internal.error.command_exception");
         }
     }
@@ -388,9 +369,10 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
         }
     }
 
-    private String getHelpContent(String type, String cmd) {
+    private String getHelpContent(CommandSender sender, String type, String cmd) {
         String prefix = getHelpPrefix().isEmpty() ? "" : (getHelpPrefix() + ".");
         String key = "manual." + prefix + cmd + "." + type;
+        I18n i18n = I18n.getInstance(sender);
         if (i18n.hasKey(key)) {
             return i18n.getFormatted(key);
         } else {
@@ -400,14 +382,14 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
 
     @SubCommand("help")
     public void printHelp(CommandSender sender, Arguments args) {
-        List<String> cmds = new ArrayList<>(subCommands.keySet());
-        cmds.sort(Comparator.naturalOrder());
-        String format = i18n.getFormatted("manual.format");
+        List<String> cmdList = new ArrayList<>(subCommands.keySet());
+        cmdList.sort(Comparator.naturalOrder());
+        String format = I18n.getFormatted(sender, "manual.format");
         StringBuilder tmp = new StringBuilder();
-        for (String cmd : cmds) {
+        for (String cmd : cmdList) {
             if (!subCommands.get(cmd).hasPermission(sender)) continue;
-            String description = getHelpContent("description", cmd);
-            String usage = getHelpContent("usage", cmd);
+            String description = getHelpContent(sender, "description", cmd);
+            String usage = getHelpContent(sender, "usage", cmd);
             tmp.append("\n").append(format
                     .replace("<description>", description)
                     .replace("<usage>", usage));
@@ -415,8 +397,8 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
 
         if (defaultSubCommand != null && defaultSubCommand.hasPermission(sender)) {
             String cmd = "<default>";
-            String description = getHelpContent("description", cmd);
-            String usage = getHelpContent("usage", cmd);
+            String description = getHelpContent(sender, "description", cmd);
+            String usage = getHelpContent(sender, "usage", cmd);
             tmp.append("\n").append(format
                     .replace("<description>", description)
                     .replace("<usage>", usage));
@@ -425,7 +407,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
     }
 
     public void msg(CommandSender target, String template, Object... args) {
-        target.sendMessage(i18n.getFormatted(template, args));
+        target.sendMessage(I18n.getFormatted(target, template, args));
     }
 
     public static class SubCommandInfoReflect implements ISubCommandInfo {

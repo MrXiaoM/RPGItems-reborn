@@ -40,6 +40,7 @@ public class ColorHelper {
         return new TextComponent(TextComponent.fromLegacyText(parseColor(s)));
     }
 
+    @SuppressWarnings({"deprecation"})
     public static String parseColor(String s) {
         String fin = s;
         fin = String.join("", split(hexPattern, fin, regexResult -> {

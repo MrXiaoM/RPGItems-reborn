@@ -27,7 +27,7 @@ public class Configuration extends PluginConfigure {
     }
 
     @Serializable
-    public String language = "en_US";
+    public String language = "zh_CN";
 
     @Serializable
     public String version = "1.0";

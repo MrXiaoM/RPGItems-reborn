@@ -1,12 +1,7 @@
 package think.rpgitems.commands;
 
-import think.rpgitems.I18n;
-import think.rpgitems.RPGItems;
-import think.rpgitems.utils.nyaacore.Pair;
-import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
-import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import think.rpgitems.RPGItems;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.Completion;
@@ -14,6 +9,9 @@ import think.rpgitems.power.PowerManager;
 import think.rpgitems.power.RPGCommandReceiver;
 import think.rpgitems.power.UnknownExtensionException;
 import think.rpgitems.power.trigger.Trigger;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +22,12 @@ import java.util.stream.Stream;
 
 import static think.rpgitems.commands.AdminCommands.*;
 
+@SuppressWarnings({"rawtypes"})
 public class TriggerCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
 
-    public TriggerCommands(RPGItems plugin, I18n i18n) {
-        super(plugin, i18n);
+    public TriggerCommands(RPGItems plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
@@ -54,7 +53,9 @@ public class TriggerCommands extends RPGCommandReceiver {
                 arguments.nextString();
                 String base = arguments.nextString();
                 Trigger trigger = Trigger.get(base);
-                return resolveProperties(sender, item, trigger.getClass(), trigger.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, true);
+                if (trigger != null) {
+                    return resolveProperties(sender, item, trigger.getClass(), trigger.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, true);
+                }
         }
         return filtered(arguments, completeStr);
     }
@@ -79,8 +80,7 @@ public class TriggerCommands extends RPGCommandReceiver {
         Trigger trigger = base.copy(name);
         trigger.setItem(item);
         try {
-            trigger = setPropertyHolder(sender, args, base.getClass(), trigger, true);
-            item.addTrigger(name, trigger);
+            item.addTrigger(name, setPropertyHolder(sender, args, base.getClass(), trigger, true));
             ItemManager.refreshItem();
             ItemManager.save(item);
             msgs(sender, "message.trigger.ok");
@@ -97,18 +97,19 @@ public class TriggerCommands extends RPGCommandReceiver {
     public List<String> propCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1:
-                completeStr.addAll(ItemManager.itemNames());
-                break;
-            case 2:
+            case 1 -> completeStr.addAll(ItemManager.itemNames());
+            case 2 -> {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 completeStr.addAll(IntStream.range(0, item.getTriggers().size()).mapToObj(String::valueOf).toList());
-                break;
-            default:
-                item = getItem(arguments.nextString(), sender);
+            }
+            default -> {
+                RPGItem item = getItem(arguments.nextString(), sender);
                 Trigger trigger = item.getTriggers().get(arguments.nextString());
                 Trigger base = Trigger.get(trigger.getBase());
-                return resolveProperties(sender, item, base.getClass(), base.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
+                if (base != null) {
+                    return resolveProperties(sender, item, base.getClass(), base.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
+                }
+            }
         }
         return filtered(arguments, completeStr);
     }
@@ -181,7 +182,7 @@ public class TriggerCommands extends RPGCommandReceiver {
         int perPage = RPGItems.plugin.cfg.powerPerPage;
         String nameSearch = args.argString("n", args.argString("name", ""));
         Set<String> triggers = Trigger.keySet();
-        if (triggers.size() == 0) {
+        if (triggers.isEmpty()) {
             msgs(sender, "message.marker.not_found", nameSearch);
             return;
         }
@@ -192,7 +193,7 @@ public class TriggerCommands extends RPGCommandReceiver {
         stream = stream
                          .skip((long) (page - 1) * perPage)
                          .limit(perPage);
-        sender.sendMessage(ChatColor.AQUA + "Markers: " + page + " / " + max);
+        msgs(sender, "message.trigger.page-header", page, max);
 
         stream.forEach(
                 trigger -> {
@@ -204,6 +205,6 @@ public class TriggerCommands extends RPGCommandReceiver {
                     );
                     msgs(sender, "message.line_separator");
                 });
-        sender.sendMessage(ChatColor.AQUA + "Markers: " + page + " / " + max);
+        msgs(sender, "message.trigger.page-footer", page, max);
     }
 }

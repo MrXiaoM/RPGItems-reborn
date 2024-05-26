@@ -1,10 +1,5 @@
 package think.rpgitems.power;
 
-import think.rpgitems.utils.nyaacore.LanguageRepository;
-import think.rpgitems.utils.nyaacore.Message;
-import think.rpgitems.utils.nyaacore.Pair;
-import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
-import think.rpgitems.utils.nyaacore.cmdreceiver.CommandReceiver;
 import com.google.common.base.Strings;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -15,6 +10,10 @@ import think.rpgitems.RPGItems;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.marker.Selector;
 import think.rpgitems.power.trigger.Trigger;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
+import think.rpgitems.utils.nyaacore.cmdreceiver.CommandReceiver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -26,11 +25,8 @@ import java.util.stream.Stream;
 import static think.rpgitems.commands.AdminCommands.msgs;
 
 public abstract class RPGCommandReceiver extends CommandReceiver {
-    public final LanguageRepository i18n;
-
-    public RPGCommandReceiver(RPGItems plugin, LanguageRepository i18n) {
-        super(plugin, i18n);
-        this.i18n = i18n;
+    public RPGCommandReceiver(RPGItems plugin) {
+        super(plugin);
     }
 
     public static List<String> resolvePropertyValueSuggestion(RPGItem item, Class<? extends Power> power, String propertyName, String last, boolean hasNamePrefix) {
@@ -200,10 +196,5 @@ public abstract class RPGCommandReceiver extends CommandReceiver {
         if (powerObj != null) {
             msgs(sender, "message.propertyHolder.property_value", Utils.getProperty(powerObj, name, prop.field()));
         }
-    }
-
-    @Override
-    protected boolean showCompleteMessage() {
-        return false;
     }
 }

@@ -1,17 +1,16 @@
 package think.rpgitems.commands;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.command.CommandSender;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
+import think.rpgitems.power.*;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
-import org.bukkit.ChatColor;
-import org.bukkit.NamespacedKey;
-import org.bukkit.command.CommandSender;
-import think.rpgitems.item.ItemManager;
-import think.rpgitems.item.RPGItem;
-import think.rpgitems.power.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,8 +24,8 @@ import static think.rpgitems.commands.AdminCommands.*;
 public class MarkerCommands extends RPGCommandReceiver {
     private final RPGItems plugin;
 
-    public MarkerCommands(RPGItems plugin, I18n i18n) {
-        super(plugin, i18n);
+    public MarkerCommands(RPGItems plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
@@ -147,17 +146,26 @@ public class MarkerCommands extends RPGCommandReceiver {
     public List<String> propCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1:
-                completeStr.addAll(ItemManager.itemNames());
-                break;
-            case 2:
+            case 1 -> completeStr.addAll(ItemManager.itemNames());
+            case 2 -> {
                 RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream.range(0, item.getMarkers().size()).mapToObj(i -> i + "-" + item.getMarkers().get(i).getNamespacedKey()).toList());
-                break;
-            default:
-                item = getItem(arguments.nextString(), sender);
+                completeStr.addAll(IntStream
+                        .range(0, item.getMarkers().size())
+                        .mapToObj(i -> i + "-" + item.getMarkers().get(i).getNamespacedKey())
+                        .toList());
+            }
+            default -> {
+                RPGItem item = getItem(arguments.nextString(), sender);
                 Marker nextMarker = nextMarker(item, sender, arguments);
-                return resolveProperties(sender, item, nextMarker.getClass(), nextMarker.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
+                return resolveProperties(
+                        sender,
+                        item,
+                        nextMarker.getClass(),
+                        nextMarker.getNamespacedKey(),
+                        arguments.getRawArgs()[arguments.getRawArgs().length - 1],
+                        arguments,
+                        false);
+            }
         }
         return filtered(arguments, completeStr);
     }
@@ -225,7 +233,7 @@ public class MarkerCommands extends RPGCommandReceiver {
                     break;
                 }
             }
-            if (nth < 0 || nth >=markers.size()){
+            if (nth < 0) {
                 msgs(sender, "message.num_out_of_range", nth, 0, markers.size());
                 return;
             }
@@ -248,7 +256,7 @@ public class MarkerCommands extends RPGCommandReceiver {
                                                  .filter(i -> i.getKey().contains(nameSearch))
                                                  .sorted(Comparator.comparing(NamespacedKey::getKey))
                                                  .toList();
-        if (markers.size() == 0) {
+        if (markers.isEmpty()) {
             msgs(sender, "message.marker.not_found", nameSearch);
             return;
         }
@@ -259,7 +267,7 @@ public class MarkerCommands extends RPGCommandReceiver {
         stream = stream
                          .skip((long) (page - 1) * perPage)
                          .limit(perPage);
-        sender.sendMessage(ChatColor.AQUA + "Markers: " + page + " / " + max);
+        msgs(sender, "message.marker.page-header", page, max);
 
         stream.forEach(
                 marker -> {
@@ -270,6 +278,6 @@ public class MarkerCommands extends RPGCommandReceiver {
                     );
                     msgs(sender, "message.line_separator");
                 });
-        sender.sendMessage(ChatColor.AQUA + "Markers: " + page + " / " + max);
+        msgs(sender, "message.marker.page-footer", page, max);
     }
 }

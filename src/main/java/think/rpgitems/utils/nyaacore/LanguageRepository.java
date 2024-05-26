@@ -6,9 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -101,7 +99,6 @@ public abstract class LanguageRepository implements ILocalizer {
     /**
      * @return the language to be loaded into {@link #map}
      */
-    @Deprecated
     protected abstract String getLanguage();
 
     /**
@@ -161,7 +158,11 @@ public abstract class LanguageRepository implements ILocalizer {
             try {
                 return String.format(val, para);
             } catch (IllegalFormatConversionException e) {
-                e.printStackTrace();
+                StringWriter sw = new StringWriter();
+                try (PrintWriter pw = new PrintWriter(sw)) {
+                    e.printStackTrace(pw);
+                }
+                getPlugin().getLogger().warning(sw.toString());
                 getPlugin().getLogger().warning("Corrupted language key: " + key);
                 getPlugin().getLogger().warning("val: " + val);
                 StringBuilder keyBuilder = new StringBuilder();
@@ -222,44 +223,4 @@ public abstract class LanguageRepository implements ILocalizer {
         return getRaw(key) != null;
     }
 
-    public static class InternalOnlyRepository extends LanguageRepository {
-        private final String lang;
-
-        public InternalOnlyRepository(String lang) {
-            this.lang = lang;
-            load();
-        }
-
-        public InternalOnlyRepository(Plugin plugin) {
-            this.lang = DEFAULT_LANGUAGE;
-        }
-
-        @Override
-        protected Plugin getPlugin() {
-            return null;
-        }
-
-        @Override
-        protected String getLanguage() {
-            return lang;
-        }
-
-        @Override
-        public String getFormatted(String key, Object... para) {
-            if (!key.startsWith("internal.")) throw new IllegalArgumentException("Not an internal language key");
-            return super.getFormatted(key, para);
-        }
-
-        @Override
-        public boolean hasKey(String key) {
-            if (!key.startsWith("internal.")) return false;
-            return super.hasKey(key);
-        }
-
-        @Override
-        public String getSubstituted(String key, Map<?, ?> paraMap) {
-            if (!key.startsWith("internal.")) throw new IllegalArgumentException("Not an internal language key");
-            return super.getSubstituted(key, paraMap);
-        }
-    }
 }

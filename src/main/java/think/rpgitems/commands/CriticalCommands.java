@@ -1,13 +1,11 @@
 package think.rpgitems.commands;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
+import think.rpgitems.power.Completion;
 import think.rpgitems.power.RPGCommandReceiver;
-import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 
@@ -17,11 +15,8 @@ import java.util.List;
 import static think.rpgitems.commands.AdminCommands.*;
 
 public class CriticalCommands extends RPGCommandReceiver {
-    private final RPGItems plugin;
-
-    public CriticalCommands(RPGItems plugin, I18n i18n) {
-        super(plugin, i18n);
-        this.plugin = plugin;
+    public CriticalCommands(RPGItems plugin) {
+        super(plugin);
     }
 
     @Override
@@ -62,6 +57,7 @@ public class CriticalCommands extends RPGCommandReceiver {
         msgs(sender, "message.critical.normal.get", item.getName(), item.getCriticalRate(), item.getCriticalDamage(), item.getCriticalMultiple());
     }
 
+    @Completion("")
     private List<String> normalCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
@@ -125,13 +121,12 @@ public class CriticalCommands extends RPGCommandReceiver {
         msgs(sender, "message.critical.anti.get", item.getName(), item.getCriticalAntiRate());
     }
 
+    @Completion("")
     private List<String> antiCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
             case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
-                completeStr.add("rate");
-            }
+            case 2 -> completeStr.add("rate");
         }
         return filtered(arguments, completeStr);
     }

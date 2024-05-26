@@ -9,19 +9,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.IllegalFormatConversionException;
 import java.util.Map;
 
 public class I18n extends LanguageRepository {
-    private static Map<String, I18n> instances = new HashMap<>();
+    private static final Map<String, I18n> instances = new HashMap<>();
     private final RPGItems plugin;
-    private String lang;
+    private final String lang;
 
     protected Map<String, String> map = new HashMap<>();
 
@@ -58,24 +55,18 @@ public class I18n extends LanguageRepository {
      *
      * @param section        source section
      * @param prefix         used in recursion to determine the proper prefix
-     * @param ignoreInternal ignore keys prefixed with `internal'
-     * @param ignoreNormal   ignore keys not prefixed with `internal'
      */
-    private static void loadLanguageSection(Map<String, String> map, ConfigurationSection section, String prefix, boolean ignoreInternal, boolean ignoreNormal) {
+    private static void loadLanguageSection(Map<String, String> map, ConfigurationSection section, String prefix) {
         if (map == null || section == null || prefix == null) return;
         for (String key : section.getKeys(false)) {
             String path = prefix + key;
             if (section.isString(key)) {
-                if (path.startsWith("internal") && ignoreInternal) continue;
-                if (!path.startsWith("internal") && ignoreNormal) continue;
                 map.put(path, HexColorUtils.hexColored(section.getString(key)));
             } else if (section.isList(key)) {
-                if (path.startsWith("internal") && ignoreInternal) continue;
-                if (!path.startsWith("internal") && ignoreNormal) continue;
                 String s = String.join("\n&r", section.getStringList(key));
                 map.put(path, HexColorUtils.hexColored(s));
             } else if (section.isConfigurationSection(key)) {
-                loadLanguageSection(map, section.getConfigurationSection(key), path + ".", ignoreInternal, ignoreNormal);
+                loadLanguageSection(map, section.getConfigurationSection(key), path + ".");
             }
         }
     }
@@ -83,43 +74,39 @@ public class I18n extends LanguageRepository {
 
     // helper function to load language map
     private static void loadResourceMap(Plugin plugin, String codeName,
-                                        Map<String, String> targetMap, boolean ignoreInternal, boolean ignoreNormal) {
+                                        Map<String, String> targetMap) {
         if (plugin == null || codeName == null || targetMap == null) throw new IllegalArgumentException();
         InputStream stream = plugin.getResource("lang/" + codeName + ".yml");
         if (stream != null) {
             YamlConfiguration section = YamlConfiguration.loadConfiguration(new InputStreamReader(stream, StandardCharsets.UTF_8));
-            loadLanguageSection(targetMap, section, "", ignoreInternal, ignoreNormal);
+            loadLanguageSection(targetMap, section, "");
         }
     }
 
     // helper function to load language map
     private static void loadLocalMap(Plugin plugin, String codeName,
-                                     Map<String, String> targetMap, boolean ignoreInternal, boolean ignoreNormal) {
+                                     Map<String, String> targetMap) {
         if (plugin == null || codeName == null || targetMap == null) throw new IllegalArgumentException();
         if (Boolean.parseBoolean(System.getProperty("nyaautils.i18n.refreshLangFiles", "false"))) return;
         File langFile = new File(plugin.getDataFolder(), codeName + ".yml");
         if (langFile.exists() && langFile.isFile()) {
             YamlConfiguration section = YamlConfiguration.loadConfiguration(langFile);
-            loadLanguageSection(targetMap, section, "", ignoreInternal, ignoreNormal);
+            loadLanguageSection(targetMap, section, "");
         }
     }
 
     /**
      * Load specified resource language map
-     *
-     * @param fileName
      */
     protected void loadResourceLanguage(String fileName) {
-        loadResourceMap(getPlugin(), fileName, map, false, false);
+        loadResourceMap(getPlugin(), fileName, map);
     }
 
     /**
      * Load specified local language map
-     *
-     * @param fileName
      */
     protected void loadLocalLanguage(String fileName) {
-        loadLocalMap(getPlugin(), fileName, map, false, false);
+        loadLocalMap(getPlugin(), fileName, map);
     }
 
     public static I18n getInstance(CommandSender sender) {
@@ -155,7 +142,11 @@ public class I18n extends LanguageRepository {
             try {
                 return String.format(val, para);
             } catch (IllegalFormatConversionException e) {
-                e.printStackTrace();
+                StringWriter sw = new StringWriter();
+                try (PrintWriter pw = new PrintWriter(sw)) {
+                    e.printStackTrace(pw);
+                }
+                getPlugin().getLogger().warning(sw.toString());
                 getPlugin().getLogger().warning("Corrupted language key: " + key);
                 getPlugin().getLogger().warning("val: " + val);
                 StringBuilder keyBuilder = new StringBuilder();

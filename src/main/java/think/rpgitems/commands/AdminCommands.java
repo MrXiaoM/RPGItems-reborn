@@ -2,7 +2,6 @@ package think.rpgitems.commands;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.udojava.evalex.Expression;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.ItemsAdder;
@@ -34,6 +33,7 @@ import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.support.WGSupport;
+import think.rpgitems.utils.IOUtils;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.MessageType;
 import think.rpgitems.utils.NetworkUtils;
@@ -230,7 +230,7 @@ public class AdminCommands extends RPGCommandReceiver {
             Player p = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
             if (p == null) return;
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                ByteArrayDataOutput out = IOUtils.newDataOutput();
                 out.writeUTF("Forward");
                 out.writeUTF("ALL");
                 out.writeUTF("RPGItems");

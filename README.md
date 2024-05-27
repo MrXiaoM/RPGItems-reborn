@@ -1,8 +1,10 @@
-# RPGItems SweetRice Edition
+# RPGItems-reborn
 
 [![Paper 1.17.1-1.20.4](https://img.shields.io/badge/Paper-1.17.1--1.20.4-blue)](https://img.shields.io/badge/Paper-1.17.1--1.20.4-blue)
 
 The NyaaCat RPGItems-reloaded plugin continued from [NyaaCat/RPGItems-reloaded](https://github.com/NyaaCat/RPGItems-reloaded).
+
+Active developing from [SweetRiceMC](https://www.pds.ink) developers team.
 
 Take it easy. **NO ANY** dependency plugin is needed this time.
 
@@ -11,6 +13,9 @@ Original plugin is not only hard to learn and understand how to use, but also th
 That's the problem I want to solve.
 
 Do not use Spigot, use Paper please.
+
++ [Wiki (WIP)](https://rpgitems.mcio.dev)
++ [Original Wiki](https://nyaacat.github.io/RPGItems-wiki/#/)
 
 ## Developer Support
 
@@ -55,8 +60,8 @@ New version is currently testing. The version will be `4.0.0` when we release it
 * BungeeCord notice read-only server to reload
 * Register sub-command into `/rpgitem`
 * High playability Factor system
-* More interesting preset powers, conditions and triggers
-* Link with more plugins
+* More interesting preset `powers`, `conditions` and `triggers`
+* Link with more plugins such as MythicMobs, ItemsAdder and so on!
 * Multi Minecraft version in just ONE jar! Not specific `1.XX.X-3.12.X` anymore.
 * Hot load support (experimental function with `PlugManX`)
 * Allow using a hoe item to farm a land (Add `noPlace` into comment to disallow).
@@ -71,7 +76,3 @@ And also, PRs welcome.
 ## Accessible
 
 We **will** publish the functional update and bug fixing. We **WON'T** publish the powers, triggers and conditions we made. They are packaged into an extension in our server.
-
-## Resources
-
-[Original Wiki](https://nyaacat.github.io/RPGItems-wiki/#/)

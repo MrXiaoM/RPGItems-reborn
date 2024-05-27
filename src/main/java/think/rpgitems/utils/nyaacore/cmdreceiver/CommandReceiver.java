@@ -86,7 +86,7 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static CommandReceiver newInstance(Class cls, Object arg1) throws ReflectiveOperationException {
         for (Constructor c : cls.getConstructors()) {
-            if (c.getParameterCount() == 2 && c.getParameterTypes()[0].isAssignableFrom(arg1.getClass())) {
+            if (c.getParameterCount() == 1 && c.getParameterTypes()[0].isAssignableFrom(arg1.getClass())) {
                 return (CommandReceiver) c.newInstance(arg1);
             }
         }

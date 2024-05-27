@@ -12,9 +12,8 @@ That's the problem I want to solve.
 
 Do not use Spigot, use Paper please.
 
-## Fork
+## Developer Support
 
-This is a personal fork. Only the branch `main` is supported. I add [LoreUpdateEvent](/src/main/java/think/rpgitems/event/LoreUpdateEvent.java) so it is friendly to *SoulBinding-kind* plugins. 
 ```grovvy
 repositories {
     mavenCentral()
@@ -26,6 +25,8 @@ dependencies {
 
 ```
 I uploaded it to central. It is easy to depend it. :P
+
+New version is currently testing. The version will be `4.0.0` when we release it.
 
 ## Support Versions
 

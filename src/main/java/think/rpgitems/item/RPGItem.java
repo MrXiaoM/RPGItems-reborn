@@ -1372,8 +1372,12 @@ public class RPGItem {
         String mythicSkillStr = null;
         String mythicSkillStr2 = null;
         if (isShowArmourLore()) {
-            if (getArmour() != 0) {
-                damageStr = getArmour() + "% " + I18n.formatDefault("item.armour");
+            if (getArmour() > 0 && getArmourProjectile() > 0) {
+                damageStr = I18n.formatDefault("item.armour-projectile", getArmour(), getArmourProjectile());
+            } else if (getArmour() > 0) {
+                damageStr = I18n.formatDefault("item.armour", getArmour());
+            } else if (getArmourProjectile() > 0) {
+                damageStr = I18n.formatDefault("item.armour-projectile-only", getArmourProjectile());
             }
             if ((getDamageMin() != 0 || getDamageMax() != 0) && getDamageMode() != DamageMode.VANILLA) {
                 damageStr = damageStr == null ? "" : damageStr + " & ";

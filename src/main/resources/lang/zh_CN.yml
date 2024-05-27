@@ -1458,7 +1458,9 @@ command:
       info: 已添加的技能占位符：%s
       bad_placeholder: 无效占位符 %s
 item:
-  armour: 护甲
+  armour: %d%% 护甲
+  armour-projectile: %d%% 护甲 (%d%% 弹射物护甲)
+  armour-projectile-only: %d%% 弹射物护甲
   additionaldamage: 附加 %s 伤害
   multiplydamage: '%s 倍伤害'
   damage: '%s 伤害'

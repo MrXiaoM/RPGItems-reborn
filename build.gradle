@@ -26,7 +26,7 @@ boolean releasing = commit.shortMessage.contains("[release]")
 String buildNumber = findProperty("BUILD_NUMBER") == null ? (releasing ? '0' : commitHash.substring(0,6)) : findProperty("BUILD_NUMBER")
 String jdDirectory = System.getenv("JAVADOCS_DIR") == null ? null                      : System.getenv("JAVADOCS_DIR")
 
-archivesBaseName = "RPGItems-reloaded"
+archivesBaseName = rootProject.name
 
 version = "$majorVersion.$minorVersion.$buildNumber"
 String mavenVersion = releasing ? version : "$majorVersion.$minorVersion-SNAPSHOT"

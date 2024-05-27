@@ -715,17 +715,25 @@ public class AdminCommands extends RPGCommandReceiver {
 
 
     @SubCommand(value = "armour", tabCompleter = "itemCompleter")
+    @Completion("item:projectile")
     public void itemArmour(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
         RPGItem item = getItem(args.nextString(), sender);
         try {
-            int armour = args.nextInt();
-            item.setArmour(armour);
-            msgs(sender, "message.armour.set", item.getName(), item.getArmour());
+            String type = args.next();
+            if ("projectile".equalsIgnoreCase(type)) {
+                int armour = args.nextInt();
+                item.setArmourProjectile(armour);
+                msgs(sender, "message.armour.set-projectile", item.getName(), item.getArmourProjectile());
+            } else {
+                int armour = args.parseInt(type);
+                item.setArmour(armour);
+                msgs(sender, "message.armour.set", item.getName(), item.getArmour());
+            }
             ItemManager.refreshItem();
             ItemManager.save(item);
         } catch (BadCommandException e) {
-            msgs(sender, "message.armour.get", item.getName(), item.getArmour());
+            msgs(sender, "message.armour.get", item.getName(), item.getArmour(), item.getArmourProjectile());
         }
     }
 

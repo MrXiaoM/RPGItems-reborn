@@ -44,8 +44,9 @@ message:
     disable: Worldguard 自定义标志已禁用
     enable: Worldguard 自定义标志已启用
   armour:
-    get: 物品 '%s' 护甲为 '%d%%'
+    get: 物品 '%s' 护甲为 '%d%%', 弹射物重写护甲为 '%d%%' (0%% 时不重写)
     set: 物品 '%s' 护甲已设置为 '%d%%'
+    set-projectile: 物品 '%s' 弹射物重写护甲已设置为 '%d%%' (0%% 时不重写)
   property:
     required: 此技能至少需要输入以下属性参数 %s
   power_property:

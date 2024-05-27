@@ -236,6 +236,10 @@ public class Arguments {
 
     public int nextInt() {
         String str = next();
+        return parseInt(str);
+    }
+
+    public int parseInt(String str) {
         if (str == null) throw new BadCommandException("internal.error.no_more_int");
         if (str.endsWith("k")) str = str.substring(0, str.length() - 1) + "000";
         try {

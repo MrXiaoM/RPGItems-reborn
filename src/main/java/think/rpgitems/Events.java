@@ -934,6 +934,7 @@ public class Events implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerHit(EntityDamageEvent e) {
         if (e.getEntity() instanceof Player player) {
+            boolean projectile = e instanceof EntityDamageByEntityEvent ed && ed.getDamager() instanceof Projectile;
             ItemStack[] armour = player.getInventory().getArmorContents();
             boolean hasRPGItem = false;
             double damage = e.getDamage();
@@ -947,7 +948,7 @@ public class Events implements Listener {
                     continue;
                 }
                 hasRPGItem = true;
-                damage = pRItem.takeDamage(player, damage, pArmour, damager);
+                damage = pRItem.takeDamage(player, damage, pArmour, damager, projectile);
             }
             for (ItemStack pArmour : armour) {
                 try {
@@ -966,7 +967,11 @@ public class Events implements Listener {
             {
                 RPGItem pRItem = ItemManager.toRPGItem(offHand).orElse(null);
                 if (pRItem != null) {
-                    damage = pRItem.takeDamage(player, damage, offHand, damager);
+                    damage = pRItem.takeDamage(player, damage, offHand, damager, projectile);
+                    try {
+                        damage = Utils.eval(player, damage, e, damager, pRItem);
+                    } catch (Exception ignored) {
+                    }
                     player.getInventory().setItemInOffHand(offHand);
                 }
             }

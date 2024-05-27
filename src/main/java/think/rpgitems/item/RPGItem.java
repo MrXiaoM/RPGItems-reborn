@@ -157,6 +157,7 @@ public class RPGItem {
     @Getter @Setter private DamageMode damageMode = DamageMode.FIXED;
     @Getter @Setter private AttributeMode attributeMode = AttributeMode.PARTIAL_UPDATE;
     @Getter private int armour = 0;
+    @Getter private int armourProjectile = 0;
     @Getter @Setter private String armourExpression = "";
     @Getter @Setter private String damageType = "";
     @Getter @Setter private boolean canBeOwned = false;
@@ -367,6 +368,7 @@ public class RPGItem {
         setAtkSpeed(s.getInt("atkSpeed"));
         setMoveSpeed(s.getInt("moveSpeed"));
         setArmour(s.getInt("armour", 0), false);
+        setArmourProjectile(s.getInt("armourProjectile", 0), false);
         setArmourExpression(s.getString("armourExpression", ""));
         setDamageType(s.getString("DamageType", ""));
         setAttributeMode(AttributeMode.valueOf(s.getString("attributemode", "PARTIAL_UPDATE")));
@@ -661,6 +663,7 @@ public class RPGItem {
         s.set("atkSpeed", getAtkSpeed());
         s.set("moveSpeed", getMoveSpeed());
         s.set("armour", getArmour());
+        s.set("armourProjectile", getArmourProjectile());
         s.set("armourExpression", getArmourExpression());
         s.set("DamageType", getDamageType());
         s.set("attributemode", attributeMode.name());
@@ -836,7 +839,7 @@ public class RPGItem {
             }
         }
 
-        if (armour > 0 || !armourExpression.isEmpty()) {
+        if (armour > 0 || armourProjectile > 0 || !armourExpression.isEmpty()) {
             String m = item.getType().name().toUpperCase();
             meta.removeAttributeModifier(Attribute.GENERIC_ARMOR);
             meta.removeAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS);
@@ -1176,6 +1179,11 @@ public class RPGItem {
         return damage;
     }
 
+    @Deprecated
+    public double takeDamage(Player p, double originDamage, ItemStack stack, Entity damager) {
+        return takeDamage(p, originDamage, stack, damager, false);
+    }
+
     /**
      * Event-type independent take damage event
      *
@@ -1185,7 +1193,7 @@ public class RPGItem {
      * @param damager      Cause of this damage. May be null
      * @return Final damage or -1 if should cancel this event
      */
-    public double takeDamage(Player p, double originDamage, ItemStack stack, Entity damager) {
+    public double takeDamage(Player p, double originDamage, ItemStack stack, Entity damager, boolean projectile) {
         if (ItemManager.canUse(p, this) == Event.Result.DENY) {
             return originDamage;
         }
@@ -1195,8 +1203,11 @@ public class RPGItem {
         } else {
             can = consumeDurability(p, stack, (int) (getHitCost() * originDamage / 100d));
         }
-        if (can && getArmour() > 0) {
-            originDamage -= Math.round(originDamage * (((double) getArmour()) / 100d));
+        if (can) {
+            double rate = projectile && getArmourProjectile() > 0 ? getArmourProjectile() : getArmour();
+            if (rate > 0) {
+                originDamage -= Math.round(originDamage * (rate / 100d));
+            }
         }
         return originDamage;
     }
@@ -2101,9 +2112,16 @@ public class RPGItem {
 
     public void setArmour(int a, boolean update) {
         armour = a;
-        if (update) {
-            rebuild();
-        }
+        if (update) rebuild();
+    }
+
+    public void setArmourProjectile(int a) {
+        setArmourProjectile(a, true);
+    }
+
+    public void setArmourProjectile(int a, boolean update) {
+        armourProjectile = a;
+        if (update) rebuild();
     }
 
     public int getDamageMaxMythic() {

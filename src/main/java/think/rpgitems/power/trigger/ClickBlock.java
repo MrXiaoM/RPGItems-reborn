@@ -9,11 +9,11 @@ import think.rpgitems.power.PowerResult;
 
 public class ClickBlock extends Trigger<PlayerInteractEvent, PowerLeftClick, Void, Void> {
     public ClickBlock() {
-        this("CLICK_BLOCK");
+        super(PlayerInteractEvent.class, PowerLeftClick.class, Void.class, Void.class, "CLICK_BLOCK");
     }
 
     ClickBlock(String name) {
-        super(name, PlayerInteractEvent.class, PowerLeftClick.class, Void.class, Void.class);
+        super(name, "CLICK_BLOCK", PlayerInteractEvent.class, PowerLeftClick.class, Void.class, Void.class);
     }
 
     @Override

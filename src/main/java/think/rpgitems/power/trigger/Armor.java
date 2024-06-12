@@ -9,11 +9,11 @@ import think.rpgitems.power.PowerResult;
 
 public class Armor extends Trigger<PlayerArmorChangeEvent, PowerPlain, Void, Void> {
     public Armor() {
-        this("ARMOR");
+        super(PlayerArmorChangeEvent.class, PowerPlain.class, Void.class, Void.class, "ARMOR");
     }
 
     Armor(String name) {
-        super(name, PlayerArmorChangeEvent.class, PowerPlain.class, Void.class, Void.class);
+        super(name, "ARMOR", PlayerArmorChangeEvent.class, PowerPlain.class, Void.class, Void.class);
     }
 
     @Override
@@ -24,6 +24,7 @@ public class Armor extends Trigger<PlayerArmorChangeEvent, PowerPlain, Void, Voi
     public static class Update extends Armor {
         public Update() {
             super("ARMOR_UPDATE");
+            register(this);
         }
     }
 }

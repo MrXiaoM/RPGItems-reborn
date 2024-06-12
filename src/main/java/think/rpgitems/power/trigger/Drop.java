@@ -9,11 +9,11 @@ import think.rpgitems.power.PowerResult;
 
 public class Drop extends Trigger<PlayerDropItemEvent, PowerPlain, Void, Void> {
     public Drop() {
-        this("DROP");
+        super(PlayerDropItemEvent.class, PowerPlain.class, Void.class, Void.class, "DROP");
     }
 
-    Drop(String name) {
-        super(name, PlayerDropItemEvent.class, PowerPlain.class, Void.class, Void.class);
+    public Drop(String name) {
+        super(name, "DROP", PlayerDropItemEvent.class, PowerPlain.class, Void.class, Void.class);
     }
 
     @Override
@@ -25,6 +25,7 @@ public class Drop extends Trigger<PlayerDropItemEvent, PowerPlain, Void, Void> {
     public static class Sneak extends Drop {
         public Sneak() {
             super("DROP_SNEAK");
+            register(this);
         }
     }
 }

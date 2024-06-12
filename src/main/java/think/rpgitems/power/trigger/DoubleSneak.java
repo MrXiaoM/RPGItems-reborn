@@ -9,7 +9,7 @@ import think.rpgitems.power.PowerSneak;
 
 public class DoubleSneak extends Trigger<PlayerToggleSneakEvent, PowerSneak, Void, Void> {
     public DoubleSneak() {
-        super("DOUBLE_SNEAK", PlayerToggleSneakEvent.class, PowerSneak.class, Void.class, Void.class);
+        super(PlayerToggleSneakEvent.class, PowerSneak.class, Void.class, Void.class, "DOUBLE_SNEAK");
     }
 
     @Override

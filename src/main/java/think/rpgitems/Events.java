@@ -717,10 +717,10 @@ public class Events implements Listener {
         if (damage >= 0 && ev.getDamager() instanceof LivingEntity damager && damager.getEquipment() != null) {
             RPGItem rpg = ItemManager.toRPGItem(damager.getEquipment().getItemInMainHand()).orElse(null);
             if (rpg != null) {
-                if (rpg.getCriticalRate() > 0 && random.nextDouble(100) < rpg.getCriticalRate()) {
+                if (rpg.getCriticalRate() > 0 && random.nextDouble(100) < rpg.getCriticalRate(damager)) {
                     criticalDamage += rpg.getCriticalDamage();
                     criticalDamage *= rpg.getCriticalMultiple();
-                } else if (rpg.getCriticalBackRate() > 0 && random.nextDouble(100) < rpg.getCriticalBackRate()) {
+                } else if (rpg.getCriticalBackRate() > 0 && random.nextDouble(100) < rpg.getCriticalBackRate(damager)) {
                     criticalDamage += rpg.getCriticalBackDamage();
                     criticalDamage *= rpg.getCriticalBackMultiple();
                 }
@@ -730,12 +730,12 @@ public class Events implements Listener {
         if (criticalDamage > damage && ev.getEntity() instanceof LivingEntity entity && entity.getEquipment() != null) {
             EntityEquipment equipment = entity.getEquipment();
             Pair<RPGItem, ItemStack> pair;
-            if ((pair = isAntiCriticalSuccess(random, equipment.getItemInMainHand())) != null
-                    || (pair = isAntiCriticalSuccess(random, equipment.getItemInOffHand())) != null
-                    || (pair = isAntiCriticalSuccess(random, equipment.getHelmet())) != null
-                    || (pair = isAntiCriticalSuccess(random, equipment.getChestplate())) != null
-                    || (pair = isAntiCriticalSuccess(random, equipment.getLeggings())) != null
-                    || (pair = isAntiCriticalSuccess(random, equipment.getBoots())) != null) {
+            if ((pair = isAntiCriticalSuccess(random, entity, equipment.getItemInMainHand())) != null
+                    || (pair = isAntiCriticalSuccess(random, entity, equipment.getItemInOffHand())) != null
+                    || (pair = isAntiCriticalSuccess(random, entity, equipment.getHelmet())) != null
+                    || (pair = isAntiCriticalSuccess(random, entity, equipment.getChestplate())) != null
+                    || (pair = isAntiCriticalSuccess(random, entity, equipment.getLeggings())) != null
+                    || (pair = isAntiCriticalSuccess(random, entity, equipment.getBoots())) != null) {
                 criticalDamage = damage;
                 if (entity instanceof Player p) {
                     pair.getKey().getDodgeMessageType().send(p, pair.getKey().getDodgeMessage());
@@ -779,10 +779,10 @@ public class Events implements Listener {
         return null;
     }
 
-    private Pair<RPGItem, ItemStack> isAntiCriticalSuccess(ThreadLocalRandom random, ItemStack item) {
+    private Pair<RPGItem, ItemStack> isAntiCriticalSuccess(ThreadLocalRandom random, LivingEntity entity, ItemStack item) {
         RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
         if (rpg == null || rpg.getCriticalAntiRate() <= 0) return null;
-        if (random.nextDouble(100) < rpg.getCriticalAntiRate()) {
+        if (random.nextDouble(100) < rpg.getCriticalAntiRate(entity)) {
             return Pair.of(rpg, item);
         }
         return null;

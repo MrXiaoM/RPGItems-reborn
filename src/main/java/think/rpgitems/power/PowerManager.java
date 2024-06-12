@@ -374,11 +374,12 @@ public class PowerManager {
         List<Class<? extends Pimpl>> preferences = generals.stream().filter(statics::contains).toList();
 
         for (Class<? extends Pimpl> general : preferences) {
-            if (adapters.contains(general, specified)) {
-                return (T) adapters.get(general, specified).apply(pimpl);
+            Function func = adapters.get(general, specified);
+            if (func != null) {
+                return (T) func.apply(pimpl);
             }
         }
-        throw new ClassCastException();
+        throw new ClassCastException("power " + pimpl.getClass().getName() + " can not be cast to " + specified.getName());
     }
 
     public static void registerOverride(NamespacedKey origin, NamespacedKey override) {

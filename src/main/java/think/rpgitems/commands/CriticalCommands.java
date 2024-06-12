@@ -53,8 +53,16 @@ public class CriticalCommands extends RPGCommandReceiver {
                 ItemManager.save(item);
                 return;
             }
+        } else if (type.equalsIgnoreCase("armorRate")) {
+            Double rate = arguments.nextDouble((Double) null);
+            if (rate != null) {
+                item.setCriticalArmorRate(rate);
+                msgs(sender, "message.critical.normal.armor-rate.set", item.getName(), item.getCriticalArmorRate());
+                ItemManager.save(item);
+                return;
+            }
         }
-        msgs(sender, "message.critical.normal.get", item.getName(), item.getCriticalRate(), item.getCriticalDamage(), item.getCriticalMultiple());
+        msgs(sender, "message.critical.normal.get", item.getName(), item.getCriticalRate(), item.getCriticalDamage(), item.getCriticalMultiple(), item.getCriticalArmorRate());
     }
 
     @Completion("")
@@ -100,8 +108,16 @@ public class CriticalCommands extends RPGCommandReceiver {
                 ItemManager.save(item);
                 return;
             }
+        } else if (type.equalsIgnoreCase("armorRate")) {
+            Double rate = arguments.nextDouble((Double) null);
+            if (rate != null) {
+                item.setCriticalBackArmorRate(rate);
+                msgs(sender, "message.critical.back.armor-rate.set", item.getName(), item.getCriticalBackArmorRate());
+                ItemManager.save(item);
+                return;
+            }
         }
-        msgs(sender, "message.critical.back.get", item.getName(), item.getCriticalBackRate(), item.getCriticalBackDamage(), item.getCriticalBackMultiple());
+        msgs(sender, "message.critical.back.get", item.getName(), item.getCriticalBackRate(), item.getCriticalBackDamage(), item.getCriticalBackMultiple(), item.getCriticalBackArmorRate());
     }
 
     @SubCommand(value = "anti", tabCompleter = "antiCompleter")

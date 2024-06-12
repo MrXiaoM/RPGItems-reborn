@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.AtomicDouble;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -22,6 +23,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -63,6 +65,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -135,15 +138,18 @@ public class RPGItem {
     private int damageMaxMythic = -1;
 
     @Getter @Setter private double criticalRate;
+    @Getter @Setter private double criticalArmorRate;
     @Getter @Setter private double criticalDamage;
     @Getter @Setter private double criticalMultiple;
     @Getter @Setter private double criticalBackRate;
+    @Getter @Setter private double criticalBackArmorRate;
     @Getter @Setter private double criticalBackDamage;
     @Getter @Setter private double criticalBackMultiple;
     @Getter @Setter private double dodgeRate;
     @Setter private MessageType dodgeMessageType = MessageType.TITLE;
     @Getter @Setter private String dodgeMessage = I18n.formatDefault("item.dodge_default").replace("\\n", "\n");
     @Getter @Setter private double criticalAntiRate;
+    @Getter @Setter private double criticalAntiArmorRate;
 
     @Getter @Setter private double mythicSkillDamage = 0;
     @Getter @Setter private double mythicSkillDamageMultiple = 1;
@@ -1392,7 +1398,9 @@ public class RPGItem {
             if (getCriticalRate() > 0) {
                 criticalStr = getDamageText(getCriticalDamage(), getCriticalMultiple(), "item.critical_damage");
             }
-            mythicSkillStr = getDamageText(getMythicSkillDamage(), getMythicSkillDamageMultiple(), "item.mythic_skill.damage");
+            if (getMythicSkillDamage() > 0 || getMythicSkillDamageMultiple() != 1) {
+                mythicSkillStr = getDamageText(getMythicSkillDamage(), getMythicSkillDamageMultiple(), "item.mythic_skill.damage");
+            }
             if (getMythicSkillCriticalRate() > 0) {
                 mythicSkillStr2 = getDamageText(getMythicSkillCriticalDamage(), getMythicSkillCriticalDamageMultiple(), "item.mythic_skill.critical_damage");
             }
@@ -1414,11 +1422,11 @@ public class RPGItem {
 
     @Nullable
     private String getDamageText(double dmg, double dmgMultiple, String path) {
-        if (dmg > 0 && dmgMultiple <= 0) {
+        if (dmg > 0 && (dmgMultiple <= 0 || dmgMultiple == 1)) {
             return I18n.formatDefault(path + ".normal",
                     String.valueOf(dmg)
             );
-        } else if (dmgMultiple > 0) {
+        } else if (dmgMultiple > 0 && dmgMultiple != 1) {
             String symbol = "";
             if (dmgMultiple > 1) symbol = "+";
             if (dmgMultiple < 1) symbol = "-";
@@ -2146,6 +2154,61 @@ public class RPGItem {
     public void setDamage(int min, int max) {
         setDamage(min, max, false);
     }
+
+    public double getCriticalRate(LivingEntity damager) {
+        AtomicDouble rate = new AtomicDouble(getCriticalRate());
+        EntityEquipment equipment = damager.getEquipment();
+        if (equipment != null) {
+            Consumer<RPGItem> func = rpg -> {
+                if (rpg.getCriticalArmorRate() != 0) {
+                    rate.addAndGet(rpg.getCriticalArmorRate());
+                }
+            };
+            ItemManager.toRPGItem(equipment.getHelmet()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getChestplate()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getLeggings()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getBoots()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getItemInOffHand()).filter(it -> it.getItem().equals(SHIELD)).ifPresent(func);
+        }
+        return rate.get();
+    }
+
+    public double getCriticalBackRate(LivingEntity damager) {
+        AtomicDouble rate = new AtomicDouble(getCriticalBackRate());
+        EntityEquipment equipment = damager.getEquipment();
+        if (equipment != null) {
+            Consumer<RPGItem> func = rpg -> {
+                if (rpg.getCriticalBackArmorRate() != 0) {
+                    rate.addAndGet(rpg.getCriticalBackArmorRate());
+                }
+            };
+            ItemManager.toRPGItem(equipment.getHelmet()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getChestplate()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getLeggings()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getBoots()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getItemInOffHand()).filter(it -> it.getItem().equals(SHIELD)).ifPresent(func);
+        }
+        return rate.get();
+    }
+
+    public double getCriticalAntiRate(LivingEntity entity) {
+        AtomicDouble rate = new AtomicDouble(getCriticalAntiRate());
+        EntityEquipment equipment = entity.getEquipment();
+        if (equipment != null) {
+            Consumer<RPGItem> func = rpg -> {
+                if (rpg.getCriticalBackArmorRate() != 0) {
+                    rate.addAndGet(rpg.getCriticalAntiArmorRate());
+                }
+            };
+            ItemManager.toRPGItem(equipment.getHelmet()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getChestplate()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getLeggings()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getBoots()).ifPresent(func);
+            ItemManager.toRPGItem(equipment.getItemInOffHand()).filter(it -> it.getItem().equals(SHIELD)).ifPresent(func);
+        }
+        return rate.get();
+    }
+
 
     public String getDisplayNameRaw() {
         return displayName;

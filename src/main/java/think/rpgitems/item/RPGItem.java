@@ -1644,47 +1644,23 @@ public class RPGItem {
         ItemStack itemStack = toItemStack(player);
         itemStack.setAmount(count);
         if (wear) {
-            if (
-                    item.equals(CHAINMAIL_HELMET) ||
-                            item.equals(DIAMOND_HELMET) ||
-                            item.equals(GOLDEN_HELMET) ||
-                            item.equals(IRON_HELMET) ||
-                            item.equals(LEATHER_HELMET) ||
-                            item.equals(TURTLE_HELMET)
-            ) {
+            String itemType = item.name().toUpperCase();
+            if (itemType.endsWith("_HELMET")) {
                 if (player.getInventory().getHelmet() == null) {
                     player.getInventory().setHelmet(itemStack);
                     return;
                 }
-            } else if (
-                           item.equals(CHAINMAIL_CHESTPLATE) ||
-                                   item.equals(DIAMOND_CHESTPLATE) ||
-                                   item.equals(GOLDEN_CHESTPLATE) ||
-                                   item.equals(IRON_CHESTPLATE) ||
-                                   item.equals(LEATHER_CHESTPLATE)
-            ) {
+            } else if (itemType.endsWith("_CHESTPLATE")) {
                 if (player.getInventory().getChestplate() == null) {
                     player.getInventory().setChestplate(itemStack);
                     return;
                 }
-            } else if (
-                           item.equals(CHAINMAIL_LEGGINGS) ||
-                                   item.equals(DIAMOND_LEGGINGS) ||
-                                   item.equals(GOLDEN_LEGGINGS) ||
-                                   item.equals(IRON_LEGGINGS) ||
-                                   item.equals(LEATHER_LEGGINGS)
-            ) {
+            } else if (itemType.endsWith("_LEGGINGS")) {
                 if (player.getInventory().getLeggings() == null) {
                     player.getInventory().setLeggings(itemStack);
                     return;
                 }
-            } else if (
-                           item.equals(CHAINMAIL_BOOTS) ||
-                                   item.equals(DIAMOND_BOOTS) ||
-                                   item.equals(GOLDEN_BOOTS) ||
-                                   item.equals(IRON_BOOTS) ||
-                                   item.equals(LEATHER_BOOTS)
-            ) {
+            } else if (itemType.endsWith("_BOOTS")) {
                 if (player.getInventory().getBoots() == null) {
                     player.getInventory().setBoots(itemStack);
                     return;

@@ -210,7 +210,7 @@ message:
     move:
       set:
         value: 物品 '%s' 相对移动速度设置为 %d
-  item-fake:
+  fakeitem:
     set: '物品 ''%s'' 的伪装材质已设置为 {itemName} (%s): %d '
     get: '物品 ''%s'' 的伪装材质为 {itemName} (%s): %d '
   item:

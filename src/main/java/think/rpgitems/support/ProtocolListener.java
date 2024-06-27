@@ -129,6 +129,7 @@ public class ProtocolListener extends PacketAdapter {
         }
         if (copy.getItemMeta() instanceof LeatherArmorMeta meta) {
             meta.setColor(Color.fromRGB(rpg.getDataValue()));
+            copy.setItemMeta(meta);
         }
         return copy;
     }

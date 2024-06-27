@@ -2,7 +2,7 @@ name: RPGItems
 main: think.rpgitems.RPGItems
 description: "RPGItems"
 version: ${version}
-softdepend: [WorldGuard,Vault,ItemsAdder,MythicMobs,PlaceholderAPI]
+softdepend: [WorldGuard,Vault,ItemsAdder,MythicMobs,PlaceholderAPI,ProtocolLib]
 authors: [MrXiaoM,Taiterio,cyilin,RecursiveG,Librazy]
 website: "https://github.com/MrXiaoM/RPGItems-reborn"
 api-version: 1.17

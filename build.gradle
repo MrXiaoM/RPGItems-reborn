@@ -51,6 +51,7 @@ allprojects {
         maven { name "papermc"; url "https://papermc.io/repo/repository/maven-public/" }
         maven { name 'enginehub'; url 'https://maven.enginehub.org/repo/' }
         maven { name 'RoseWoodDev'; url "https://repo.rosewooddev.io/repository/public/" }
+        maven { name 'CodeMC'; url "https://repo.codemc.io/repository/maven-public/" }
         maven { name 'PlaceholderAPI'; url "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
         maven { name 'Spigot'; url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { name 'Mythic'; url 'https://mvn.lumine.io/repository/maven/' }
@@ -76,6 +77,7 @@ dependencies {
     compileOnly 'com.github.LoneDev6:api-itemsadder:3.6.1'
     compileOnly 'io.lumine:Mythic-Dist:5.4.1-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.11.5'
+    compileOnly 'com.comphenix.protocol:ProtocolLib:5.1.0'
 
     implementation("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")

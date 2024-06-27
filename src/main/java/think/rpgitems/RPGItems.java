@@ -29,6 +29,7 @@ import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.support.MythicSupport;
 import think.rpgitems.support.PlaceholderSupport;
+import think.rpgitems.support.ProtocolListener;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.cast.PluginUtils;
 import think.rpgitems.utils.nms.NMS;
@@ -65,7 +66,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
     public Configuration cfg;
     public GuiManager gui;
     private final NyaaCoreLoader nyaaCoreLoader = new NyaaCoreLoader(this);
-
+    public final List<Runnable> disableHook = new ArrayList<>();
 
     @SuppressWarnings({"unchecked", "JavaReflectionInvocation"})
     private static <T> T getWrapper(final PowerPlain obj, final Class<T> implInterface, final String delegateMethod) {
@@ -254,6 +255,9 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(new MythicSupport(), this);
         }
+        if (getServer().getPluginManager().isPluginEnabled("ProtocolLib")) {
+            new ProtocolListener(this);
+        }
         ServerLoadListener serverLoadListener = new ServerLoadListener();
         if (getServer().getOnlinePlayers().isEmpty()) {
             getServer().getPluginManager().registerEvents(serverLoadListener, this);
@@ -319,6 +323,10 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         managedPlugins.clear();
         nyaaCoreLoader.onDisable();
         if (gui != null) gui.onDisable();
+        for (Runnable runnable : disableHook) {
+            runnable.run();
+        }
+        disableHook.clear();
     }
 
     private void unregisterCommand(String name) {

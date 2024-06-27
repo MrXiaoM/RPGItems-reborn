@@ -800,7 +800,13 @@ public class RPGItem {
         if (item == null) return;
         List<String> oldLore = item.getItemMeta() == null || item.getItemMeta().getLore() == null ? new ArrayList<>() : new ArrayList<>(item.getItemMeta().getLore());
         List<String> reservedLores = this.filterLores(item);
-        item.setType(getItem());
+        item.setType(switch(getItem()) {
+            case LEATHER_HELMET, IRON_HELMET, GOLDEN_HELMET, DIAMOND_HELMET -> NETHERITE_HELMET;
+            case LEATHER_CHESTPLATE, IRON_CHESTPLATE, GOLDEN_CHESTPLATE, DIAMOND_CHESTPLATE -> NETHERITE_CHESTPLATE;
+            case LEATHER_LEGGINGS, IRON_LEGGINGS, GOLDEN_LEGGINGS, DIAMOND_LEGGINGS -> NETHERITE_LEGGINGS;
+            case LEATHER_BOOTS, IRON_BOOTS, GOLDEN_BOOTS, DIAMOND_BOOTS -> NETHERITE_BOOTS;
+            default -> getItem();
+        });
         ItemMeta meta = item.getItemMeta();
         List<String> lore = new ArrayList<>(getLore());
 

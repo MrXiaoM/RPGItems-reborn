@@ -9,8 +9,10 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.google.common.collect.Lists;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import think.rpgitems.RPGItems;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
@@ -113,11 +115,21 @@ public class ProtocolListener extends PacketAdapter {
     }
 
     private ItemStack process(ItemStack item) {
-        if (item == null || !materialToCheck.contains(item.getType())) return item;
+        if (item == null) return null;
         RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
-        if (rpg == null || rpg.getItem().equals(item.getType())) return item;
+        if (rpg == null) return item;
         ItemStack copy = item.clone();
-        copy.setType(rpg.getItem());
+        if (rpg.getFakeItem().isAir()) {
+            if (!materialToCheck.contains(item.getType())) return item;
+            if (rpg.getItem().equals(item.getType())) return item;
+            copy.setType(rpg.getItem());
+        } else {
+            if (rpg.getFakeItem().equals(item.getType())) return item;
+            copy.setType(rpg.getFakeItem());
+        }
+        if (copy.getItemMeta() instanceof LeatherArmorMeta meta) {
+            meta.setColor(Color.fromRGB(rpg.getDataValue()));
+        }
         return copy;
     }
 }

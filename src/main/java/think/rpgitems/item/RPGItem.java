@@ -119,6 +119,7 @@ public class RPGItem {
 
     @Getter @Setter private NamespacedKey namespacedKey;
     @Getter @Setter private Material item;
+    @Getter @Setter private Material fakeItem = AIR;
     @Getter @Setter private int dataValue;
     private int id;
     @Getter private int uid;
@@ -380,6 +381,8 @@ public class RPGItem {
         setAttributeMode(AttributeMode.valueOf(s.getString("attributemode", "PARTIAL_UPDATE")));
         String materialName = s.getString("item");
         setItem(MaterialUtils.getMaterial(materialName, Bukkit.getConsoleSender()));
+        String materialNameFake = s.getString("item-fake", "AIR");
+        setFakeItem(MaterialUtils.getMaterial(materialNameFake, Bukkit.getConsoleSender()));
         ItemMeta itemMeta = Bukkit.getItemFactory().getItemMeta(getItem());
         if (itemMeta instanceof LeatherArmorMeta) {
             setDataValue(s.getInt("item_colour"));

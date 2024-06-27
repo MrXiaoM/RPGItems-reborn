@@ -779,6 +779,48 @@ public class AdminCommands extends RPGCommandReceiver {
         }
     }
 
+    @SubCommand(value = "fakeitem", tabCompleter = "itemCompleter")
+    public void fakeItemItem(CommandSender sender, Arguments args) {
+        if (readOnly(sender)) return;
+        RPGItem item = getItem(args.nextString(), sender);
+        if (args.length() == 2) {
+            new Message("")
+                    .append(I18n.getInstance(sender).format("message.fakeitem.get", item.getName(), item.getFakeItem().name(), item.getDataValue()), new ItemStack(item.getFakeItem()))
+                    .send(sender);
+        } else if (args.length() >= 3) {
+            String materialName = args.nextString();
+            Material material = MaterialUtils.getMaterial(materialName, sender);
+            if (material == null || !material.isItem()) {
+                msgs(sender, "message.error.material", materialName);
+                return;
+            }
+            item.setFakeItem(material);
+            if (args.length() == 4) {
+                int dataValue;
+                try {
+                    dataValue = Integer.parseInt(args.top());
+                } catch (Exception e) {
+                    String hexColour = "";
+                    try {
+                        hexColour = args.nextString();
+                        dataValue = Integer.parseInt(hexColour, 16);
+                    } catch (NumberFormatException e2) {
+                        sender.sendMessage(ChatColor.RED + "Failed to parse " + hexColour);
+                        return;
+                    }
+                }
+                item.setDataValue(dataValue);
+            }
+            item.rebuild();
+            ItemManager.refreshItem();
+
+            new Message("")
+                    .append(I18n.getInstance(sender).format("message.fakeitem.set", item.getName(), item.getFakeItem().name(), item.getDataValue()), new ItemStack(item.getFakeItem()))
+                    .send(sender);
+            ItemManager.save(item);
+        }
+    }
+
     @SubCommand(value = "itemHand", tabCompleter = "rpgItemCompleter")
     public void itemHand(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;

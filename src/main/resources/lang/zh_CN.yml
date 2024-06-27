@@ -210,6 +210,9 @@ message:
     move:
       set:
         value: 物品 '%s' 相对移动速度设置为 %d
+  item-fake:
+    set: '物品 ''%s'' 的伪装材质已设置为 {itemName} (%s): %d '
+    get: '物品 ''%s'' 的伪装材质为 {itemName} (%s): %d '
   item:
     set: '物品 ''%s'' 材质已设置为 {itemName} (%s): %d '
     set-inHand: '物品 ''%s'' 材质已设置为 {itemName} (%s), CustomModelData: %d '
@@ -1242,6 +1245,10 @@ manual:
     description: "设置物品的材质和其他参数\n可选参数\n  [物品id] - 设置物品为特定材质\n  [物品id] hex [16进制颜色]\
       \ - 设置物品的材质并设置颜色。\n  [物品id] [子id(1.12及以下)] - 设置物品的材质和伤害值/损耗值。"
     usage: '&f/rpgitem item &a{神器} [选项|值]'
+  fakeitem:
+    description: "设置物品的伪装材质和其他参数\n可选参数\n  [物品id] - 设置物品伪装为特定材质(设为 AIR 取消伪装)\n  [物品id] hex [16进制颜色]\
+      \ - 设置物品的伪装材质并设置颜色。\n  [物品id] [子id(1.12及以下)] - 设置物品的伪装材质和伤害值/损耗值。"
+    usage: '&f/rpgitem fakeitem &a{神器} [选项|值]'
   itemHand:
     description: "设置物品的材质为主手物品"
     usage: '&f/rpgitem itemHand &a{神器}'

@@ -58,6 +58,11 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
     private static int serial;
     @lombok.Getter
     private static String serverMCVersion;
+    private static boolean hasProtocolLib;
+
+    public static boolean protocolLibAvailable() {
+        return hasProtocolLib;
+    }
 
     public static Logger logger;
     public static RPGItems plugin;
@@ -255,7 +260,8 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(new MythicSupport(), this);
         }
-        if (getServer().getPluginManager().isPluginEnabled("ProtocolLib")) {
+        hasProtocolLib = getServer().getPluginManager().isPluginEnabled("ProtocolLib");
+        if (hasProtocolLib) {
             new ProtocolListener(this);
         }
         ServerLoadListener serverLoadListener = new ServerLoadListener();

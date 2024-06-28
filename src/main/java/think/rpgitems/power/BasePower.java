@@ -57,6 +57,14 @@ public abstract class BasePower extends BasePropertyHolder implements Serializab
         this.powerId = powerId;
     }
 
+    public int getCostMagic() {
+        return costMagic;
+    }
+
+    public void setCostMagic(int costMagic) {
+        this.costMagic = costMagic;
+    }
+
     public Set<String> getPowerTags() {
         return powerTags;
     }

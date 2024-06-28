@@ -6,7 +6,7 @@ The NyaaCat RPGItems-reloaded plugin continued from [NyaaCat/RPGItems-reloaded](
 
 Active developing from [SweetRiceMC](https://www.pds.ink) developers team.
 
-Take it easy. **NO ANY** dependency plugin is needed this time.
+Take it easy. **NO ANY** hard-dependency plugin is needed this time. Install just one plugin is OK! And one plugin file supports multi Minecraft versions from `1.17` to `1.20.4`!
 
 Recently, I targeted to make RPGItems more powerful and easy to use.  
 Original plugin is not only hard to learn and understand how to use, but also there are very few choices of powers, conditions and triggers.  
@@ -65,6 +65,8 @@ New version is currently testing. The version will be `4.0.0` when we release it
 * Multi Minecraft version in just ONE jar! Not specific `1.XX.X-3.12.X` anymore.
 * Hot load support (experimental function with `PlugManX`)
 * Allow using a hoe item to farm a land (Add `noPlace` into comment to disallow).
+* (ProtocolLib needed) Send fake item to client in order to balance with vanilla weapons/armors. (e.g. `NETHERITE_HELMET` actually in server but display fake `LEATHER_HELMET` in client)
+* Run power would cost per-player magic value but not per-item durability.
 
 ## Languages
 

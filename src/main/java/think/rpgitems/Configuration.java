@@ -1,5 +1,7 @@
 package think.rpgitems;
 
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import think.rpgitems.data.Factor;
 import think.rpgitems.data.FactorConfig;
 import think.rpgitems.utils.nyaacore.Pair;
@@ -122,6 +124,18 @@ public class Configuration extends PluginConfigure {
         qualityPrefixes.put("epic", "&3");
         qualityPrefixes.put("legendary", "&e");
     }
+
+    @Serializable(name = "item.magic.total")
+    public Map<String, Integer> magicProperties = new HashMap<>();
+    {
+        magicProperties.put("default", 50);
+    }
+
+    @Serializable(name = "item.magic.bossbar.color")
+    public BarColor magicColor = BarColor.GREEN;
+
+    @Serializable(name = "item.magic.bossbar.style")
+    public BarStyle magicStyle = BarStyle.SEGMENTED_10;
 
     @Serializable(name = "factor_config")
     public FactorConfig factorConfig = new FactorConfig();

@@ -37,3 +37,6 @@ permissions:
     default: false
   rpgitems.info:
     default: false
+
+  rpgitems.magic.default:
+    default: true

@@ -1,6 +1,5 @@
 package think.rpgitems.power;
 
-import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.Trigger;
 
 import java.io.Serializable;
@@ -17,6 +16,8 @@ public abstract class BasePower extends BasePropertyHolder implements Serializab
     @Property
     @AcceptedValue(preset = Preset.TRIGGERS)
     public Set<Trigger> triggers = Power.getDefaultTriggers(this.getClass());
+    @Property
+    public int costMagic = 0;
     @Property
     public Set<String> selectors = new HashSet<>();
     @Property

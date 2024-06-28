@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AtomicDouble;
 import lombok.Getter;
 import lombok.Setter;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -1281,15 +1282,26 @@ public class RPGItem {
             List<Condition<?>> conds = getConditions();
             Map<Condition<?>, PowerResult<?>> staticCond = checkStaticCondition(player, i, conds);
             Map<PropertyHolder, PowerResult<?>> resultMap = new LinkedHashMap<>(staticCond);
+            int magicFlag = 0;
             for (TPower power : powers) {
                 PowerResult<TResult> result = checkConditions(player, i, power, conds, resultMap);
                 if (result != null) {
                     resultMap.put(power.getPower(), result);
                 } else {
-                    if (power.getPower().requiredContext() != null) {
-                        result = handleContext(player, i, event, trigger, power);
-                    } else {
-                        result = trigger.run(power, player, i, event, context);
+                    boolean flag = true;
+                    if (power instanceof BasePower base) {
+                        if (!plugin.magic.costMagic(player, base.costMagic)) {
+                            result = PowerResult.cost();
+                            flag = false;
+                            magicFlag += base.costMagic;
+                        }
+                    }
+                    if (flag) {
+                        if (power.getPower().requiredContext() != null) {
+                            result = handleContext(player, i, event, trigger, power);
+                        } else {
+                            result = trigger.run(power, player, i, event, context);
+                        }
                     }
                     resultMap.put(power.getPower(), result);
                 }
@@ -1297,6 +1309,11 @@ public class RPGItem {
                 if (result.isAbort()) break;
             }
             triggerPostFire(player, i, event, trigger, resultMap, ret);
+            if (magicFlag > 0) {
+                String message = I18n.getFormatted(player, "message.magic.not-enough", magicFlag);
+                if (player.hasPermission("rpgitems.actionbar.magic")) player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+                else player.sendMessage(message);
+            }
             return ret;
         } finally {
             Context.instance().cleanTemp(player.getUniqueId());

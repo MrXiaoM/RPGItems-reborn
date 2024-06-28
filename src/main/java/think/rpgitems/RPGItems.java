@@ -72,6 +72,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
     public GuiManager gui;
     private final NyaaCoreLoader nyaaCoreLoader = new NyaaCoreLoader(this);
     public final List<Runnable> disableHook = new ArrayList<>();
+    public final MagicValues magic = new MagicValues(this);
 
     @SuppressWarnings({"unchecked", "JavaReflectionInvocation"})
     private static <T> T getWrapper(final PowerPlain obj, final Class<T> implInterface, final String delegateMethod) {
@@ -253,6 +254,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         }
 
         gui = new GuiManager(this);
+        magic.onEnable();
 
         new AdminCommands(this).registerToBukkit(getCommand("rpgitem"));
         new UserCommands(this).registerToBukkit(getCommand("rpgitems"));

@@ -198,6 +198,9 @@ message:
         set: 物品 '%s' 的 Mythic 技能暴击伤害增加已设置为 %.2f
       multiple:
         set: 物品 '%s' 的 Mythic 技能暴击伤害增加倍率已设置为 %.2f%%
+  magic:
+    bar-title: '&3法力值&f: &b%d &f/ &b%d'
+    not-enough: '你没有足够的法力值释放技能 (需要 %d)'
   damage:
     set:
       value: 物品 '%s' 伤害设置为 %d
@@ -400,8 +403,9 @@ message:
       failed: Gist 上传失败
       code: Gist API 调用错误： %d
     not_supported: 不支持从 %s 导出
-  version: 'RPGItem v%s （1.16 分支，dfeac82）
-
+  version: 'RPGItems v%s （1.17-1.20.4 分支）
+    
+    版权所有 © 2024 SweetRice 开发组
 
     版权所有 © 2019 NyaaCat 开发组
 
@@ -409,7 +413,7 @@ message:
 
     以 MIT 授权
 
-    Bug反馈: https://github.com/NyaaCat/RPGItems-reloaded/issues'
+    Bug反馈: https://github.com/MrXiaoM/RPGItems-reborn/issues'
   no_item: 暂无物品。
   spu:
     no_endpoint: 未设置 SPU 服务器地址

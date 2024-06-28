@@ -1289,11 +1289,11 @@ public class RPGItem {
                     resultMap.put(power.getPower(), result);
                 } else {
                     boolean flag = true;
-                    if (power instanceof BasePower base) {
-                        if (!plugin.magic.costMagic(player, base.costMagic)) {
+                    if (power.getPower() instanceof BasePower base) {
+                        if (!plugin.magic.costMagic(player, base.getCostMagic())) {
                             result = PowerResult.cost();
                             flag = false;
-                            magicFlag += base.costMagic;
+                            magicFlag += base.getCostMagic();
                         }
                     }
                     if (flag) {

@@ -172,6 +172,9 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand("factor")
     public FactorCommands factor;
 
+    @SubCommand("magic")
+    public MagicCommands magic;
+
     @SubCommand("marker")
     public MarkerCommands marker;
 

@@ -201,6 +201,10 @@ message:
   magic:
     bar-title: '&3法力值&f: &b%d &f/ &b%d'
     not-enough: '你没有足够的法力值释放技能 (需要 %d)'
+    add: 玩家 '%s' 的法力值已增加 %d
+    sub: 玩家 '%s' 的法力值已减少 %d
+    set: 玩家 '%s' 的法力值已设为 %d
+    get: 玩家 '%s' 的法力值为 %d/%d
   damage:
     set:
       value: 物品 '%s' 伤害设置为 %d
@@ -1213,6 +1217,15 @@ manual:
       rate - 设置抗暴几率
       armorRate - 设置装备时增加的抗暴几率，可负数'
       usage: '&f/rpgitem critical back &a{神器} &a<&frate&a/&farmorRate&a> <值>'
+  magic:
+    description: '展示/设置玩家的法力值
+    可用的参数：
+    
+    add - 为玩家增加法力值
+    sub - 为玩家减少法力值
+    set - 为玩家设置法力值
+    get - 获取玩家法力值'
+    usage: '&f/rpgitem magic &a<选项> {玩家} <数值>'
   mythic:
     description: '展示/设置物品的 Mythic 支持选项
     可用的参数：

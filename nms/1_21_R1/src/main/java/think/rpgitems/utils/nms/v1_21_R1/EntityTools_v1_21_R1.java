@@ -1,17 +1,17 @@
-package think.rpgitems.utils.nms.v1_20_R4;
+package think.rpgitems.utils.nms.v1_21_R1;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.advancements.critereon.CriterionConditionNBT;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.level.EntityPlayer;
-import org.bukkit.craftbukkit.v1_20_R4.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import think.rpgitems.utils.nms.IEntityTools;
 
 import java.util.UUID;
 
-public class EntityTools_v1_20_R4 implements IEntityTools {
+public class EntityTools_v1_21_R1 implements IEntityTools {
     @Override
     public void setEntityTag(Entity e, String tag) {
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) e).getHandle();

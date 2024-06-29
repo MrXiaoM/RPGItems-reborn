@@ -1,4 +1,4 @@
-package think.rpgitems.utils.nms.v1_20_R4;
+package think.rpgitems.utils.nms.v1_21_R1;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -6,7 +6,7 @@ import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import net.minecraft.nbt.NBTReadLimiter;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.utils.nms.IStackTools;
 
@@ -19,7 +19,7 @@ import java.util.zip.DeflaterInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
-public class StackTools_v1_20_R4 implements IStackTools {
+public class StackTools_v1_21_R1 implements IStackTools {
 
     private static final String NYAACORE_ITEMSTACK_DATAVERSION_KEY = "nyaacore_itemstack_dataversion";
     private static final int NYAACORE_ITEMSTACK_DEFAULT_DATAVERSION = 1139;

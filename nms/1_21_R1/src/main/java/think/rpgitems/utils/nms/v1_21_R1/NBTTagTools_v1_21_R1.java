@@ -1,17 +1,17 @@
-package think.rpgitems.utils.nms.v1_20_R4;
+package think.rpgitems.utils.nms.v1_21_R1;
 
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.item.component.CustomData;
-import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.utils.nms.INBTTagTools;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
 
-public class NBTTagTools_v1_20_R4 implements INBTTagTools {
+public class NBTTagTools_v1_21_R1 implements INBTTagTools {
 
     @Override
     public Optional<String> getString(ItemStack item, String key) {

@@ -86,11 +86,11 @@ public class NMS {
         if (versionString == null) {
             String name = Bukkit.getServer().getClass().getPackage().getName();
             String v = name.substring(name.lastIndexOf('.') + 1);
+            String bukkitVersion = Bukkit.getBukkitVersion();
             if (v.startsWith("v1_")) {
                 versionString = v;
-            } else if (v.contains("-")) {
-                String bukkitVersion = Bukkit.getBukkitVersion();
-                String ver = bukkitVersion.substring(0, bukkitVersion.indexOf("-"));
+            } else if (bukkitVersion.contains("-")) {
+                String ver = bukkitVersion.substring(0, bukkitVersion.indexOf('-'));
                 versionString = switch (ver) {
                     case "1.20.5", "1.20.6" -> "v1_20_R4";
                     default -> "v" + ver.replaceFirst("\\.", "_").replace(".", "_R");

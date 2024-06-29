@@ -1,17 +1,11 @@
 package think.rpgitems.utils.nyaacore;
 
-import think.rpgitems.utils.nyaacore.configuration.NbtItemStack;
-import think.rpgitems.utils.nyaacore.utils.OfflinePlayerUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
+import think.rpgitems.utils.nyaacore.utils.OfflinePlayerUtils;
 
 public class NyaaCoreLoader {
     private static NyaaCoreLoader instance;
-
-    static {
-        ConfigurationSerialization.registerClass(NbtItemStack.class);
-    }
     private static JavaPlugin plugin;
     private boolean isTest = false;
 

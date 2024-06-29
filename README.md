@@ -8,6 +8,8 @@ Active developing from [SweetRiceMC](https://www.pds.ink) developers team.
 
 Take it easy. **NO ANY** hard-dependency plugin is needed this time. Install just one plugin is OK! And one plugin file supports multi Minecraft versions from `1.17` to `1.20.4`!
 
+At least Java 17 is needed.
+
 Recently, I targeted to make RPGItems more powerful and easy to use.  
 Original plugin is not only hard to learn and understand how to use, but also there are very few choices of powers, conditions and triggers.  
 That's the problem I want to solve.
@@ -45,6 +47,7 @@ New version is currently testing. The version will be `4.0.0` when we release it
 | `1.20.2`          | `v1_20_R2`  |
 | `1.20.4`          | `v1_20_R3`  |
 | `1.20.6` (WIP)    | `v1_20_R4`  |
+| `1.21` (WIP)      | `v1_21_R1`  |
 
 
 ## What's new 
@@ -65,7 +68,8 @@ New version is currently testing. The version will be `4.0.0` when we release it
 * Multi Minecraft version in just ONE jar! Not specific `1.XX.X-3.12.X` anymore.
 * Hot load support (experimental function with `PlugManX`)
 * Allow using a hoe item to farm a land (Add `noPlace` into comment to disallow).
-* (ProtocolLib needed) Send fake item to client in order to balance with vanilla weapons/armors. (e.g. `NETHERITE_HELMET` actually in server but display fake `LEATHER_HELMET` in client)
+* (ProtocolLib needed) Send fake item to client in order to balance with vanilla weapons/armors.  
+  (e.g. `NETHERITE_HELMET` actually in server but display fake `LEATHER_HELMET` in client)
 * Run power would cost per-player magic value but not per-item durability.
 
 ## Languages
@@ -78,3 +82,10 @@ And also, PRs welcome.
 ## Accessible
 
 We **will** publish the functional update and bug fixing. We **WON'T** publish the powers, triggers and conditions we made. They are packaged into an extension in our server.
+
+## Developer
+
+Build the plugin with `Java 21` via `shadowJar` task.
+```shell
+./gradlew shadowJar
+```

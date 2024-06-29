@@ -20,4 +20,5 @@ listOf(
 
 if (JavaVersion.current().majorVersion.toDouble() >= 21) {
     include(":nms:1_20_R4")
+    include(":nms:1_21_R1")
 }

@@ -260,7 +260,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         new UserCommands(this).registerToBukkit(getCommand("rpgitems"));
 
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
-            getServer().getPluginManager().registerEvents(new MythicSupport(), this);
+            MythicSupport.registerEvents(this);
         }
         hasProtocolLib = getServer().getPluginManager().isPluginEnabled("ProtocolLib");
         if (hasProtocolLib) {

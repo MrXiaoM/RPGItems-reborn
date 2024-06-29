@@ -2,6 +2,7 @@ package think.rpgitems;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
+import de.tr7zw.changeme.nbtapi.NBT;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -89,6 +90,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
     public void onLoad() {
         plugin = this;
         NMS.init(logger = this.getLogger());
+        NBT.preloadApi();
         nyaaCoreLoader.onLoad();
 
         String versionDesc = getDescription().getVersion();

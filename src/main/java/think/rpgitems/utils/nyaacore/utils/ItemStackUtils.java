@@ -1,8 +1,8 @@
 package think.rpgitems.utils.nyaacore.utils;
 
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import org.bukkit.inventory.ItemStack;
-
-import static think.rpgitems.utils.nms.NMS.stackTools;
 
 public final class ItemStackUtils {
     /**
@@ -11,6 +11,7 @@ public final class ItemStackUtils {
      * NOTE: this method has no corresponding deserializer.
      */
     public static String itemToJson(ItemStack itemStack) throws RuntimeException {
-        return stackTools().itemToJson(itemStack);
+        ReadWriteNBT nbt = NBT.itemStackToNBT(itemStack);
+        return nbt.toString();
     }
 }

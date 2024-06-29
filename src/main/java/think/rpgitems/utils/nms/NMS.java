@@ -3,7 +3,6 @@ package think.rpgitems.utils.nms;
 import org.bukkit.Bukkit;
 import think.rpgitems.utils.nms.legacy.LegacyEntityTools;
 import think.rpgitems.utils.nms.legacy.LegacyNBTTagTools;
-import think.rpgitems.utils.nms.legacy.LegacyStackTools;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -11,7 +10,6 @@ import java.util.logging.Logger;
 
 public class NMS {
     Logger logger;
-    IStackTools stackTools;
     IEntityTools entityTools;
     INBTTagTools nbtTools;
     private static String versionString;
@@ -34,7 +32,6 @@ public class NMS {
             } else {
                 logger.warning("Your server version " + v + " is not supported!");
                 logger.warning("Now you are running in Legacy Mode. Some functions may not work.");
-                stackTools = new LegacyStackTools();
                 entityTools = new LegacyEntityTools();
                 nbtTools = new LegacyNBTTagTools(); // TODO: 找个库来处理 nbt
             }
@@ -51,20 +48,14 @@ public class NMS {
     public boolean load(String nms) throws ReflectiveOperationException {
         try {
             String root = "think.rpgitems.utils.nms." + nms + ".";
-            Class<?> classStackTools = Class.forName(root + "StackTools_" + nms);
             Class<?> classEntityTools = Class.forName(root + "EntityTools_" + nms);
             Class<?> classNBTTagTools = Class.forName(root + "NBTTagTools_" + nms);
-            stackTools = (IStackTools) classStackTools.getConstructor().newInstance();
             entityTools = (IEntityTools) classEntityTools.getConstructor().newInstance();
             nbtTools = (INBTTagTools) classNBTTagTools.getConstructor().newInstance();
             return true;
         } catch (ReflectiveOperationException ignored) {
             return false;
         }
-    }
-
-    public static IStackTools stackTools() {
-        return inst.stackTools;
     }
 
     public static IEntityTools entityTools() {

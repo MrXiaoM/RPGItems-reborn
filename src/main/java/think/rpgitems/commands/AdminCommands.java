@@ -5,10 +5,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.udojava.evalex.Expression;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.ItemsAdder;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -200,7 +197,21 @@ public class AdminCommands extends RPGCommandReceiver {
     public void debug(CommandSender sender, Arguments args) {
         Player player = asPlayer(sender);
         ItemStack item = player.getInventory().getItemInMainHand();
-        player.sendMessage(ItemStackUtils.itemToJson(item).replace(ChatColor.COLOR_CHAR, '&'));
+        String json = ItemStackUtils.itemToJson(item);
+        player.sendMessage(json.replace(ChatColor.COLOR_CHAR, '&'));
+        String translationKey = item.getType().getItemTranslationKey();
+        if (translationKey == null) {
+            translationKey = item.getType().getBlockTranslationKey();
+        }
+        if (translationKey == null) {
+            translationKey = "multiplayer.status.unknown";
+        }
+        TranslatableComponent component = new TranslatableComponent(translationKey);
+        component.setHoverEvent(new HoverEvent(
+                HoverEvent.Action.SHOW_ITEM,
+                new BaseComponent[] { new TextComponent(json) }
+        ));
+        player.spigot().sendMessage(component);
         if (item.getType() == Material.AIR) {
             player.sendMessage("empty");
             return;

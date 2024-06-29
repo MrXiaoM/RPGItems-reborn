@@ -91,6 +91,9 @@ dependencies {
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") { isTransitive = false }
 
+    implementation("de.tr7zw:item-nbt-api:2.13.1")
+    shadow("de.tr7zw:item-nbt-api:2.13.1")
+
     for (proj in rootProject.project(":nms").subprojects) {
         implementation(proj)
         shadow(proj)
@@ -122,6 +125,8 @@ tasks {
     }
     shadowJar {
         configurations = listOf(project.configurations.shadow.get())
+        val p = "think.rpgitems.utils"
+        relocate("de.tr7zw.changeme.nbtapi", "$p.nbtapi")
     }
     build {
         dependsOn(shadowJar)

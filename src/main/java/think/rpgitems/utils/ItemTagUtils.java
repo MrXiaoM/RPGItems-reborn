@@ -1,9 +1,10 @@
 package think.rpgitems.utils;
 
-import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import com.google.common.base.FinalizablePhantomReference;
 import com.google.common.base.FinalizableReferenceQueue;
 import com.google.common.collect.Sets;
+import com.google.common.io.BaseEncoding;
+import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
@@ -12,11 +13,15 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
 import think.rpgitems.RPGItems;
 import think.rpgitems.power.PowerManager;
 import think.rpgitems.power.Utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
@@ -25,6 +30,10 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterInputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 public final class ItemTagUtils {
 
@@ -301,24 +310,66 @@ public final class ItemTagUtils {
     }
 
     public static class ItemStackPersistentDataType implements PersistentDataType<String, ItemStack> {
+        private static final ThreadLocal<Inflater> NYAA_INFLATER = ThreadLocal.withInitial(Inflater::new);
+        private static final ThreadLocal<Deflater> NYAA_DEFLATER = ThreadLocal.withInitial(Deflater::new);
+
         @Override
-        public Class<String> getPrimitiveType() {
+        public @NotNull Class<String> getPrimitiveType() {
             return String.class;
         }
 
         @Override
-        public Class<ItemStack> getComplexType() {
+        public @NotNull Class<ItemStack> getComplexType() {
             return ItemStack.class;
         }
 
-        @Override
-        public String toPrimitive(ItemStack complex, PersistentDataAdapterContext context) {
-            return ItemStackUtils.itemToBase64(complex);
+        private static byte[] compress(byte[] data) {
+            byte[] ret;
+            Deflater deflater = NYAA_DEFLATER.get();
+            deflater.reset();
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
+                 ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                ByteStreams.copy(new DeflaterInputStream(bis, deflater), bos);
+                ret = bos.toByteArray();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            return ret;
+        }
+
+        private static byte[] decompress(byte[] data) {
+            byte[] ret;
+            Inflater inflater = NYAA_INFLATER.get();
+            inflater.reset();
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
+                 ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                ByteStreams.copy(new InflaterInputStream(bis, inflater), bos);
+                ret = bos.toByteArray();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            return ret;
         }
 
         @Override
-        public ItemStack fromPrimitive(String primitive, PersistentDataAdapterContext context) {
-            return ItemStackUtils.itemFromBase64(primitive);
+        public @NotNull String toPrimitive(@NotNull ItemStack complex, @NotNull PersistentDataAdapterContext context) {
+            try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+                BukkitObjectOutputStream bukkit = new BukkitObjectOutputStream(out)) {
+                bukkit.writeObject(complex);
+                return BaseEncoding.base64().encode(compress(out.toByteArray()));
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public @NotNull ItemStack fromPrimitive(@NotNull String primitive, @NotNull PersistentDataAdapterContext context) {
+            try (ByteArrayInputStream in = new ByteArrayInputStream(decompress(BaseEncoding.base64().decode(primitive)));
+                 BukkitObjectInputStream bukkit = new BukkitObjectInputStream(in)) {
+                return (ItemStack) bukkit.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 

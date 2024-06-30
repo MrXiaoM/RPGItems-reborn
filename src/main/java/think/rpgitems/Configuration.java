@@ -100,7 +100,7 @@ public class Configuration extends PluginConfigure {
     public String defaultAuthor;
 
     @Serializable(name = "general.item.fs_lock")
-    public boolean itemFsLock = true;
+    public boolean itemFsLock = false;
 
     @Serializable(name = "general.item.show_loaded")
     public boolean itemShowLoaded = false;

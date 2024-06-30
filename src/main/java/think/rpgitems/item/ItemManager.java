@@ -709,6 +709,7 @@ public class ItemManager {
         itemByName.remove(item.getName());
         itemById.remove(item.getUid());
         if (delete) {
+            if (plugin.cfg.readonly) return;
             try {
                 File backup = unlockAndBackup(item, true);
                 Files.delete(item.getFile().toPath());
@@ -723,6 +724,7 @@ public class ItemManager {
         groupByName.remove(group.getName());
         groupById.remove(group.getUid());
         if (delete) {
+            if (plugin.cfg.readonly) return;
             try {
                 File itemFile = group.getFile();
                 File backup = new File(getBackupsDir(), itemFile.getName().replaceAll("\\.yml$", "") + "." + System.currentTimeMillis() + ".bak");

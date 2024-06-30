@@ -16,6 +16,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import think.rpgitems.RPGItems;
 import think.rpgitems.power.PowerManager;
 import think.rpgitems.power.Utils;
@@ -35,6 +36,7 @@ import java.util.zip.DeflaterInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+@SuppressWarnings({"unused"})
 public final class ItemTagUtils {
 
     public static final PersistentDataType<byte[], UUID> BA_UUID = new UUIDPersistentDataType();
@@ -98,8 +100,10 @@ public final class ItemTagUtils {
     }
 
     public static OptionalInt optInt(PersistentDataContainer container, NamespacedKey key) {
-        if (!container.has(key, PersistentDataType.INTEGER)) return OptionalInt.empty();
-        return OptionalInt.of(container.get(key, PersistentDataType.INTEGER));
+        Integer i = container.has(key, PersistentDataType.INTEGER)
+                ? container.get(key, PersistentDataType.INTEGER)
+                : null;
+        return i != null ? OptionalInt.of(i) : OptionalInt.empty();
     }
 
     public static Long getLong(PersistentDataContainer container, NamespacedKey key) {
@@ -240,44 +244,44 @@ public final class ItemTagUtils {
 
     public static class UUIDPersistentDataType implements PersistentDataType<byte[], UUID> {
         @Override
-        public Class<byte[]> getPrimitiveType() {
+        public @NotNull Class<byte[]> getPrimitiveType() {
             return byte[].class;
         }
 
         @Override
-        public Class<UUID> getComplexType() {
+        public @NotNull Class<UUID> getComplexType() {
             return UUID.class;
         }
 
         @Override
-        public byte[] toPrimitive(UUID complex, PersistentDataAdapterContext context) {
+        public byte @NotNull [] toPrimitive(@NotNull UUID complex, @NotNull PersistentDataAdapterContext context) {
             return Utils.decodeUUID(complex);
         }
 
         @Override
-        public UUID fromPrimitive(byte[] primitive, PersistentDataAdapterContext context) {
+        public @NotNull UUID fromPrimitive(byte @NotNull [] primitive, @NotNull PersistentDataAdapterContext context) {
             return Utils.encodeUUID(primitive);
         }
     }
 
     public static class BooleanPersistentDataType implements PersistentDataType<Byte, Boolean> {
         @Override
-        public Class<Byte> getPrimitiveType() {
+        public @NotNull Class<Byte> getPrimitiveType() {
             return Byte.class;
         }
 
         @Override
-        public Class<Boolean> getComplexType() {
+        public @NotNull Class<Boolean> getComplexType() {
             return Boolean.class;
         }
 
         @Override
-        public Byte toPrimitive(Boolean complex, PersistentDataAdapterContext context) {
+        public @NotNull Byte toPrimitive(@Nullable Boolean complex, @NotNull PersistentDataAdapterContext context) {
             return (byte) (complex == null ? 0b10101010 : complex ? 0b00000001 : 0b00000000);
         }
 
         @Override
-        public Boolean fromPrimitive(Byte primitive, PersistentDataAdapterContext context) {
+        public @Nullable Boolean fromPrimitive(Byte primitive, @NotNull PersistentDataAdapterContext context) {
             return switch (primitive) {
                 case (byte) 0b10101010 -> null;
                 case (byte) 0b00000001 -> true;
@@ -289,22 +293,22 @@ public final class ItemTagUtils {
 
     public static class OfflinePlayerPersistentDataType implements PersistentDataType<byte[], OfflinePlayer> {
         @Override
-        public Class<byte[]> getPrimitiveType() {
+        public @NotNull Class<byte[]> getPrimitiveType() {
             return byte[].class;
         }
 
         @Override
-        public Class<OfflinePlayer> getComplexType() {
+        public @NotNull Class<OfflinePlayer> getComplexType() {
             return OfflinePlayer.class;
         }
 
         @Override
-        public byte[] toPrimitive(OfflinePlayer complex, PersistentDataAdapterContext context) {
+        public byte @NotNull [] toPrimitive(OfflinePlayer complex, @NotNull PersistentDataAdapterContext context) {
             return Utils.decodeUUID(complex.getUniqueId());
         }
 
         @Override
-        public OfflinePlayer fromPrimitive(byte[] primitive, PersistentDataAdapterContext context) {
+        public @NotNull OfflinePlayer fromPrimitive(byte @NotNull [] primitive, @NotNull PersistentDataAdapterContext context) {
             return Bukkit.getOfflinePlayer(Utils.encodeUUID(primitive));
         }
     }
@@ -374,12 +378,12 @@ public final class ItemTagUtils {
     }
 
     public static class SubItemTagContainer implements PersistentDataContainer {
-        private PersistentDataContainer parent;
+        private final PersistentDataContainer parent;
         private PersistentDataContainer self;
-        private NamespacedKey key;
+        private final NamespacedKey key;
         private PhantomReference<SubItemTagContainer> reference;
 
-        private static FinalizableReferenceQueue frq = new FinalizableReferenceQueue();
+        private static final FinalizableReferenceQueue frq = new FinalizableReferenceQueue();
         private static final Set<Reference<?>> references = Sets.newConcurrentHashSet();
 
         private SubItemTagContainer(PersistentDataContainer parent, NamespacedKey key, PersistentDataContainer self) {
@@ -389,33 +393,33 @@ public final class ItemTagUtils {
         }
 
         @Override
-        public <T, Z> void set(NamespacedKey namespacedKey, PersistentDataType<T, Z> persistentDataType, Z z) {
+        public <T, Z> void set(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<T, Z> persistentDataType, @NotNull Z z) {
             self.set(namespacedKey, persistentDataType, z);
         }
 
         @Override
-        public <T, Z> boolean has(NamespacedKey namespacedKey, PersistentDataType<T, Z> persistentDataType) {
+        public <T, Z> boolean has(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<T, Z> persistentDataType) {
             return self.has(namespacedKey, persistentDataType);
         }
 
         @Override
-        public <T, Z> Z get(NamespacedKey namespacedKey, PersistentDataType<T, Z> persistentDataType) {
+        public <T, Z> Z get(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<T, Z> persistentDataType) {
             return self.get(namespacedKey, persistentDataType);
         }
 
         @Override
-        public <T, Z> Z getOrDefault(NamespacedKey key, PersistentDataType<T, Z> type, Z defaultValue) {
+        public <T, Z> @NotNull Z getOrDefault(@NotNull NamespacedKey key, @NotNull PersistentDataType<T, Z> type, @NotNull Z defaultValue) {
             return self.getOrDefault(key, type, defaultValue);
         }
 
         @Override
-        public Set<NamespacedKey> getKeys() {
+        public @NotNull Set<NamespacedKey> getKeys() {
             //todo check this
             return Collections.singleton(key);
         }
 
         @Override
-        public void remove(NamespacedKey namespacedKey) {
+        public void remove(@NotNull NamespacedKey namespacedKey) {
             self.remove(namespacedKey);
         }
 
@@ -425,7 +429,7 @@ public final class ItemTagUtils {
         }
 
         @Override
-        public PersistentDataAdapterContext getAdapterContext() {
+        public @NotNull PersistentDataAdapterContext getAdapterContext() {
             return self.getAdapterContext();
         }
 
@@ -455,8 +459,7 @@ public final class ItemTagUtils {
         public void dispose() {
             self = null;
             if (!SubItemTagContainer.references.remove(reference)) {
-                RPGItems.logger.log(Level.SEVERE, "Double handled SubItemTagContainer found: " + this + ": " + key + "@" + parent);
-                new Exception().printStackTrace();
+                RPGItems.logger.log(Level.SEVERE, "Double handled SubItemTagContainer found: " + this + ": " + key + "@" + parent, new Exception());
             }
         }
 

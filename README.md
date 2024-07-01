@@ -1,6 +1,6 @@
 # RPGItems-reborn
 
-[![Paper 1.17.1-1.20.4](https://img.shields.io/badge/Paper-1.17.1--1.20.4-blue)](https://img.shields.io/badge/Paper-1.17.1--1.20.4-blue)
+[![Paper 1.17-1.21](https://img.shields.io/badge/Paper-1.17--1.21-blue)](https://img.shields.io/badge/Paper-1.17--1.21-blue)
 
 The NyaaCat RPGItems-reloaded plugin continued from [NyaaCat/RPGItems-reloaded](https://github.com/NyaaCat/RPGItems-reloaded).
 
@@ -37,17 +37,19 @@ New version is currently testing. The version will be `4.0.0` when we release it
 
 ## Support Versions
 
-| Minecraft Version | NMS Version |
-|-------------------|-------------|
-| `1.17`, `1.17.1`  | `v1_17_R1`  |
-| `1.18`, `1.18.1`  | `v1_18_R1`  |
-| `1.18.2`          | `v1_18_R2`  |
-| `1.19.4`          | `v1_19_R3`  |
-| `1.20`, `1.20.1`  | `v1_20_R1`  |
-| `1.20.2`          | `v1_20_R2`  |
-| `1.20.4`          | `v1_20_R3`  |
-| `1.20.6` (WIP)    | `v1_20_R4`  |
-| `1.21` (WIP)      | `v1_21_R1`  |
+| Minecraft Version          | NMS Version |
+|----------------------------|-------------|
+| `1.17`, `1.17.1`           | `v1_17_R1`  |
+| `1.18`, `1.18.1`           | `v1_18_R1`  |
+| `1.18.2`                   | `v1_18_R2`  |
+| `1.19`, `1.19.1`, `1.19.2` | `v1_19_R1`  |
+| `1.19.3`                   | `v1_19_R2`  |
+| `1.19.4`                   | `v1_19_R3`  |
+| `1.20`, `1.20.1`           | `v1_20_R1`  |
+| `1.20.2`                   | `v1_20_R2`  |
+| `1.20.4`                   | `v1_20_R3`  |
+| `1.20.6`                   | `v1_20_R4`  |
+| `1.21`                     | `v1_21_R1`  |
 
 
 ## What's new 

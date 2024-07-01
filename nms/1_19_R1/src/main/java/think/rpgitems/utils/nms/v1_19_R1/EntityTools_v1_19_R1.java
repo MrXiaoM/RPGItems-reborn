@@ -7,10 +7,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
+import think.rpgitems.utils.nms.IEntityTools;
 
 import java.util.UUID;
-
-import think.rpgitems.utils.nms.IEntityTools;
 
 public class EntityTools_v1_19_R1 implements IEntityTools {
     @Override
@@ -28,7 +27,7 @@ public class EntityTools_v1_19_R1 implements IEntityTools {
                 throw new IllegalArgumentException("Invalid NBTTag string");
             }
             NBTTagCompound nmsOrigNBT = CriterionConditionNBT.b(nmsEntity); // entity to nbt
-            NBTTagCompound nmsClonedNBT = nmsOrigNBT.h(); // clone
+            NBTTagCompound nmsClonedNBT = nmsOrigNBT.g(); // clone
             nmsClonedNBT.a(nbtToBeMerged); // merge NBT
             if (!nmsClonedNBT.equals(nmsOrigNBT)) {
                 UUID uuid = nmsEntity.cp(); // store UUID

@@ -231,10 +231,17 @@ public class Scoreboard extends BasePower {
                 Score sc = objective.getScore(player.getName());
                 int ori = sc.getScore();
                 switch (getScoreOperation()) {
-                    case ADD_SCORE -> sc.setScore(ori + getValue());
-                    case SET_SCORE -> sc.setScore(getValue());
-                    case RESET_SCORE -> sc.setScore(0);
-                    default -> {
+                    case ADD_SCORE: {
+                        sc.setScore(ori + getValue());
+                        break;
+                    }
+                    case SET_SCORE: {
+                        sc.setScore(getValue());
+                        break;
+                    }
+                    case RESET_SCORE: {
+                        sc.setScore(0);
+                        break;
                     }
                 }
             }

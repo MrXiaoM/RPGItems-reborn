@@ -6,9 +6,9 @@ plugins {
     java
     `maven-publish`
     signing
-    id ("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    id ("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id ("com.github.johnrengelman.shadow") version "8.1.1"
-    id ("org.ajoberstar.grgit") version "3.0.0"
+    id ("org.ajoberstar.grgit") version "5.0.0"
 }
 
 var majorVersion = "3"
@@ -54,13 +54,14 @@ allprojects {
 
     tasks.withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
+        options.compilerArgs.add("-Xlint:-options")
+        sourceCompatibility = "11"
+        targetCompatibility = "11"
     }
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
+    compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
 
     compileOnly("io.netty:netty-all:4.1.25.Final") // netty is shadowed inside spigot jar
 

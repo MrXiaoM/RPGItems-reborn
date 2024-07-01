@@ -20,7 +20,6 @@ public class Mythic5 implements IMythic {
     MythicBukkit mythic = MythicBukkit.inst();
 
     @Override
-    @SuppressWarnings({"deprecation"})
     public String getVersion() {
         return mythic.getDescription().getVersion();
     }
@@ -39,7 +38,8 @@ public class Mythic5 implements IMythic {
     @EventHandler
     public void onDamage(MythicDamageEvent e) {
         Entity entity = BukkitAdapter.adapt(e.getCaster().getEntity());
-        if (entity instanceof LivingEntity living) {
+        if (entity instanceof LivingEntity) {
+            LivingEntity living = (LivingEntity) entity;
             double damage = e.getDamage();
             for (RPGItem rpg : ItemManager.getEquipments(living).values()) {
                 damage = processDamage(rpg, damage);

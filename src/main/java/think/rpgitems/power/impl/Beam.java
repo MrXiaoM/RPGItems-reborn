@@ -1010,13 +1010,12 @@ public class Beam extends BasePower {
                         .collect(Collectors.toList())
                 , fromLocation.toVector(), homingAngle, direction).stream()
                 .filter(livingEntity -> {
-                    return switch (homingTarget) {
-                        case MOBS -> !(livingEntity instanceof Player);
-                        case PLAYERS ->
-                                livingEntity instanceof Player && !((Player) livingEntity).getGameMode().equals(GameMode.SPECTATOR);
-                        case ALL ->
-                                !(livingEntity instanceof Player) || !((Player) livingEntity).getGameMode().equals(GameMode.SPECTATOR);
-                    };
+                    switch (homingTarget) {
+                        case MOBS: return !(livingEntity instanceof Player);
+                        case PLAYERS: return livingEntity instanceof Player && !((Player) livingEntity).getGameMode().equals(GameMode.SPECTATOR);
+                        case ALL: return !(livingEntity instanceof Player) || !((Player) livingEntity).getGameMode().equals(GameMode.SPECTATOR);
+                        default: return false;
+                    }
                 }).collect(Collectors.toList());
     }
 

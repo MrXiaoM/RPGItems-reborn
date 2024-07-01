@@ -225,7 +225,7 @@ public final class ItemTagUtils {
     public static SubItemTagContainer makeTag(PersistentDataContainer container, NamespacedKey key) {
         SubItemTagContainer subItemTagContainer = new SubItemTagContainer(container, key, computeIfAbsent(container, key, PersistentDataType.TAG_CONTAINER, (k) -> container.getAdapterContext().newPersistentDataContainer()));
         WeakReference<PersistentDataContainer> weakParent = new WeakReference<>(container);
-        FinalizablePhantomReference<SubItemTagContainer> reference = new FinalizablePhantomReference<>(subItemTagContainer, SubItemTagContainer.frq) {
+        FinalizablePhantomReference<SubItemTagContainer> reference = new FinalizablePhantomReference<SubItemTagContainer>(subItemTagContainer, SubItemTagContainer.frq) {
             public void finalizeReferent() {
                 if (SubItemTagContainer.references.remove(this)) {
                     RPGItems.logger.severe("Unhandled SubItemTagContainer found: " + key + "@" + weakParent.get());
@@ -282,12 +282,12 @@ public final class ItemTagUtils {
 
         @Override
         public @Nullable Boolean fromPrimitive(Byte primitive, @NotNull PersistentDataAdapterContext context) {
-            return switch (primitive) {
-                case (byte) 0b10101010 -> null;
-                case (byte) 0b00000001 -> true;
-                case (byte) 0b00000000 -> false;
-                default -> throw new IllegalArgumentException();
-            };
+            switch (primitive) {
+                case (byte) 0b10101010: return null;
+                case (byte) 0b00000001: return true;
+                case (byte) 0b00000000: return false;
+                default: throw new IllegalArgumentException();
+            }
         }
     }
 
@@ -433,6 +433,8 @@ public final class ItemTagUtils {
             return self.getAdapterContext();
         }
 
+        /* // TODO 支持高版本的 PersistentDataContainer
+
         @Override
         public boolean has(@NotNull NamespacedKey key) {
             return self.has(key);
@@ -447,7 +449,7 @@ public final class ItemTagUtils {
         public void readFromBytes(byte @NotNull [] bytes, boolean clear) throws IOException {
             self.readFromBytes(bytes, clear);
         }
-
+*/
         public void commit() {
             ItemTagUtils.set(parent, key, self);
             if (parent instanceof SubItemTagContainer) {

@@ -31,7 +31,7 @@ public class ProtocolListener extends PacketAdapter {
     public ProtocolListener(RPGItems plugin) {
         super(plugin,
                 ListenerPriority.LOW,
-                List.of(
+                Lists.newArrayList(
                         PacketType.Play.Server.ENTITY_EQUIPMENT,
                         PacketType.Play.Server.ENTITY_METADATA,
                         PacketType.Play.Server.WINDOW_ITEMS,
@@ -84,7 +84,8 @@ public class ProtocolListener extends PacketAdapter {
         List<WrappedDataValue> list = modifier.read(0);
         for (int i = 0; i < list.size(); i++) {
             WrappedDataValue data = list.get(i);
-            if (data.getValue() instanceof ItemStack item) {
+            if (data.getValue() instanceof ItemStack) {
+                ItemStack item = (ItemStack) data.getValue();
                 ItemStack process = process(item);
                 if (!process.getType().equals(item.getType())) {
                     data.setValue(process);
@@ -127,7 +128,8 @@ public class ProtocolListener extends PacketAdapter {
             if (rpg.getFakeItem().equals(item.getType())) return item;
             copy.setType(rpg.getFakeItem());
         }
-        if (copy.getItemMeta() instanceof LeatherArmorMeta meta) {
+        if (copy.getItemMeta() instanceof LeatherArmorMeta) {
+            LeatherArmorMeta meta = (LeatherArmorMeta) copy.getItemMeta();
             meta.setColor(Color.fromRGB(rpg.getDataValue()));
             copy.setItemMeta(meta);
         }

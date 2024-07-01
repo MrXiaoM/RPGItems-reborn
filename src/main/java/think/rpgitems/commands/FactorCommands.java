@@ -75,8 +75,14 @@ public class FactorCommands extends RPGCommandReceiver {
             FactorModifier modifier = item.getFactorModifiers().get(factor);
             if (modifier == null) modifier = new FactorModifier(factor);
             switch (type) {
-                case attack -> modifier.setAttack(expression);
-                case defend -> modifier.setDefend(expression);
+                case attack: {
+                    modifier.setAttack(expression);
+                    break;
+                }
+                case defend: {
+                    modifier.setDefend(expression);
+                    break;
+                }
             }
             item.getFactorModifiers().put(factor, modifier);
             String typeString = I18n.getFormatted(sender, "message.factor.modifier.set.type." + type.name().toLowerCase());
@@ -91,10 +97,12 @@ public class FactorCommands extends RPGCommandReceiver {
             }
             FactorModifierType type = args.nextEnum(FactorModifierType.class);
             double damage = args.nextDouble();
-            double finalDamage = switch (type) {
-                case attack -> modifier.attack(damage);
-                case defend -> modifier.defend(damage);
-            };
+            double finalDamage;
+            switch (type) {
+                case attack: finalDamage = modifier.attack(damage); break;
+                case defend: finalDamage = modifier.defend(damage); break;
+                default: finalDamage = damage; break;
+            }
             String typeString = I18n.getFormatted(sender, "message.factor.modifier.set.type." + type.name().toLowerCase());
             msgs(sender, "message.factor.modifier.test", item.getName(), typeString, factor, damage, finalDamage);
             return;
@@ -136,15 +144,19 @@ public class FactorCommands extends RPGCommandReceiver {
     private List<String> modifierCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 0 -> {}
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
+            case 0: break;
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
                 completeStr.add("set");
                 completeStr.add("remove");
                 completeStr.add("list");
                 completeStr.add("test");
+                break;
             }
-            case 3 -> {
+            case 3: {
                 RPGItem item = getItem(arguments.getRawArgs()[2], sender);
                 String operate = arguments.getRawArgs()[3];
                 if ("set".equalsIgnoreCase(operate)) {
@@ -153,15 +165,17 @@ public class FactorCommands extends RPGCommandReceiver {
                 } else if ("remove".equalsIgnoreCase(operate) || "test".equalsIgnoreCase(operate)) {
                     completeStr.addAll(item.getFactorModifiers().keySet());
                 }
+                break;
             }
-            case 4 -> {
+            case 4: {
                 String operate = arguments.getRawArgs()[3];
                 if ("set".equalsIgnoreCase(operate) || "test".equalsIgnoreCase(operate)) {
                     completeStr.add("attack");
                     completeStr.add("defend");
                 }
+                break;
             }
-            default -> { // remains >= 5
+            default: { // remains >= 5
                 String operate = arguments.getRawArgs()[3];
                 if ("set".equalsIgnoreCase(operate)) {
                     completeStr.add("damage + 1.0");
@@ -170,6 +184,7 @@ public class FactorCommands extends RPGCommandReceiver {
                     completeStr.add("114");
                     completeStr.add("514");
                 }
+                break;
             }
         }
         return filtered(arguments, completeStr);

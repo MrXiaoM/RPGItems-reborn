@@ -1,7 +1,5 @@
 package think.rpgitems.power.proxy;
 
-import think.rpgitems.utils.nyaacore.Pair;
-import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.bytebuddy.ByteBuddy;
@@ -21,19 +19,41 @@ import think.rpgitems.power.PropertyInstance;
 import think.rpgitems.power.propertymodifier.Modifier;
 import think.rpgitems.power.propertymodifier.RgiParameter;
 import think.rpgitems.power.trigger.Trigger;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Interceptor {
+
+    public static class origPowerHolder {
+        UUID playerId;
+        ItemStack itemStack;
+        Power orig;
+
+        public origPowerHolder(UUID playerId, ItemStack itemStack, Power orig) {
+            this.playerId = playerId;
+            this.itemStack = itemStack;
+            this.orig = orig;
+        }
+
+        public UUID playerId() {
+            return playerId;
+        }
+
+        public ItemStack itemStack() {
+            return itemStack;
+        }
+
+        public Power orig() {
+            return orig;
+        }
+    }
     private static final Cache<String, Pair<origPowerHolder, Power>> POWER_CACHE = CacheBuilder.newBuilder().weakValues().build();
     private final Power orig;
     private final Player player;
@@ -129,11 +149,18 @@ public class Interceptor {
                 Class<?> type = propertyInstance.field().getType();
                 List<Modifier> playerModifiers = RPGItem.getModifiers(player);
                 List<Modifier> stackModifiers = RPGItem.getModifiers(player, stack);
-                List<Modifier> modifiers = Stream.concat(playerModifiers.stream(), stackModifiers.stream()).sorted(Comparator.comparing(Modifier::priority)).toList();
+                List<Modifier> modifiers = new ArrayList<>();
+                modifiers.addAll(playerModifiers);
+                modifiers.addAll(stackModifiers);
+                modifiers.sort(Comparator.comparing(Modifier::priority));
                 // Numeric modifiers
                 if (type == int.class || type == Integer.class || type == float.class || type == Float.class || type == double.class || type == Double.class) {
 
-                    List<Modifier<Double>> numberModifiers = modifiers.stream().filter(m -> (m.getModifierTargetType() == Double.class) && m.match(orig, propertyInstance)).map(m -> (Modifier<Double>) m).toList();
+                    List<Modifier<Double>> numberModifiers = new ArrayList<>();
+                    for (Modifier m : modifiers) {
+                        if (!(m.getModifierTargetType() == Double.class) && m.match(orig, propertyInstance)) continue;
+                        numberModifiers.add((Modifier<Double>) m);
+                    }
                     Number value = (Number) invokeMethod(method, orig, args);
                     double origValue = value.doubleValue();
                     for (Modifier<Double> numberModifier : numberModifiers) {
@@ -166,7 +193,4 @@ public class Interceptor {
         MH = MH.bindTo(obj);
         return MH.invokeWithArguments(args);
     }
-}
-
-record origPowerHolder(UUID playerId, ItemStack itemStack, Power orig) {
 }

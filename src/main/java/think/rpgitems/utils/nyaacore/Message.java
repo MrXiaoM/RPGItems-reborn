@@ -41,7 +41,7 @@ public class Message {
     public static String getItemJsonStripped(ItemStack item) {
         ItemStack cloned = item.clone();
         if (cloned.hasItemMeta()) {
-            var meta = cloned.getItemMeta();
+            ItemMeta meta = cloned.getItemMeta();
             if(meta instanceof BookMeta) {
                 return ItemStackUtils.itemToJson(removeBookContent(cloned));
             }
@@ -54,9 +54,11 @@ public class Message {
 
 
     public static ItemMeta filterItemMeta(ItemMeta itemMeta) {
-        var cloned = itemMeta.clone();
-        if(!(cloned instanceof BlockStateMeta blockStateMeta))return cloned;
-        if(!(blockStateMeta.getBlockState() instanceof InventoryHolder inventoryHolder))return cloned;
+        ItemMeta cloned = itemMeta.clone();
+        if(!(cloned instanceof BlockStateMeta)) return cloned;
+        BlockStateMeta blockStateMeta = (BlockStateMeta) cloned;
+        if(!(blockStateMeta.getBlockState() instanceof InventoryHolder)) return cloned;
+        InventoryHolder inventoryHolder = (InventoryHolder) blockStateMeta.getBlockState();
         ArrayList<ItemStack> items = new ArrayList<>();
 
         for (int i = 0; i < inventoryHolder.getInventory().getSize(); i++) {

@@ -805,13 +805,35 @@ public class RPGItem {
         List<String> oldLore = item.getItemMeta() == null || item.getItemMeta().getLore() == null ? new ArrayList<>() : new ArrayList<>(item.getItemMeta().getLore());
         List<String> reservedLores = this.filterLores(item);
         if (RPGItems.protocolLibAvailable()) {
-            item.setType(switch (getItem()) {
-                case LEATHER_HELMET, IRON_HELMET, GOLDEN_HELMET, DIAMOND_HELMET -> NETHERITE_HELMET;
-                case LEATHER_CHESTPLATE, IRON_CHESTPLATE, GOLDEN_CHESTPLATE, DIAMOND_CHESTPLATE -> NETHERITE_CHESTPLATE;
-                case LEATHER_LEGGINGS, IRON_LEGGINGS, GOLDEN_LEGGINGS, DIAMOND_LEGGINGS -> NETHERITE_LEGGINGS;
-                case LEATHER_BOOTS, IRON_BOOTS, GOLDEN_BOOTS, DIAMOND_BOOTS -> NETHERITE_BOOTS;
-                default -> getItem();
-            });
+            switch (getItem()) {
+                case LEATHER_HELMET:
+                case IRON_HELMET:
+                case GOLDEN_HELMET:
+                case DIAMOND_HELMET:
+                    item.setType(NETHERITE_HELMET);
+                    break;
+                case LEATHER_CHESTPLATE:
+                case IRON_CHESTPLATE:
+                case GOLDEN_CHESTPLATE:
+                case DIAMOND_CHESTPLATE:
+                    item.setType(NETHERITE_CHESTPLATE);
+                    break;
+                case LEATHER_LEGGINGS:
+                case IRON_LEGGINGS:
+                case GOLDEN_LEGGINGS:
+                case DIAMOND_LEGGINGS:
+                    item.setType(NETHERITE_LEGGINGS);
+                    break;
+                case LEATHER_BOOTS:
+                case IRON_BOOTS:
+                case GOLDEN_BOOTS:
+                case DIAMOND_BOOTS:
+                    item.setType(NETHERITE_BOOTS);
+                    break;
+                default:
+                    item.setType(getItem());
+                    break;
+            }
         } else {
             item.setType(getItem());
         }
@@ -967,21 +989,28 @@ public class RPGItem {
                 double ratio = (double) durability / (double) maxDurability;
                 BarFormat barFormat = getBarFormat();
                 switch (barFormat) {
-                    case NUMERIC_BIN, NUMERIC_BIN_MINUS_ONE, NUMERIC_HEX, NUMERIC_HEX_MINUS_ONE, NUMERIC, NUMERIC_MINUS_ONE -> {
+                    case NUMERIC_BIN:
+                    case NUMERIC_BIN_MINUS_ONE:
+                    case NUMERIC_HEX:
+                    case NUMERIC_HEX_MINUS_ONE:
+                    case NUMERIC:
+                    case NUMERIC_MINUS_ONE: {
                         out.append(ChatColor.GREEN).append(boxChar).append(" ");
                         out.append(ratio < 0.1 ? ChatColor.RED : ratio < 0.3 ? ChatColor.YELLOW : ChatColor.GREEN);
                         out.append(formatBar(durability, maxDurability, barFormat));
                         out.append(ChatColor.RESET).append(" / ").append(ChatColor.AQUA);
                         out.append(formatBar(maxDurability, maxDurability, barFormat));
                         out.append(ChatColor.GREEN).append(boxChar);
+                        break;
                     }
-                    case DEFAULT -> {
+                    case DEFAULT: {
                         int boxCount = tooltipWidth / 7;
                         int mid = (int) ((double) boxCount * (ratio));
                         for (int i = 0; i < boxCount; i++) {
                             out.append(i < mid ? ChatColor.GREEN : i == mid ? ChatColor.YELLOW : ChatColor.RED);
                             out.append(boxChar);
                         }
+                        break;
                     }
                 }
                 if (lore.isEmpty() || !lore.get(lore.size() - 1).contains(boxChar + ""))
@@ -994,25 +1023,25 @@ public class RPGItem {
 
     private String formatBar(int durability, int maxDurability, BarFormat barFormat) {
         switch (barFormat) {
-            case NUMERIC -> {
+            case NUMERIC: {
                 return String.valueOf(durability);
             }
-            case NUMERIC_MINUS_ONE -> {
+            case NUMERIC_MINUS_ONE: {
                 return String.valueOf(durability - 1);
             }
-            case NUMERIC_HEX -> {
+            case NUMERIC_HEX: {
                 int hexLen = String.format("%X", maxDurability).length();
                 return String.format(String.format("0x%%0%dX", hexLen), durability);
             }
-            case NUMERIC_HEX_MINUS_ONE -> {
+            case NUMERIC_HEX_MINUS_ONE: {
                 int hexLenM1 = String.format("%X", maxDurability - 1).length();
                 return String.format(String.format("0x%%0%dX", hexLenM1), durability - 1);
             }
-            case NUMERIC_BIN -> {
+            case NUMERIC_BIN: {
                 int binLen = Integer.toBinaryString(maxDurability).length();
                 return String.format(String.format("0b%%%ds", binLen), Integer.toBinaryString(durability)).replace(' ', '0');
             }
-            case NUMERIC_BIN_MINUS_ONE -> {
+            case NUMERIC_BIN_MINUS_ONE: {
                 int binLenM1 = Integer.toBinaryString(maxDurability - 1).length();
                 return String.format(String.format("0b%%%ds", binLenM1), Integer.toBinaryString(durability - 1)).replace(' ', '0');
             }
@@ -1289,7 +1318,8 @@ public class RPGItem {
                     resultMap.put(power.getPower(), result);
                 } else {
                     boolean flag = true;
-                    if (power.getPower() instanceof BasePower base) {
+                    if (power.getPower() instanceof BasePower) {
+                        BasePower base = (BasePower) power.getPower();
                         if (!plugin.magic.costMagic(player, base.getCostMagic())) {
                             result = PowerResult.cost();
                             flag = false;

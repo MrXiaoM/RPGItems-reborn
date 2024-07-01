@@ -3,14 +3,11 @@ package think.rpgitems.utils.nyaacore.utils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.UnsafeValues;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A wrapper for LangUtils
@@ -29,9 +26,7 @@ public final class LocaleUtils {
             String key = getUnlocalizedName(item.getType()) + ".named";
             return new TranslatableComponent(key, ((SkullMeta) item.getItemMeta()).getOwningPlayer().getName());
         }
-        String key = item.getType().getItemTranslationKey();
-        if (key == null) key = item.getType().getBlockTranslationKey();
-        else key = (item.getType().isItem() ? "item" : "block") + ".minecraft." + item.getType().name().toLowerCase();
+        String key = item.getTranslationKey();
         return new TranslatableComponent(key);
     }
 

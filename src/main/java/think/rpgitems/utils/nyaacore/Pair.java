@@ -53,7 +53,8 @@ public class Pair<K, V> implements Map.Entry<K, V> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof Pair pair) {
+        if (o instanceof Pair<?, ?>) {
+            Pair<?, ?> pair = (Pair<?, ?>) o;
             return Objects.equals(key, pair.getKey()) && Objects.equals(value, pair.getValue());
         }
         return false;

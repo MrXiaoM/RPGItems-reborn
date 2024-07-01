@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static think.rpgitems.commands.AdminCommands.*;
@@ -97,18 +96,25 @@ public class TriggerCommands extends RPGCommandReceiver {
     public List<String> propCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
-                RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream.range(0, item.getTriggers().size()).mapToObj(String::valueOf).toList());
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
             }
-            default -> {
+            case 2: {
+                RPGItem item = getItem(arguments.nextString(), sender);
+                for (int i = 0; i < item.getTriggers().size(); i++) {
+                    completeStr.add(String.valueOf(i));
+                }
+                break;
+            }
+            default: {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 Trigger trigger = item.getTriggers().get(arguments.nextString());
                 Trigger base = Trigger.get(trigger.getBase());
                 if (base != null) {
                     return resolveProperties(sender, item, base.getClass(), base.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
                 }
+                break;
             }
         }
         return filtered(arguments, completeStr);
@@ -154,10 +160,14 @@ public class TriggerCommands extends RPGCommandReceiver {
     public List<String> removeCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 completeStr.addAll(item.getTriggers().keySet());
+                break;
             }
         }
         return filtered(arguments, completeStr);

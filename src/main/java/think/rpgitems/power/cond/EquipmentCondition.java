@@ -1,5 +1,6 @@
 package think.rpgitems.power.cond;
 
+import com.google.common.collect.Lists;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -12,8 +13,6 @@ import think.rpgitems.power.Property;
 import think.rpgitems.power.PropertyHolder;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Meta(marker = true)
 public class EquipmentCondition extends BaseCondition<Void> {
@@ -60,10 +59,9 @@ public class EquipmentCondition extends BaseCondition<Void> {
     @Override
     public PowerResult<Void> check(Player player, ItemStack stack, Map<PropertyHolder, PowerResult<?>> context) {
         if (slots.isEmpty()) {
-            List<ItemStack> itemStacks = Stream.concat(
-                    Arrays.stream(player.getInventory().getArmorContents()),
-                    Stream.of(player.getInventory().getItemInMainHand(), player.getInventory().getItemInOffHand())
-            ).toList();
+            List<ItemStack> itemStacks = Lists.newArrayList(player.getInventory().getArmorContents());
+            itemStacks.add(player.getInventory().getItemInMainHand());
+            itemStacks.add(player.getInventory().getItemInOffHand());
             if (matchAllSlot) {
                 return itemStacks.stream().allMatch(this::match) ? PowerResult.ok() : PowerResult.fail();
             } else {
@@ -72,14 +70,28 @@ public class EquipmentCondition extends BaseCondition<Void> {
         } else {
             int matches = 0;
             for (EquipmentSlot sl : slots) {
-                ItemStack s = switch (sl) {
-                    case HAND -> player.getInventory().getItemInMainHand();
-                    case OFF_HAND -> player.getInventory().getItemInOffHand();
-                    case FEET -> player.getInventory().getBoots();
-                    case LEGS -> player.getInventory().getLeggings();
-                    case CHEST -> player.getInventory().getChestplate();
-                    case HEAD -> player.getInventory().getHelmet();
-                    default -> throw new IllegalStateException();
+                ItemStack s;
+                switch (sl) {
+                    case HAND:
+                        s = player.getInventory().getItemInMainHand();
+                        break;
+                    case OFF_HAND:
+                        s = player.getInventory().getItemInOffHand();
+                        break;
+                    case FEET:
+                        s = player.getInventory().getBoots();
+                        break;
+                    case LEGS:
+                        s = player.getInventory().getLeggings();
+                        break;
+                    case CHEST:
+                        s = player.getInventory().getChestplate();
+                        break;
+                    case HEAD:
+                        s = player.getInventory().getHelmet();
+                        break;
+                    default:
+                        throw new IllegalStateException();
                 };
                 if (match(s)) matches += 1;
             }
@@ -105,7 +117,7 @@ public class EquipmentCondition extends BaseCondition<Void> {
         }
         Optional<RPGItem> stackItem = ItemManager.toRPGItem(stack);
         if (rpgitem != null) {
-            if (stackItem.isEmpty()) {
+            if (!stackItem.isPresent()) {
                 return false;
             }
             try {

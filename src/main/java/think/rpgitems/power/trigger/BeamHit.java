@@ -17,13 +17,16 @@ public class BeamHit<TEvent extends Event, TResult, TReturn> extends Trigger<TEv
 
     @Override
     public PowerResult<TResult> run(PowerBeamHit powerBeamHit, Player player, ItemStack i, TEvent event) {
-        if (event instanceof BeamHitBlockEvent event1){
+        if (event instanceof BeamHitBlockEvent) {
+            BeamHitBlockEvent event1 = (BeamHitBlockEvent) event;
             return (PowerResult<TResult>) powerBeamHit.hitBlock(player, i, event1.getLocation(), event1);
-        }else if (event instanceof BeamHitEntityEvent event1){
+        } else if (event instanceof BeamHitEntityEvent) {
+            BeamHitEntityEvent event1 = (BeamHitEntityEvent) event;
             return (PowerResult<TResult>) powerBeamHit.hitEntity(player, i, event1.getEntity(), event1.getDamage(), event1);
-        }else if (event instanceof BeamEndEvent event1){
+        } else if (event instanceof BeamEndEvent) {
+            BeamEndEvent event1 = (BeamEndEvent) event;
             return (PowerResult<TResult>) powerBeamHit.beamEnd(player, i, event1.getLocation(), event1);
-        }else {
+        } else {
             return PowerResult.fail();
         }
     }

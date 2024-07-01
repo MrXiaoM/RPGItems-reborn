@@ -1,5 +1,6 @@
 package think.rpgitems.power.impl;
 
+import org.bukkit.util.RayTraceResult;
 import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -82,9 +83,10 @@ public class Headshot extends BasePower {
 
         @Override
         public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            if (!(event.getDamager() instanceof Projectile damager)) {
+            if (!(event.getDamager() instanceof Projectile)) {
                 return PowerResult.noop();
             }
+            Projectile damager = (Projectile) event.getDamager();
             return check(player, entity, stack, damage, damager.getVelocity(), damager.getBoundingBox(), entity.getBoundingBox(), event);
         }
 
@@ -100,7 +102,9 @@ public class Headshot extends BasePower {
                 Vector lsd = entity.getEyeLocation().getDirection().multiply(maxAxis);
                 Vector ls = entity.getEyeLocation().toVector().add(lsd);
                 lsd.multiply(-1);
-                head = entityBb.rayTrace(ls, lsd, maxAxis).getHitPosition();
+                RayTraceResult rayTrace = entityBb.rayTrace(ls, lsd, maxAxis);
+                if (rayTrace == null) return PowerResult.fail();
+                head = rayTrace.getHitPosition();
             }
 
             Pair<Vector, Vector> sweep = Utils.sweep(damagerOrigBb, entityBb, velocity);

@@ -1,10 +1,7 @@
 package think.rpgitems.utils.nyaacore.utils;
 
 import org.bukkit.GameMode;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -116,8 +113,7 @@ public class RayTraceUtils {
 
     public static Entity getTargetEntity(LivingEntity entity, float maxDistance) {
         RayTraceResult r = entity.getWorld().rayTraceEntities(entity.getEyeLocation(), entity.getEyeLocation().getDirection(), maxDistance,
-                e -> e != null &&
-                        (e instanceof LivingEntity || e.getType() == EntityType.ITEM_FRAME || e.getType() == EntityType.GLOW_ITEM_FRAME) &&
+                e -> (e instanceof LivingEntity || e instanceof ItemFrame) &&
                         !(e instanceof LivingEntity && !((LivingEntity) e).isCollidable()) &&
                         e.getUniqueId() != entity.getUniqueId() &&
                         !(e instanceof Player && ((Player) e).getGameMode() == GameMode.SPECTATOR));

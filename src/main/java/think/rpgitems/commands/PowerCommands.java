@@ -18,7 +18,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static think.rpgitems.commands.AdminCommands.*;
@@ -54,10 +53,18 @@ public class PowerCommands extends RPGCommandReceiver {
     public List<String> addCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 ->
-                    completeStr.addAll(PowerManager.getPowers().keySet().stream().map(s -> PowerManager.hasExtension() ? s : s.getKey()).map(Object::toString).toList());
-            default -> {
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
+                for (NamespacedKey s : PowerManager.getPowers().keySet()) {
+                    Object obj = PowerManager.hasExtension() ? s : s.getKey();
+                    completeStr.add(obj.toString());
+                }
+                break;
+            }
+            default: {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 String last = arguments.getRawArgs()[arguments.getRawArgs().length - 1];
                 String powerKey = arguments.nextString();
@@ -65,6 +72,7 @@ public class PowerCommands extends RPGCommandReceiver {
                 if (powerClass != null) {
                     return resolveProperties(sender, item, powerClass.getValue(), powerClass.getKey(), last, arguments, true);
                 }
+                break;
             }
         }
         return filtered(arguments, completeStr);
@@ -105,12 +113,18 @@ public class PowerCommands extends RPGCommandReceiver {
     public List<String> propCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
-                RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream.range(0, item.getPowers().size()).mapToObj(i -> i + "-" + item.getPowers().get(i).getNamespacedKey()).toList());
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
             }
-            default -> {
+            case 2: {
+                RPGItem item = getItem(arguments.nextString(), sender);
+                for (int i = 0; i < item.getPowers().size(); i++) {
+                    completeStr.add(i + "-" + item.getPowers().get(i).getNamespacedKey());
+                }
+                break;
+            }
+            default: {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 Power nextPower = nextPower(item, sender, arguments);
                 return resolveProperties(sender, item, nextPower.getClass(), nextPower.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
@@ -201,10 +215,15 @@ public class PowerCommands extends RPGCommandReceiver {
     public List<String> removeCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
                 RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream.range(0, item.getPowers().size()).mapToObj(i -> i + "-" + item.getPowers().get(i).getNamespacedKey()).toList());
+                for (int i = 0; i < item.getPowers().size(); i++) {
+                    completeStr.add(i + "-" + item.getPowers().get(i).getNamespacedKey());
+                }
             }
         }
         return filtered(arguments, completeStr);
@@ -214,12 +233,18 @@ public class PowerCommands extends RPGCommandReceiver {
     public List<String> reorderCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
-                RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream.range(0, item.getPowers().size()).mapToObj(i -> i + "-" + item.getPowers().get(i).getNamespacedKey()).toList());
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
             }
-            case 3 -> {
+            case 2: {
+                RPGItem item = getItem(arguments.nextString(), sender);
+                for (int i = 0; i < item.getPowers().size(); i++) {
+                    completeStr.add(i + "-" + item.getPowers().get(i).getNamespacedKey());
+                }
+                break;
+            }
+            case 3: {
                 RPGItem item1 = getItem(arguments.nextString(), sender);
                 String next = arguments.top();
                 int nth;
@@ -244,11 +269,11 @@ public class PowerCommands extends RPGCommandReceiver {
                     nth = Integer.parseInt(arguments.top());
                 }
                 int finalNth = nth;
-                completeStr.addAll(IntStream
-                        .range(0, item1.getPowers().size())
-                        .filter(i -> i != finalNth)
-                        .mapToObj(i -> i + "-" + item1.getPowers().get(i).getNamespacedKey())
-                        .toList());
+                for (int i = 0; i < item1.getPowers().size(); i++) {
+                    if (i == finalNth) continue;
+                    completeStr.add(i + "-" + item1.getPowers().get(i).getNamespacedKey());
+                }
+                break;
             }
         }
         return filtered(arguments, completeStr);
@@ -329,16 +354,16 @@ public class PowerCommands extends RPGCommandReceiver {
     public void list(CommandSender sender, Arguments args) {
         int perPage = RPGItems.plugin.cfg.powerPerPage;
         String nameSearch = args.argString("n", args.argString("name", ""));
-        List<NamespacedKey> powers = PowerManager.getPowers()
-                .keySet()
-                .stream()
-                .filter(i -> i.getKey().contains(nameSearch))
-                .sorted(Comparator.comparing(NamespacedKey::getKey))
-                .toList();
+        List<NamespacedKey> powers = new ArrayList<>();
+        for (NamespacedKey i : PowerManager.getPowers().keySet()) {
+            if (!i.getKey().contains(nameSearch)) continue;
+            powers.add(i);
+        }
         if (powers.isEmpty()) {
             msgs(sender, "message.power.not_found", nameSearch);
             return;
         }
+        powers.sort(Comparator.comparing(NamespacedKey::getKey));
         Stream<NamespacedKey> stream = powers.stream();
         Pair<Integer, Integer> maxPage = getPaging(powers.size(), perPage, args);
         int page = maxPage.getValue();

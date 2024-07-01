@@ -70,7 +70,7 @@ public class Arguments {
             Character next_char = i + 1 < cmd.length() ? cmd.charAt(i + 1) : null;
 
             switch (state) {
-                case EXPECT_ARG -> {
+                case EXPECT_ARG: {
                     if (chr == null || chr == ' ') {
 
                     } else if (chr == '"') {
@@ -84,8 +84,9 @@ public class Arguments {
                         tmp.append(chr);
                         state = ParserState.IN_UNQUOTE_BEFORE_COLON;
                     }
+                    break;
                 }
-                case IN_UNQUOTE_BEFORE_COLON -> {
+                case IN_UNQUOTE_BEFORE_COLON: {
                     if (chr == null || chr == ' ') {
                         cmdList.add(tmp.toString());
                         tmp = new StringBuilder();
@@ -108,8 +109,9 @@ public class Arguments {
                     } else {
                         tmp.append(chr);
                     }
+                    break;
                 }
-                case IN_UNQUOTE_AFTER_COLON -> {
+                case IN_UNQUOTE_AFTER_COLON: {
                     if (chr == null || chr == ' ') {
                         cmdList.add(tmp.toString());
                         tmp = new StringBuilder();
@@ -119,8 +121,9 @@ public class Arguments {
                     } else {
                         tmp.append(chr);
                     }
+                    break;
                 }
-                case IN_BACKTICK -> {
+                case IN_BACKTICK: {
                     if (chr == null) {
                         throw new ArgumentParsingException(cmd.toString(), i, "Unfinished backtick");
                     } else if (chr == '\\') {
@@ -135,8 +138,9 @@ public class Arguments {
                     } else {
                         tmp.append(chr);
                     }
+                    break;
                 }
-                case IN_BACKTICK_ESCAPE -> {
+                case IN_BACKTICK_ESCAPE: {
                     if (chr == null) {
                         throw new ArgumentParsingException(cmd.toString(), i, "Unfinished escape");
                     } else if (chr == '\\' || chr == '`') {
@@ -145,8 +149,9 @@ public class Arguments {
                     } else {
                         throw new ArgumentParsingException(cmd.toString(), i, "Invalid escape char in backtick block");
                     }
+                    break;
                 }
-                case IN_QUOTE -> {
+                case IN_QUOTE: {
                     if (chr == null) {
                         throw new ArgumentParsingException(cmd.toString(), i, "Unfinished double quote");
                     } else if (chr == '\\') {
@@ -161,8 +166,9 @@ public class Arguments {
                     } else {
                         tmp.append(chr);
                     }
+                    break;
                 }
-                case IN_QUOTE_ESCAPE -> {
+                case IN_QUOTE_ESCAPE: {
                     if (chr == null) {
                         throw new ArgumentParsingException(cmd.toString(), i, "Unfinished escape");
                     } else if (chr == '\\' || chr == '"') {
@@ -171,6 +177,7 @@ public class Arguments {
                     } else {
                         throw new ArgumentParsingException(cmd.toString(), i, "Invalid escape char in double quote block");
                     }
+                    break;
                 }
             }
         }

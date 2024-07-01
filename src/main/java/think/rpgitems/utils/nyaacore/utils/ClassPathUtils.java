@@ -186,7 +186,8 @@ public final class ClassPathUtils {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof ResourceInfo that) {
+            if (obj instanceof ResourceInfo) {
+                ResourceInfo that = (ResourceInfo) obj;
                 return resourceName.equals(that.resourceName) && loader == that.loader;
             }
             return false;

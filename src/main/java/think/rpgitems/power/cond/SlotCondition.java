@@ -84,36 +84,51 @@ public class SlotCondition extends BaseCondition<Void> {
         MAIN_HAND, OFF_HAND;
 
         public boolean eval(PlayerInventory inventory, ItemStack stack) {
-            return switch (this) {
-                case HELMET -> checkHelmet(inventory, stack);
-                case CHESTPLATE -> checkChestPlate(inventory, stack);
-                case LEGGINGS -> checkLeggings(inventory, stack);
-                case BOOTS -> checkBoots(inventory, stack);
-                case ARMOR -> checkHelmet(inventory, stack) || checkChestPlate(inventory, stack) ||
-                        checkLeggings(inventory, stack) || checkBoots(inventory, stack);
-                case HAND -> checkMainHand(inventory, stack) && checkOffHand(inventory, stack);
-                case BACKPACK -> checkBackpack(inventory, stack);
-                case BELT -> checkBelts(inventory, stack);
-                case INVENTORY -> checkBelts(inventory, stack) || checkBackpack(inventory, stack);
-                case MAIN_HAND -> checkMainHand(inventory, stack);
-                case OFF_HAND -> checkOffHand(inventory, stack);
-            };
+            switch (this) {
+                case HELMET:
+                    return checkHelmet(inventory, stack);
+                case CHESTPLATE:
+                    return checkChestPlate(inventory, stack);
+                case LEGGINGS:
+                    return checkLeggings(inventory, stack);
+                case BOOTS:
+                    return checkBoots(inventory, stack);
+                case ARMOR:
+                    return checkHelmet(inventory, stack) || checkChestPlate(inventory, stack) ||
+                            checkLeggings(inventory, stack) || checkBoots(inventory, stack);
+                case HAND:
+                    return checkMainHand(inventory, stack) && checkOffHand(inventory, stack);
+                case BACKPACK:
+                    return checkBackpack(inventory, stack);
+                case BELT:
+                    return checkBelts(inventory, stack);
+                case INVENTORY:
+                    return checkBelts(inventory, stack) || checkBackpack(inventory, stack);
+                case MAIN_HAND:
+                    return checkMainHand(inventory, stack);
+                case OFF_HAND:
+                    return checkOffHand(inventory, stack);
+                default:
+                    return false;
+            }
         }
 
         private boolean checkBelts(PlayerInventory inventory, ItemStack stack) {
+            if (inventory.getHolder() == null) return false;
             UUID uniqueId = inventory.getHolder().getUniqueId();
             ItemStack[] contents = inventory.getContents();
             return cachedContainsOr(beltCache, uniqueId, stack, () -> Arrays.copyOfRange(contents, 0, 9));
         }
 
-        Cache<UUID, ItemStack[]> backpackCache = CacheBuilder.newBuilder()
+        final Cache<UUID, ItemStack[]> backpackCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(50, TimeUnit.MICROSECONDS)
                 .build();
-        Cache<UUID, ItemStack[]> beltCache = CacheBuilder.newBuilder()
+        final Cache<UUID, ItemStack[]> beltCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(50, TimeUnit.MICROSECONDS)
                 .build();
 
         private boolean checkBackpack(PlayerInventory inventory, ItemStack stack) {
+            if (inventory.getHolder() == null) return false;
             UUID uniqueId = inventory.getHolder().getUniqueId();
             ItemStack[] contents = inventory.getContents();
             return cachedContainsOr(backpackCache, uniqueId, stack, () -> Arrays.copyOfRange(contents, 10, 36));
@@ -165,13 +180,7 @@ public class SlotCondition extends BaseCondition<Void> {
             }
             Optional<RPGItem> itemUsed = ItemManager.toRPGItem(stack);
             Optional<RPGItem> stackItem = ItemManager.toRPGItem(itemStack);
-            if (itemUsed.isPresent()) {
-                if (stackItem.isEmpty()) {
-                    return false;
-                }
-                return itemUsed.get().equals(stackItem.get());
-            }
-            return true;
+            return itemUsed.map(item -> stackItem.filter(item::equals).isPresent()).orElse(true);
         }
     }
 }

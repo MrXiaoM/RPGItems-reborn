@@ -73,10 +73,15 @@ public class NMS {
                 versionString = v;
             } else if (bukkitVersion.contains("-")) {
                 String ver = bukkitVersion.substring(0, bukkitVersion.indexOf('-'));
-                versionString = switch (ver) {
-                    case "1.20.5", "1.20.6" -> "v1_20_R4";
-                    default -> "v" + ver.replaceFirst("\\.", "_").replace(".", "_R");
-                };
+                switch (ver) {
+                    case "1.20.5":
+                    case "1.20.6":
+                        versionString = "v1_20_R4";
+                        break;
+                    default:
+                        versionString = "v" + ver.replaceFirst("\\.", "_").replace(".", "_R");
+                        break;
+                }
             } else {
                 throw new IllegalStateException("Unsupported new server version " + Bukkit.getBukkitVersion());
             }

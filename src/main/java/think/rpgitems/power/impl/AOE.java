@@ -202,11 +202,11 @@ public class AOE extends BasePower {
             getLivingEntitiesInConeSorted(collect, center.toVector(), getAngle(), subtract)
                     .stream()
                     .filter(entity -> {
-                        return switch (getTarget()) {
-                            case MOBS -> entity instanceof Mob;
-                            case PLAYERS -> entity instanceof Player;
-                            default -> true;
-                        };
+                        switch (getTarget()) {
+                            case MOBS: return entity instanceof Mob;
+                            case PLAYERS: return entity instanceof Player;
+                            default: return true;
+                        }
                     })
                     .limit(getCount() == -1 ? Integer.MAX_VALUE : getCount())
                     .forEach(ent -> {

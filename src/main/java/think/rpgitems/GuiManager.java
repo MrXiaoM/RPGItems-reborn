@@ -33,7 +33,6 @@ public class GuiManager implements Listener {
         if (inv != null) player.openInventory(inv);
     }
 
-    @SuppressWarnings({"deprecation"})
     public void onDisable() {
         for (Map.Entry<UUID, IGui> entry : playersGui.entrySet()) {
             Player player = Bukkit.getPlayer(entry.getKey());
@@ -64,7 +63,8 @@ public class GuiManager implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        Player player = (Player) event.getWhoClicked();
         if (playersGui.containsKey(player.getUniqueId())) {
             playersGui.get(player.getUniqueId()).onClick(event.getAction(), event.getClick(), event.getSlotType(),
                     event.getRawSlot(), event.getCurrentItem(), event.getCursor(), event.getView(), event);
@@ -73,7 +73,8 @@ public class GuiManager implements Listener {
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        Player player = (Player) event.getWhoClicked();
         if (playersGui.containsKey(player.getUniqueId())) {
             playersGui.get(player.getUniqueId()).onDrag(event.getView(), event);
         }
@@ -81,7 +82,8 @@ public class GuiManager implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player player)) return;
+        if (!(event.getPlayer() instanceof Player)) return;
+        Player player = (Player) event.getPlayer();
         IGui remove = playersGui.remove(player.getUniqueId());
         if (remove != null) {
             remove.onClose(event.getView());

@@ -82,10 +82,14 @@ public class MythicCommands extends RPGCommandReceiver {
     private List<String> skillDamageAddCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
                 completeStr.add("damage");
                 completeStr.add("multiple");
+                break;
             }
         }
         return filtered(arguments, completeStr);

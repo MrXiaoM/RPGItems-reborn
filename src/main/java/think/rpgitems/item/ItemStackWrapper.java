@@ -23,11 +23,9 @@ public class ItemStackWrapper {
         if (itemStack == null) {
             throw new NullPointerException();
         }
-        Optional<String> itemUuid = ItemTagUtils.getString(itemStack, NBT_ITEM_UUID);
-        if (itemUuid.isEmpty()) {
-            return new ItemStackWrapper(itemStack);
-        }
-        return wrapperMap.computeIfAbsent(itemUuid.get(), (u) -> new ItemStackWrapper(itemStack));
+        return ItemTagUtils.getString(itemStack, NBT_ITEM_UUID)
+                .map(s -> wrapperMap.computeIfAbsent(s, (u) -> new ItemStackWrapper(itemStack)))
+                .orElseGet(() -> new ItemStackWrapper(itemStack));
     }
 
 
@@ -39,7 +37,8 @@ public class ItemStackWrapper {
     @Override
     public boolean equals(Object obj) {
         Optional<String> toCmpUuid;
-        if ((obj instanceof ItemStack toCmp)) {
+        if (obj instanceof ItemStack) {
+            ItemStack toCmp = (ItemStack) obj;
             toCmpUuid = ItemTagUtils.getString(toCmp, NBT_ITEM_UUID);
         }else if (obj instanceof ItemStackWrapper) {
             toCmpUuid = ((ItemStackWrapper) obj).itemUuid;
@@ -48,7 +47,7 @@ public class ItemStackWrapper {
         }
 
         if (itemUuid.isPresent()){
-            if (toCmpUuid.isEmpty()) {
+            if (!toCmpUuid.isPresent()) {
                 return false;
             }
             String uuid = itemUuid.get();

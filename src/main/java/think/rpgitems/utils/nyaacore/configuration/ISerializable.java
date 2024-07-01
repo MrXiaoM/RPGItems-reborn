@@ -87,8 +87,9 @@ public interface ISerializable {
                         continue;
                     }
                 } else if (ISerializable.class.isAssignableFrom(f.getType())) {
-                    if (!(newValue instanceof ConfigurationSection sec))
+                    if (!(newValue instanceof ConfigurationSection))
                         throw new RuntimeException("Map object require ConfigSection: " + f);
+                    ConfigurationSection sec = (ConfigurationSection) newValue;
                     if (!sec.isString("__class__"))
                         throw new RuntimeException("Missing __class__ key: " + f);
                     String clsName = sec.getString("__class__");
@@ -99,8 +100,9 @@ public interface ISerializable {
                     //} else if (List.class.isAssignableFrom(f.getType())) {
                     //    throw new RuntimeException("List serialization is not supported: " + f.toString());
                 } else if (Map.class.isAssignableFrom(f.getType())) {
-                    if (!(newValue instanceof ConfigurationSection sec))
+                    if (!(newValue instanceof ConfigurationSection))
                         throw new RuntimeException("Map object require ConfigSection: " + f);
+                    ConfigurationSection sec = (ConfigurationSection) newValue;
                     Map<String, Object> map = new LinkedHashMap<>();
                     for (String key : sec.getKeys(false)) {
                         if (sec.isConfigurationSection(key)) {
@@ -184,8 +186,9 @@ public interface ISerializable {
                     if (map == null) continue;
                     ConfigurationSection section = config.createSection(cfgName);
                     for (Object key : map.keySet()) {
-                        if (!(key instanceof String k))
+                        if (!(key instanceof String))
                             throw new RuntimeException("Map key is not string: " + f);
+                        String k = (String) key;
                         Object o = map.get(k);
                         if (o instanceof Map || o instanceof List)
                             throw new RuntimeException("Nested Map/List is not allowed: " + f);

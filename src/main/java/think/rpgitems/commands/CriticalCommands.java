@@ -69,11 +69,15 @@ public class CriticalCommands extends RPGCommandReceiver {
     private List<String> normalCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
                 completeStr.add("rate");
                 completeStr.add("damage");
                 completeStr.add("multiple");
+                break;
             }
         }
         return filtered(arguments, completeStr);
@@ -141,8 +145,14 @@ public class CriticalCommands extends RPGCommandReceiver {
     private List<String> antiCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> completeStr.add("rate");
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
+                completeStr.add("rate");
+                break;
+            }
         }
         return filtered(arguments, completeStr);
     }

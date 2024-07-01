@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static think.rpgitems.commands.AdminCommands.*;
@@ -52,10 +51,18 @@ public class MarkerCommands extends RPGCommandReceiver {
     public List<String> addCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 ->
-                    completeStr.addAll(PowerManager.getMarkers().keySet().stream().map(s -> PowerManager.hasExtension() ? s : s.getKey()).map(Object::toString).toList());
-            default -> {
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
+                for (NamespacedKey s : PowerManager.getMarkers().keySet()) {
+                    Object obj = PowerManager.hasExtension() ? s : s.getKey();
+                    completeStr.add(obj.toString());
+                }
+                break;
+            }
+            default: {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 String last = arguments.getRawArgs()[arguments.getRawArgs().length - 1];
                 String conditionKey = arguments.nextString();
@@ -63,6 +70,7 @@ public class MarkerCommands extends RPGCommandReceiver {
                 if (keyClass != null) {
                     return resolveProperties(sender, item, keyClass.getValue(), keyClass.getKey(), last, arguments, true);
                 }
+                break;
             }
         }
         return filtered(arguments, completeStr);
@@ -146,15 +154,18 @@ public class MarkerCommands extends RPGCommandReceiver {
     public List<String> propCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
-                RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream
-                        .range(0, item.getMarkers().size())
-                        .mapToObj(i -> i + "-" + item.getMarkers().get(i).getNamespacedKey())
-                        .toList());
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
             }
-            default -> {
+            case 2: {
+                RPGItem item = getItem(arguments.nextString(), sender);
+                for (int i = 0; i < item.getMarkers().size(); i++) {
+                    completeStr.add(i + "-" + item.getMarkers().get(i).getNamespacedKey());
+                }
+                break;
+            }
+            default: {
                 RPGItem item = getItem(arguments.nextString(), sender);
                 Marker nextMarker = nextMarker(item, sender, arguments);
                 return resolveProperties(
@@ -209,10 +220,16 @@ public class MarkerCommands extends RPGCommandReceiver {
     public List<String> removeCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> {
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
                 RPGItem item = getItem(arguments.nextString(), sender);
-                completeStr.addAll(IntStream.range(0, item.getMarkers().size()).mapToObj(i -> i + "-" + item.getMarkers().get(i).getNamespacedKey()).toList());
+                for (int i = 0; i < item.getMarkers().size(); i++) {
+                    completeStr.add(i + "-" + item.getMarkers().get(i).getNamespacedKey());
+                }
+                break;
             }
         }
         return filtered(arguments, completeStr);
@@ -250,16 +267,16 @@ public class MarkerCommands extends RPGCommandReceiver {
     public void list(CommandSender sender, Arguments args) {
         int perPage = RPGItems.plugin.cfg.powerPerPage;
         String nameSearch = args.argString("n", args.argString("name", ""));
-        List<NamespacedKey> markers = PowerManager.getMarkers()
-                                                 .keySet()
-                                                 .stream()
-                                                 .filter(i -> i.getKey().contains(nameSearch))
-                                                 .sorted(Comparator.comparing(NamespacedKey::getKey))
-                                                 .toList();
+        List<NamespacedKey> markers = new ArrayList<>();
+        for (NamespacedKey i : PowerManager.getMarkers().keySet()){
+            if (!i.getKey().contains(nameSearch)) continue;
+            markers.add(i);
+        }
         if (markers.isEmpty()) {
             msgs(sender, "message.marker.not_found", nameSearch);
             return;
         }
+        markers.sort(Comparator.comparing(NamespacedKey::getKey));
         Stream<NamespacedKey> stream = markers.stream();
         Pair<Integer, Integer> maxPage = getPaging(markers.size(), perPage, args);
         int page = maxPage.getValue();

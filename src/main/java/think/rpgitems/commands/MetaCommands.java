@@ -47,8 +47,14 @@ public class MetaCommands extends RPGCommandReceiver {
     private List<String> qualityCompleter(CommandSender sender, Arguments arguments){
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
-            case 1 -> completeStr.addAll(ItemManager.itemNames());
-            case 2 -> completeStr.addAll(plugin.cfg.qualityPrefixes.keySet());
+            case 1: {
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
+                completeStr.addAll(plugin.cfg.qualityPrefixes.keySet());
+                break;
+            }
         }
         return filtered(arguments, completeStr);
     }

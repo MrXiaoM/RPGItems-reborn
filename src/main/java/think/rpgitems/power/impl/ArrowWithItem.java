@@ -102,7 +102,7 @@ public class ArrowWithItem extends BasePower {
         } else {
             Material m = Material.matchMaterial(item);
             if (m != null) {
-                String name = "<translate:" + m.translationKey() + ">";
+                String name = "<translate:" + new ItemStack(m).getTranslationKey() + ">";
                 checkName = () -> name;
                 check = it -> it.getType().equals(m);
             }

@@ -69,6 +69,12 @@ public class Configuration extends PluginConfigure {
     @Serializable(name = "support.placeholder_api.enable")
     public boolean usePlaceholderAPI = true;
 
+    @Serializable(name = "support.protocol_lib.enable")
+    public boolean useProtocolLib = true;
+
+    @Serializable(name = "support.protocol_lib.auto_replace_armor_material_to_netherite_or_diamond")
+    public boolean plAutoReplaceArmorMaterial = true;
+
     @Serializable(name = "general.give_perms", alias = "give-perms")
     public boolean givePerms = false;
 

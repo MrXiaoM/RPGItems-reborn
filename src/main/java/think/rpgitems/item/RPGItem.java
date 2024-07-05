@@ -804,8 +804,9 @@ public class RPGItem {
     public void updateItem(@Nullable Player player, ItemStack item, boolean loreOnly) {
         if (item == null) return;
         List<String> oldLore = item.getItemMeta() == null || item.getItemMeta().getLore() == null ? new ArrayList<>() : new ArrayList<>(item.getItemMeta().getLore());
-        List<String> reservedLores = this.filterLores(item);
-        if (RPGItems.protocolLibAvailable()) {
+        List<String> reservedLore = this.filterLores(item);
+        if (RPGItems.protocolLibAvailable() && plugin.cfg.useProtocolLib && plugin.cfg.plAutoReplaceArmorMaterial) {
+            boolean n = RPGItems.isNetheriteAvailable();
             switch (getItem()) {
                 case LEATHER_HELMET:
                 case IRON_HELMET:
@@ -867,7 +868,7 @@ public class RPGItem {
         if (oldLore.contains("mcMMO Ability Tool"))
             lore.add("mcMMO Ability Tool");
 
-        lore.addAll(reservedLores);
+        lore.addAll(reservedLore);
         LoreUpdateEvent event = new LoreUpdateEvent(this, player, item, oldLore, lore);
         Bukkit.getPluginManager().callEvent(event);
         item = event.item;

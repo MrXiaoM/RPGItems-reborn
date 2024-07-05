@@ -1266,6 +1266,9 @@ manual:
     description: "设置物品的伪装材质和其他参数\n可选参数\n  [物品id] - 设置物品伪装为特定材质(设为 AIR 取消伪装)\n  [物品id] hex [16进制颜色]\
       \ - 设置物品的伪装材质并设置颜色。\n  [物品id] [子id(1.12及以下)] - 设置物品的伪装材质和伤害值/损耗值。"
     usage: '&f/rpgitem fakeitem &a{神器} [选项|值]'
+  edit:
+    description: "打开可视化菜单以编辑神器参数"
+    usage: '&f/rpgitem edit &a{神器}'
   itemHand:
     description: "设置物品的材质为主手物品"
     usage: '&f/rpgitem itemHand &a{神器}'
@@ -1509,6 +1512,9 @@ item:
       multiple: '%s%% 技能暴击'
       normal_multiple: '%s 并 %s%% 技能暴击'
   dodge_default: '&e当心\n&f躲避判定成功'
+gui:
+  editor:
+    title: '编辑神器 %s'
 internal:
   info:
     errorusing_language: "当前使用语言: %s"

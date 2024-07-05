@@ -25,6 +25,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.gui.GuiItemEditor;
 import think.rpgitems.item.ItemGroup;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
@@ -841,6 +842,18 @@ public class AdminCommands extends RPGCommandReceiver {
                     .send(sender);
             ItemManager.save(item);
         }
+    }
+
+    @SubCommand(value = "edit", tabCompleter = "rpgItemCompleter")
+    public void edit(CommandSender sender, Arguments args) {
+        if (readOnly(sender)) return;
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(I18n.getInstance(sender).format("message.error.only.player"));
+            return;
+        }
+        Player player = (Player) sender;
+        RPGItem item = getItem(args.nextString(), sender);
+        plugin.gui.openGui(new GuiItemEditor(player, item));
     }
 
     @SubCommand(value = "itemHand", tabCompleter = "rpgItemCompleter")

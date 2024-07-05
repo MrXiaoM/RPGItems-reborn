@@ -1,6 +1,5 @@
 package think.rpgitems.power.trigger;
 
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -44,8 +43,8 @@ public final class BaseTriggers {
     public static final Trigger<EntityDamageByEntityEvent, PowerHit, Double, Optional<Double>> CRITICAL_FORCE_FAIL = new CriticalForceFail();
     public static final Trigger<EntityDamageEvent, PowerHurt, Void, Void> ANTI_CRITICAL = new AntiCritical();
     public static final Trigger<EntityDamageEvent, PowerHurt, Void, Void> DODGE = new Dodge();
-    public static final Trigger<PlayerArmorChangeEvent, PowerPlain, Void, Void> ARMOR = new Armor();
-    public static final Trigger<PlayerArmorChangeEvent, PowerPlain, Void, Void> ARMOR_UPDATE = new Armor.Update();
+    public static final Trigger<PlayerEvent, PowerPlain, Void, Void> ARMOR = new Armor();
+    public static final Trigger<PlayerEvent, PowerPlain, Void, Void> ARMOR_UPDATE = new Armor.Update();
     public static final Trigger<PlayerInteractEvent, PowerLeftClick, Void, Void> CLICK_BLOCK = new ClickBlock();
     public static final Trigger<PlayerDropItemEvent, PowerPlain, Void, Void> DROP = new Drop();
     public static final Trigger<PlayerDropItemEvent, PowerPlain, Void, Void> DROP_SNEAK = new Drop.Sneak();

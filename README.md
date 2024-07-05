@@ -6,15 +6,19 @@ The NyaaCat RPGItems-reloaded plugin continued from [NyaaCat/RPGItems-reloaded](
 
 Active developing from [SweetRiceMC](https://www.pds.ink) developers team.
 
-Take it easy. **NO ANY** hard-dependency plugin is needed this time. Install just one plugin is OK! And one plugin file supports multi Minecraft versions from `1.17` to `1.20.4`!
+Take it easy. **NO ANY** hard-dependency plugin is needed this time. Install just one plugin is OK! And one plugin file supports multi Minecraft versions from `1.17` to `1.21`!
 
-At least Java 17 is needed.
+At least Java 11 is needed.
 
 Recently, I targeted to make RPGItems more powerful and easy to use.  
 Original plugin is not only hard to learn and understand how to use, but also there are very few choices of powers, conditions and triggers.  
 That's the problem I want to solve.
 
-Do not use Spigot, use Paper please.
+We work well on Spigot, but we recommend you to use Paper.  
+Spigot lost these features:
++ Trigger `ARMOR` and `ARMOR_UPDATE`
+
+There are some links you may be finding.
 
 + [Wiki (WIP)](https://rpgitems.mcio.dev)
 + [Original Wiki](https://nyaacat.github.io/RPGItems-wiki/#/)

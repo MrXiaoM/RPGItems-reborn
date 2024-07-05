@@ -42,7 +42,7 @@ allprojects {
 
     repositories {
         mavenCentral()
-        maven("https://papermc.io/repo/repository/maven-public/")
+        maven("https://repo.papermc.io/repository/maven-public/")
         maven("https://maven.enginehub.org/repo/")
         maven("https://repo.rosewooddev.io/repository/public/")
         maven("https://repo.codemc.io/repository/maven-public/")
@@ -59,9 +59,13 @@ allprojects {
         targetCompatibility = "11"
     }
 }
+fun DependencyHandlerScope.shadowImpl(dependencyNotation: Any) {
+    implementation(dependencyNotation)
+    shadow(dependencyNotation)
+}
 
 dependencies {
-    compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT")
 
     compileOnly("io.netty:netty-all:4.1.25.Final") // netty is shadowed inside spigot jar
 
@@ -92,12 +96,11 @@ dependencies {
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") { isTransitive = false }
 
-    implementation("de.tr7zw:item-nbt-api:2.13.1")
-    shadow("de.tr7zw:item-nbt-api:2.13.1")
+    shadowImpl("de.tr7zw:item-nbt-api:2.13.1")
 
+    shadow(project(":paper"))
     for (proj in rootProject.project(":nms").subprojects) {
-        implementation(proj)
-        shadow(proj)
+        shadowImpl(proj)
     }
 }
 
@@ -126,8 +129,11 @@ tasks {
     }
     shadowJar {
         configurations = listOf(project.configurations.shadow.get())
-        val p = "think.rpgitems.utils"
-        relocate("de.tr7zw.changeme.nbtapi", "$p.nbtapi")
+        mapOf(
+            "de.tr7zw.changeme.nbtapi" to "nbtapi",
+        ).forEach { (original, target) ->
+            relocate(original, "think.rpgitems.utils.$target")
+        }
     }
     build {
         dependsOn(shadowJar)

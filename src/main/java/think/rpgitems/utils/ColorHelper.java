@@ -1,10 +1,8 @@
 package think.rpgitems.utils;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -23,24 +21,21 @@ public class ColorHelper {
     private static final Pattern translatePattern = Pattern.compile("<translate:(.*?)>");
 
     public static void parseAndSend(CommandSender sender, String s) {
-        net.kyori.adventure.text.TextComponent.Builder builder = Component.text();
-        split(translatePattern, parseColor(s), regexResult -> {
+        List<BaseComponent> builder = split(translatePattern, parseColor(s), regexResult -> {
             if (!regexResult.isMatched) {
-                builder.append(LegacyComponentSerializer.legacySection().deserialize(regexResult.text));
+                return new TextComponent(TextComponent.fromLegacyText(regexResult.text));
             } else {
-                TranslatableComponent translatable = Component.translatable(regexResult.result.group(1));
-                builder.append(translatable);
+                return new TranslatableComponent(regexResult.result.group(1));
             }
         });
-        sender.sendMessage(builder);
+        BaseComponent[] components = builder.toArray(BaseComponent[]::new);
+        sender.spigot().sendMessage(components);
     }
 
-    @SuppressWarnings({"deprecation"})
     public static BaseComponent bungee(String s) {
         return new TextComponent(TextComponent.fromLegacyText(parseColor(s)));
     }
 
-    @SuppressWarnings({"deprecation"})
     public static String parseColor(String s) {
         String fin = s;
         fin = String.join("", split(hexPattern, fin, regexResult -> {

@@ -50,7 +50,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings({"deprecation"})
 public final class RPGItems extends JavaPlugin implements PluginMessageListener {
 
     @lombok.Getter
@@ -60,9 +59,13 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
     @lombok.Getter
     private static String serverMCVersion;
     private static boolean hasProtocolLib;
+    private static boolean isPaper;
 
     public static boolean protocolLibAvailable() {
         return hasProtocolLib;
+    }
+    public static boolean isPaper() {
+        return isPaper;
     }
 
     public static Logger logger;
@@ -102,7 +105,10 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
             serial = Integer.parseInt(serialMatcher.group(3));
         }
 
-        serverMCVersion = Bukkit.getMinecraftVersion(); // Paper
+        isPaper = PluginUtils.isClassPresent("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent");
+
+        Matcher m = Pattern.compile("\\(MC: (1.[0-9.]+)\\)").matcher(Bukkit.getVersion());
+        serverMCVersion = m.find() ? m.group(1) : NMS.getVersion();
 
         cfg = new Configuration(this);
         cfg.load();

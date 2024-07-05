@@ -1,8 +1,6 @@
 package think.rpgitems.utils;
 
 import com.google.common.base.FinalizablePhantomReference;
-import com.google.common.base.FinalizableReferenceQueue;
-import com.google.common.collect.Sets;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
@@ -25,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.ref.PhantomReference;
-import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Function;
@@ -222,22 +219,24 @@ public final class ItemTagUtils {
         container.set(key, BA_OFFLINE_PLAYER, value);
     }
 
-    public static SubItemTagContainer makeTag(PersistentDataContainer container, NamespacedKey key) {
-        SubItemTagContainer subItemTagContainer = new SubItemTagContainer(container, key, computeIfAbsent(container, key, PersistentDataType.TAG_CONTAINER, (k) -> container.getAdapterContext().newPersistentDataContainer()));
+    public static ISubItemTagContainer makeTag(PersistentDataContainer container, NamespacedKey key) {
+        PersistentDataContainer self = computeIfAbsent(container, key, PersistentDataType.TAG_CONTAINER, (k) -> container.getAdapterContext().newPersistentDataContainer());
+
+        ISubItemTagContainer subItemTagContainer = RPGItems.isPaper() ? new SubItemTagContainerPaper(container, key, self) : new SubItemTagContainer(container, key, self);
         WeakReference<PersistentDataContainer> weakParent = new WeakReference<>(container);
-        FinalizablePhantomReference<SubItemTagContainer> reference = new FinalizablePhantomReference<SubItemTagContainer>(subItemTagContainer, SubItemTagContainer.frq) {
+        FinalizablePhantomReference<ISubItemTagContainer> reference = new FinalizablePhantomReference<>(subItemTagContainer, SubItemTagContainer.frq) {
             public void finalizeReferent() {
-                if (SubItemTagContainer.references.remove(this)) {
+                if (ISubItemTagContainer.references.remove(this)) {
                     RPGItems.logger.severe("Unhandled SubItemTagContainer found: " + key + "@" + weakParent.get());
                 }
             }
         };
         subItemTagContainer.setReference(reference);
-        SubItemTagContainer.references.add(reference);
+        ISubItemTagContainer.references.add(reference);
         return subItemTagContainer;
     }
 
-    public static SubItemTagContainer makeTag(ItemMeta itemMeta, NamespacedKey key) {
+    public static ISubItemTagContainer makeTag(ItemMeta itemMeta, NamespacedKey key) {
         PersistentDataContainer container = itemMeta.getPersistentDataContainer();
         return makeTag(container, key);
     }
@@ -377,14 +376,11 @@ public final class ItemTagUtils {
         }
     }
 
-    public static class SubItemTagContainer implements PersistentDataContainer {
+    public static class SubItemTagContainer implements PersistentDataContainer, ISubItemTagContainer {
         private final PersistentDataContainer parent;
         private PersistentDataContainer self;
         private final NamespacedKey key;
-        private PhantomReference<SubItemTagContainer> reference;
-
-        private static final FinalizableReferenceQueue frq = new FinalizableReferenceQueue();
-        private static final Set<Reference<?>> references = Sets.newConcurrentHashSet();
+        private PhantomReference<ISubItemTagContainer> reference;
 
         private SubItemTagContainer(PersistentDataContainer parent, NamespacedKey key, PersistentDataContainer self) {
             this.parent = parent;
@@ -433,45 +429,32 @@ public final class ItemTagUtils {
             return self.getAdapterContext();
         }
 
-        /* // TODO 支持高版本的 PersistentDataContainer
-
         @Override
-        public boolean has(@NotNull NamespacedKey key) {
-            return self.has(key);
-        }
-
-        @Override
-        public byte @NotNull [] serializeToBytes() throws IOException {
-            return self.serializeToBytes();
-        }
-
-        @Override
-        public void readFromBytes(byte @NotNull [] bytes, boolean clear) throws IOException {
-            self.readFromBytes(bytes, clear);
-        }
-*/
         public void commit() {
-            ItemTagUtils.set(parent, key, self);
-            if (parent instanceof SubItemTagContainer) {
-                ((SubItemTagContainer) parent).commit();
+            parent.set(key, PersistentDataType.TAG_CONTAINER, self);
+            if (parent instanceof ISubItemTagContainer) {
+                ((ISubItemTagContainer) parent).commit();
             }
             dispose();
         }
 
+        @Override
         public void dispose() {
             self = null;
-            if (!SubItemTagContainer.references.remove(reference)) {
+            if (!ISubItemTagContainer.references.remove(reference)) {
                 RPGItems.logger.log(Level.SEVERE, "Double handled SubItemTagContainer found: " + this + ": " + key + "@" + parent, new Exception());
             }
         }
 
+        @Override
         public void tryDispose() {
             if (self != null) {
                 dispose();
             }
         }
 
-        private void setReference(FinalizablePhantomReference<SubItemTagContainer> reference) {
+        @Override
+        public void setReference(FinalizablePhantomReference<ISubItemTagContainer> reference) {
             this.reference = reference;
         }
     }

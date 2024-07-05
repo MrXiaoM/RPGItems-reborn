@@ -1,23 +1,23 @@
 package think.rpgitems.power.trigger;
 
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.power.PowerPlain;
 import think.rpgitems.power.PowerResult;
 
 
-public class Armor extends Trigger<PlayerArmorChangeEvent, PowerPlain, Void, Void> {
+public class Armor extends Trigger<PlayerEvent, PowerPlain, Void, Void> {
     public Armor() {
-        super(PlayerArmorChangeEvent.class, PowerPlain.class, Void.class, Void.class, "ARMOR");
+        super(PlayerEvent.class, PowerPlain.class, Void.class, Void.class, "ARMOR");
     }
 
     Armor(String name) {
-        super(name, "ARMOR", PlayerArmorChangeEvent.class, PowerPlain.class, Void.class, Void.class);
+        super(name, "ARMOR", PlayerEvent.class, PowerPlain.class, Void.class, Void.class);
     }
 
     @Override
-    public PowerResult<Void> run(PowerPlain power, Player player, ItemStack i, PlayerArmorChangeEvent event) {
+    public PowerResult<Void> run(PowerPlain power, Player player, ItemStack i, PlayerEvent event) {
         return power.fire(player, i);
     }
 

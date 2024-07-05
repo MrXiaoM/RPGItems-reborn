@@ -50,6 +50,7 @@ import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.support.MythicSupport;
 import think.rpgitems.utils.ColorHelper;
+import think.rpgitems.utils.ISubItemTagContainer;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.MessageType;
 import think.rpgitems.utils.nyaacore.Message;
@@ -267,7 +268,7 @@ public class RPGItem {
         if (modifiers == null) {
             ItemMeta itemMeta = stack.getItemMeta();
             if (itemMeta == null) return new ArrayList<>();
-            SubItemTagContainer tag = makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_MODIFIER);
+            ISubItemTagContainer tag = makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_MODIFIER);
             modifiers = getModifiers(tag, key);
         }
         return modifiers;
@@ -277,13 +278,13 @@ public class RPGItem {
         UUID key = player.getUniqueId();
         List<Modifier> modifiers = modifierCache.getIfPresent(key);
         if (modifiers == null) {
-            SubItemTagContainer tag = makeTag(player.getPersistentDataContainer(), TAG_MODIFIER);
+            ISubItemTagContainer tag = makeTag(player.getPersistentDataContainer(), TAG_MODIFIER);
             modifiers = getModifiers(tag, key);
         }
         return modifiers;
     }
 
-    public static List<Modifier> getModifiers(SubItemTagContainer tag) {
+    public static List<Modifier> getModifiers(ISubItemTagContainer tag) {
         return getModifiers(tag, null);
     }
 
@@ -291,7 +292,7 @@ public class RPGItem {
         modifierCache.invalidateAll();
     }
 
-    public static List<Modifier> getModifiers(SubItemTagContainer tag, UUID key) {
+    public static List<Modifier> getModifiers(ISubItemTagContainer tag, UUID key) {
         Optional<UUID> uuid = Optional.ofNullable(key);
         if (uuid.isEmpty()) {
             uuid = Optional.of(UUID.randomUUID());
@@ -306,7 +307,7 @@ public class RPGItem {
         }
     }
 
-    private static List<Modifier> getModifiersUncached(SubItemTagContainer tag) {
+    private static List<Modifier> getModifiersUncached(ISubItemTagContainer tag) {
         List<Modifier> ret = new ArrayList<>();
         int i = 0;
         try {
@@ -841,7 +842,7 @@ public class RPGItem {
         List<String> lore = new ArrayList<>(getLore());
 
         PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
-        SubItemTagContainer rpgitemsTagContainer = makeTag(itemTagContainer, TAG_META);
+        ISubItemTagContainer rpgitemsTagContainer = makeTag(itemTagContainer, TAG_META);
         set(rpgitemsTagContainer, TAG_ITEM_UID, getUid());
         addDurabilityBar(rpgitemsTagContainer, lore);
         if (meta instanceof LeatherArmorMeta) {
@@ -955,7 +956,7 @@ public class RPGItem {
         }
     }
 
-    private void checkAndMakeUnique(SubItemTagContainer meta) {
+    private void checkAndMakeUnique(ISubItemTagContainer meta) {
         List<Unique> markers = getMarker(Unique.class);
         List<SlotCondition> conditions = getConditions(SlotCondition.class);
 
@@ -1512,7 +1513,7 @@ public class RPGItem {
         ItemStack rStack = new ItemStack(getItem());
         ItemMeta meta = rStack.getItemMeta();
         PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
-        SubItemTagContainer rpgitemsTagContainer = makeTag(itemTagContainer, TAG_META);
+        ISubItemTagContainer rpgitemsTagContainer = makeTag(itemTagContainer, TAG_META);
         set(rpgitemsTagContainer, TAG_ITEM_UID, getUid());
         if (isHasStackId()) {
             set(rpgitemsTagContainer, TAG_STACK_ID, UUID.randomUUID());
@@ -1532,7 +1533,7 @@ public class RPGItem {
     public void toModel(@Nullable Player player, ItemStack itemStack) {
         updateItem(player, itemStack);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        SubItemTagContainer meta = makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_META);
+        ISubItemTagContainer meta = makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_META);
         meta.remove(TAG_OWNER);
         meta.remove(TAG_STACK_ID);
         set(meta, TAG_IS_MODEL, true);
@@ -1553,7 +1554,7 @@ public class RPGItem {
     public void unModel(ItemStack itemStack, Player owner) {
         updateItem(owner, itemStack);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        SubItemTagContainer meta = makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_META);
+        ISubItemTagContainer meta = makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_META);
         if (isCanBeOwned()) {
             set(meta, TAG_OWNER, owner);
         }
@@ -1635,7 +1636,7 @@ public class RPGItem {
 
     public void setItemStackDurability(Player player, ItemStack item, int val) {
         ItemMeta itemMeta = item.getItemMeta();
-        SubItemTagContainer tagContainer = makeTag(Objects.requireNonNull(itemMeta), TAG_META);
+        ISubItemTagContainer tagContainer = makeTag(Objects.requireNonNull(itemMeta), TAG_META);
         if (getMaxDurability() != -1) {
             set(tagContainer, TAG_DURABILITY, val);
         }
@@ -1653,7 +1654,7 @@ public class RPGItem {
         if(itemMeta == null){
             return Optional.empty();
         }
-        SubItemTagContainer tagContainer = makeTag(itemMeta, TAG_META);
+        ISubItemTagContainer tagContainer = makeTag(itemMeta, TAG_META);
         int durability = computeIfAbsent(tagContainer, TAG_DURABILITY, PersistentDataType.INTEGER, this::getDefaultDurability);
         tagContainer.commit();
         item.setItemMeta(itemMeta);
@@ -1679,7 +1680,7 @@ public class RPGItem {
         int durability;
         ItemMeta itemMeta = item.getItemMeta();
         if (getMaxDurability() != -1) {
-            SubItemTagContainer tagContainer = makeTag(Objects.requireNonNull(itemMeta), TAG_META);
+            ISubItemTagContainer tagContainer = makeTag(Objects.requireNonNull(itemMeta), TAG_META);
             durability = computeIfAbsent(tagContainer, TAG_DURABILITY, PersistentDataType.INTEGER, this::getDefaultDurability);
             if (checkbound && (
                     (val > 0 && durability < getDurabilityLowerBound()) ||

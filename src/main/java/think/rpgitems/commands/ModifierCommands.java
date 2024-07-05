@@ -15,6 +15,7 @@ import think.rpgitems.power.PowerManager;
 import think.rpgitems.power.RPGCommandReceiver;
 import think.rpgitems.power.UnknownExtensionException;
 import think.rpgitems.power.propertymodifier.Modifier;
+import think.rpgitems.utils.ISubItemTagContainer;
 import think.rpgitems.utils.ItemTagUtils;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
@@ -105,10 +106,10 @@ public class ModifierCommands extends RPGCommandReceiver {
         Class<? extends Modifier> cls = keyClass.getValue();
         try {
             Modifier modifier = initPropertyHolder(sender, args, null, cls);
-            SubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
+            ISubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
             set(modifierContainer, TAG_VERSION, UUID.randomUUID());
             NamespacedKey seq = nextAvailable(modifierContainer);
-            SubItemTagContainer modifierTag = ItemTagUtils.makeTag(modifierContainer, seq);
+            ISubItemTagContainer modifierTag = ItemTagUtils.makeTag(modifierContainer, seq);
             modifier.save(modifierTag);
             modifierTag.commit();
             if (rootContainer.getKey() != null){
@@ -176,7 +177,7 @@ public class ModifierCommands extends RPGCommandReceiver {
                 String baseStr = arguments.top();
                 Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, arguments, baseStr);
                 PersistentDataContainer container = rootContainer.getValue();
-                SubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
+                ISubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
                 List<Modifier> modifiers = RPGItem.getModifiers(modifierContainer);
                 for (Modifier modifier : modifiers) {
                     completeStr.add(modifier.id());
@@ -209,11 +210,11 @@ public class ModifierCommands extends RPGCommandReceiver {
                 return;
             }
             setPropertyHolder(sender, args, modifier.getClass(), modifier, false);
-            SubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
+            ISubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
             set(modifierContainer, TAG_VERSION, UUID.randomUUID());
             NamespacedKey namespacedKey = PowerManager.parseKey(String.valueOf(modifierPair.getKey()));
             modifierContainer.remove(namespacedKey);
-            SubItemTagContainer m = ItemTagUtils.makeTag(modifierContainer, namespacedKey);
+            ISubItemTagContainer m = ItemTagUtils.makeTag(modifierContainer, namespacedKey);
             modifier.save(m);
             m.commit();
             if (rootContainer.getKey() != null){
@@ -235,7 +236,7 @@ public class ModifierCommands extends RPGCommandReceiver {
     }
 
     public Pair<Integer, Modifier> nextModifier(PersistentDataContainer container, Arguments args) {
-        SubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
+        ISubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
         List<Modifier> modifiers = RPGItem.getModifiers(modifierContainer);
         String next = args.nextString();
         OptionalInt index = IntStream.range(0, modifiers.size()).filter(i -> modifiers.get(i).id().equals((next))).findFirst();
@@ -253,7 +254,7 @@ public class ModifierCommands extends RPGCommandReceiver {
         PersistentDataContainer container = rootContainer.getValue();
         try {
             Pair<Integer, Modifier> modifierPair = nextModifier(container, args);
-            SubItemTagContainer modifierContainer = makeTag(container, TAG_MODIFIER);
+            ISubItemTagContainer modifierContainer = makeTag(container, TAG_MODIFIER);
             set(modifierContainer, TAG_VERSION, UUID.randomUUID());
             NamespacedKey currentKey = PowerManager.parseKey(String.valueOf(modifierPair.getKey()));
             int i = 0;

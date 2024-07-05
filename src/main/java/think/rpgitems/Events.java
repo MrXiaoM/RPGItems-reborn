@@ -1,6 +1,5 @@
 package think.rpgitems;
 
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,6 +39,7 @@ import think.rpgitems.support.PlaceholderSupport;
 import think.rpgitems.support.WGHandler;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.LightContext;
+import think.rpgitems.utils.events.EventsPaper;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.utils.RayTraceUtils;
 
@@ -109,6 +109,12 @@ public class Events implements Listener {
 
     public static void autoRemoveProjectile(int entityId) {
         removeProjectiles.add(entityId);
+    }
+
+    public Events() {
+        if (RPGItems.isPaper()) {
+            new EventsPaper(plugin, this::onPlayerArmorUpdate);
+        }
     }
 
     @EventHandler
@@ -217,7 +223,7 @@ public class Events implements Listener {
 
                         Location locationP = player.getLocation();
                         Location locationE = e.getEntity().getLocation();
-                        if(!locationE.getWorld().equals(locationP.getWorld())){
+                        if(locationE.getWorld() == null || !locationE.getWorld().equals(locationP.getWorld())){
                             return;
                         }
                         double distance = locationP.distance(locationE);
@@ -553,7 +559,6 @@ public class Events implements Listener {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerPickupTrident(PlayerPickupArrowEvent e) {
         if (e.getItem().getItemStack().getType() != Material.TRIDENT || !e.getItem().getItemStack().hasItemMeta()) {
@@ -1106,11 +1111,7 @@ public class Events implements Listener {
         event.newLore = PlaceholderSupport.setPlaceholders(event.player, event.newLore);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerArmorUpdate(PlayerArmorChangeEvent e) {
-        Player player = e.getPlayer();
-
-        ItemStack item = e.getNewItem();
+    private void onPlayerArmorUpdate(PlayerEvent e, Player player, ItemStack item) {
         trigger(player, e, item, BaseTriggers.ARMOR);
 
         EntityEquipment equipment = player.getEquipment();

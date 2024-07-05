@@ -812,25 +812,25 @@ public class RPGItem {
                 case IRON_HELMET:
                 case GOLDEN_HELMET:
                 case DIAMOND_HELMET:
-                    item.setType(NETHERITE_HELMET);
+                    item.setType(n ? NETHERITE_HELMET : DIAMOND_HELMET);
                     break;
                 case LEATHER_CHESTPLATE:
                 case IRON_CHESTPLATE:
                 case GOLDEN_CHESTPLATE:
                 case DIAMOND_CHESTPLATE:
-                    item.setType(NETHERITE_CHESTPLATE);
+                    item.setType(n ? NETHERITE_CHESTPLATE : DIAMOND_CHESTPLATE);
                     break;
                 case LEATHER_LEGGINGS:
                 case IRON_LEGGINGS:
                 case GOLDEN_LEGGINGS:
                 case DIAMOND_LEGGINGS:
-                    item.setType(NETHERITE_LEGGINGS);
+                    item.setType(n ? NETHERITE_LEGGINGS : DIAMOND_LEGGINGS);
                     break;
                 case LEATHER_BOOTS:
                 case IRON_BOOTS:
                 case GOLDEN_BOOTS:
                 case DIAMOND_BOOTS:
-                    item.setType(NETHERITE_BOOTS);
+                    item.setType(n ? NETHERITE_BOOTS : DIAMOND_BOOTS);
                     break;
                 default:
                     item.setType(getItem());

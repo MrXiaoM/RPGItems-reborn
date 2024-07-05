@@ -10,7 +10,6 @@ import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.google.common.collect.Lists;
 import org.bukkit.Color;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import think.rpgitems.RPGItems;
@@ -18,16 +17,13 @@ import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ProtocolListener extends PacketAdapter {
     private final ProtocolManager manager;
     RPGItems plugin;
-    List<Material> materialToCheck = Lists.newArrayList(
-            Material.NETHERITE_HELMET,
-            Material.NETHERITE_CHESTPLATE,
-            Material.NETHERITE_LEGGINGS,
-            Material.NETHERITE_BOOTS
-    );
+    Set<String> materialToCheck = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     public ProtocolListener(RPGItems plugin) {
         super(plugin,
                 ListenerPriority.LOW,
@@ -41,6 +37,17 @@ public class ProtocolListener extends PacketAdapter {
                 ListenerOptions.SKIP_PLUGIN_VERIFIER
         );
         this.plugin = plugin;
+        if (RPGItems.isNetheriteAvailable()) {
+            materialToCheck.add("NETHERITE_HELMET");
+            materialToCheck.add("NETHERITE_CHESTPLATE");
+            materialToCheck.add("NETHERITE_LEGGINGS");
+            materialToCheck.add("NETHERITE_BOOTS");
+        } else {
+            materialToCheck.add("DIAMOND_HELMET");
+            materialToCheck.add("DIAMOND_CHESTPLATE");
+            materialToCheck.add("DIAMOND_LEGGINGS");
+            materialToCheck.add("DIAMOND_BOOTS");
+        }
         manager = ProtocolLibrary.getProtocolManager();
         manager.addPacketListener(this);
         plugin.disableHook.add(() -> manager.removePacketListener(this));
@@ -121,7 +128,7 @@ public class ProtocolListener extends PacketAdapter {
         if (rpg == null) return item;
         ItemStack copy = item.clone();
         if (rpg.getFakeItem().isAir()) {
-            if (!materialToCheck.contains(item.getType())) return item;
+            if (plugin.cfg.plAutoReplaceArmorMaterial && !materialToCheck.contains(item.getType().name())) return item;
             if (rpg.getItem().equals(item.getType())) return item;
             copy.setType(rpg.getItem());
         } else {

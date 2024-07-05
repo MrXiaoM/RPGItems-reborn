@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import de.tr7zw.changeme.nbtapi.NBT;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -58,9 +59,12 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
     private static int serial;
     @lombok.Getter
     private static String serverMCVersion;
+    private static boolean hasNetherite;
     private static boolean hasProtocolLib;
     private static boolean isPaper;
-
+    public static boolean isNetheriteAvailable()  {
+        return hasNetherite;
+    }
     public static boolean protocolLibAvailable() {
         return hasProtocolLib;
     }
@@ -239,6 +243,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "======================================");
             throw new IllegalStateException();
         }
+        hasNetherite = Material.getMaterial("NETHERITE_INGOT") != null;
         nyaaCoreLoader.onEnable();
 
         String implementationVersion = Bukkit.class.getPackage().getImplementationVersion();

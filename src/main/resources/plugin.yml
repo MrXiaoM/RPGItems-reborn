@@ -5,7 +5,7 @@ version: ${version}
 softdepend: [WorldGuard,Vault,ItemsAdder,MythicMobs,PlaceholderAPI,ProtocolLib]
 authors: [MrXiaoM,Taiterio,cyilin,RecursiveG,Librazy]
 website: "https://github.com/MrXiaoM/RPGItems-reborn"
-api-version: 1.17
+api-version: 1.13
 libraries:
   - 'com.udojava:EvalEx:2.7'
   - 'commons-lang:commons-lang:2.6'

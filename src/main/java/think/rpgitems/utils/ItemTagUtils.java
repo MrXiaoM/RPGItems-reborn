@@ -22,12 +22,12 @@ import think.rpgitems.power.Utils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.ref.PhantomReference;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
 import java.util.zip.Inflater;
@@ -222,9 +222,11 @@ public final class ItemTagUtils {
     public static ISubItemTagContainer makeTag(PersistentDataContainer container, NamespacedKey key) {
         PersistentDataContainer self = computeIfAbsent(container, key, PersistentDataType.TAG_CONTAINER, (k) -> container.getAdapterContext().newPersistentDataContainer());
 
-        ISubItemTagContainer subItemTagContainer = RPGItems.isPaper() ? new SubItemTagContainerPaper(container, key, self) : new SubItemTagContainer(container, key, self);
+        ISubItemTagContainer subItemTagContainer = RPGItems.isPaper()
+                ? new SubItemTagContainerPaper(container, key, self)
+                : new SubItemTagContainerSpigot(container, key, self);
         WeakReference<PersistentDataContainer> weakParent = new WeakReference<>(container);
-        FinalizablePhantomReference<ISubItemTagContainer> reference = new FinalizablePhantomReference<>(subItemTagContainer, SubItemTagContainer.frq) {
+        FinalizablePhantomReference<ISubItemTagContainer> reference = new FinalizablePhantomReference<>(subItemTagContainer, ISubItemTagContainer.frq) {
             public void finalizeReferent() {
                 if (ISubItemTagContainer.references.remove(this)) {
                     RPGItems.logger.severe("Unhandled SubItemTagContainer found: " + key + "@" + weakParent.get());
@@ -373,89 +375,6 @@ public final class ItemTagUtils {
             } catch (IOException | ClassNotFoundException e) {
                 throw new IllegalStateException(e);
             }
-        }
-    }
-
-    public static class SubItemTagContainer implements PersistentDataContainer, ISubItemTagContainer {
-        private final PersistentDataContainer parent;
-        private PersistentDataContainer self;
-        private final NamespacedKey key;
-        private PhantomReference<ISubItemTagContainer> reference;
-
-        private SubItemTagContainer(PersistentDataContainer parent, NamespacedKey key, PersistentDataContainer self) {
-            this.parent = parent;
-            this.self = self;
-            this.key = key;
-        }
-
-        @Override
-        public <T, Z> void set(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<T, Z> persistentDataType, @NotNull Z z) {
-            self.set(namespacedKey, persistentDataType, z);
-        }
-
-        @Override
-        public <T, Z> boolean has(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<T, Z> persistentDataType) {
-            return self.has(namespacedKey, persistentDataType);
-        }
-
-        @Override
-        public <T, Z> Z get(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<T, Z> persistentDataType) {
-            return self.get(namespacedKey, persistentDataType);
-        }
-
-        @Override
-        public <T, Z> @NotNull Z getOrDefault(@NotNull NamespacedKey key, @NotNull PersistentDataType<T, Z> type, @NotNull Z defaultValue) {
-            return self.getOrDefault(key, type, defaultValue);
-        }
-
-        @Override
-        public @NotNull Set<NamespacedKey> getKeys() {
-            //todo check this
-            return Collections.singleton(key);
-        }
-
-        @Override
-        public void remove(@NotNull NamespacedKey namespacedKey) {
-            self.remove(namespacedKey);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return self.isEmpty();
-        }
-
-        @Override
-        public @NotNull PersistentDataAdapterContext getAdapterContext() {
-            return self.getAdapterContext();
-        }
-
-        @Override
-        public void commit() {
-            parent.set(key, PersistentDataType.TAG_CONTAINER, self);
-            if (parent instanceof ISubItemTagContainer) {
-                ((ISubItemTagContainer) parent).commit();
-            }
-            dispose();
-        }
-
-        @Override
-        public void dispose() {
-            self = null;
-            if (!ISubItemTagContainer.references.remove(reference)) {
-                RPGItems.logger.log(Level.SEVERE, "Double handled SubItemTagContainer found: " + this + ": " + key + "@" + parent, new Exception());
-            }
-        }
-
-        @Override
-        public void tryDispose() {
-            if (self != null) {
-                dispose();
-            }
-        }
-
-        @Override
-        public void setReference(FinalizablePhantomReference<ISubItemTagContainer> reference) {
-            this.reference = reference;
         }
     }
 }

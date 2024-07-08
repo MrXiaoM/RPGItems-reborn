@@ -251,6 +251,11 @@ public class ItemManager {
             addGroup(group);
             return null;
         }
+        if (itemStorage.getInt("uid", 0) >= 0) {
+            itemStorage.set("uid", nextUid());
+            itemStorage.save(file);
+            plugin.getLogger().info(file.getName() + " have no `uid`, generated new one and saved.");
+        }
         RPGItem item = new RPGItem(itemStorage, file);
         addItem(item);
         lock(file);

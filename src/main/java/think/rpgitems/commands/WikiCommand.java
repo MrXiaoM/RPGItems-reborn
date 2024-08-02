@@ -118,7 +118,9 @@ public class WikiCommand extends RPGCommandReceiver {
         catalogs.put("trigger", new StringBuilder("# Triggers\n\n"));
         catalogs.put("modifier", new StringBuilder("# Modifiers\n\n"));
 
-        for (Map.Entry<Class<? extends PropertyHolder>, Map<String, Pair<Method, PropertyInstance>>> entry : allProperties.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getCanonicalName(), String::compareToIgnoreCase)).toList()) {
+        for (Map.Entry<Class<? extends PropertyHolder>, Map<String, Pair<Method, PropertyInstance>>> entry : allProperties.entrySet().stream()
+                .sorted(Comparator.comparing(e -> e.getKey().getCanonicalName(), String::compareToIgnoreCase))
+                .collect(Collectors.toList())) {
             Class<? extends PropertyHolder> clazz = entry.getKey();
             Map<String, Pair<Method, PropertyInstance>> properties = entry.getValue();
             PropertyHolder instance = Trigger.class.isAssignableFrom(clazz) ? Trigger.values().stream().filter(p -> p.getClass().equals(clazz)).findAny().get() : PowerManager.instantiate(clazz);
@@ -199,7 +201,9 @@ public class WikiCommand extends RPGCommandReceiver {
                     }
                 }
             }
-            for (Map.Entry<String, Pair<Method, PropertyInstance>> propertyEntry : properties.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
+            for (Map.Entry<String, Pair<Method, PropertyInstance>> propertyEntry : properties.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .collect(Collectors.toList())) {
                 String name = propertyEntry.getKey();
                 PropertyInstance property = propertyEntry.getValue().getValue();
 

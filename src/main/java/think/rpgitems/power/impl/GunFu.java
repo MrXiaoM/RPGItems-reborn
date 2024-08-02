@@ -137,7 +137,9 @@ public class GunFu extends BasePower {
         }
 
         public PowerResult<Float> run(Player player, Projectile projectile, float force) {
-            List<LivingEntity> entities = getLivingEntitiesInCone(getNearestLivingEntities(getPower(), player.getEyeLocation(), player, getDistance(), 0), player.getLocation().toVector(), getViewAngle(), player.getLocation().getDirection()).stream().filter(player::hasLineOfSight).toList();
+            List<LivingEntity> entities = getLivingEntitiesInCone(getNearestLivingEntities(getPower(), player.getEyeLocation(), player, getDistance(), 0), player.getLocation().toVector(), getViewAngle(), player.getLocation().getDirection()).stream()
+                    .filter(player::hasLineOfSight)
+                    .collect(Collectors.toList());
             projectile.setVelocity(projectile.getVelocity().multiply(getInitVelFactor()));
             if (!entities.isEmpty()) {
                 LivingEntity target = entities.get(0);

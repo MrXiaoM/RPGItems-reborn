@@ -821,7 +821,7 @@ public class Beam extends BasePower {
                     .filter(entity -> (entity instanceof LivingEntity) && (!isUtilArmorStand(entity)) && (canHitSelf || !entity.equals(from)) && !entity.isDead() && !hitMob.contains(entity.getUniqueId()))
                     .filter(entity -> canHit(loc, entity))
                     .limit(Math.max(pierce, 1))
-                    .toList();
+                    .collect(Collectors.toList());
             if (!collect.isEmpty()) {
                 Entity entity = collect.get(0);
                 if (entity instanceof LivingEntity) {

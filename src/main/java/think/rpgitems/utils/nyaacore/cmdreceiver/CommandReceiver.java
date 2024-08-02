@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
@@ -352,7 +353,10 @@ public abstract class CommandReceiver implements CommandExecutor, TabCompleter {
             if (defaultSubCommand != null) ret = defaultSubCommand.callTabComplete(sender, args);
             if (ret == null) ret = new ArrayList<>();
             final String cmd_prefix = cmd;
-            List<String> subcommands = subCommands.keySet().stream().filter(s -> s.startsWith(cmd_prefix)).sorted().toList();
+            List<String> subcommands = subCommands.keySet().stream()
+                    .filter(s -> s.startsWith(cmd_prefix))
+                    .sorted()
+                    .collect(Collectors.toList());
             ret.addAll(subcommands);
             return ret;
         } else {

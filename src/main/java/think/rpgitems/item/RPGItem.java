@@ -1054,9 +1054,9 @@ public class RPGItem {
     private List<String> filterLores(ItemStack i) {
         List<String> ret = new ArrayList<>();
         List<LoreFilter> patterns = getMarker(LoreFilter.class).stream()
-                                                               .filter(p -> !Strings.isNullOrEmpty(p.regex))
-                                                               .map(LoreFilter::compile)
-                                                               .toList();
+                .filter(p -> !Strings.isNullOrEmpty(p.regex))
+                .map(LoreFilter::compile)
+                .collect(Collectors.toList());
         if (patterns.isEmpty()) return Collections.emptyList();
         if (!i.hasItemMeta() || !Objects.requireNonNull(i.getItemMeta()).hasLore()) return Collections.emptyList();
         for (String str : Objects.requireNonNull(i.getItemMeta().getLore())) {
@@ -1287,15 +1287,24 @@ public class RPGItem {
 
     private <T> PowerResult<T> checkConditions(Player player, ItemStack i, Pimpl pimpl, List<Condition<?>> conds, Map<PropertyHolder, PowerResult<?>> context) {
         Set<String> ids = pimpl.getPower().getConditions();
-        List<Condition<?>> conditions = conds.stream().filter(p -> ids.contains(p.id())).toList();
-        List<Condition<?>> failed = conditions.stream().filter(p -> p.isStatic() ? !context.get(p).isOK() : !p.check(player, i, context).isOK()).toList();
+        List<Condition<?>> conditions = conds.stream()
+                .filter(p -> ids.contains(p.id()))
+                .collect(Collectors.toList());
+        List<Condition<?>> failed = conditions.stream()
+                .filter(p -> p.isStatic() ? !context.get(p).isOK() : !p.check(player, i, context).isOK())
+                .collect(Collectors.toList());
         if (failed.isEmpty()) return null;
         return failed.stream().anyMatch(Condition::isCritical) ? PowerResult.abort() : PowerResult.condition();
     }
 
     private Map<Condition<?>, PowerResult<?>> checkStaticCondition(Player player, ItemStack i, List<Condition<?>> conds) {
-        Set<String> ids = powers.stream().flatMap(p -> p.getConditions().stream()).collect(Collectors.toSet());
-        List<Condition<?>> statics = conds.stream().filter(Condition::isStatic).filter(p -> ids.contains(p.id())).toList();
+        Set<String> ids = powers.stream()
+                .flatMap(p -> p.getConditions().stream())
+                .collect(Collectors.toSet());
+        List<Condition<?>> statics = conds.stream()
+                .filter(Condition::isStatic)
+                .filter(p -> ids.contains(p.id()))
+                .collect(Collectors.toList());
         Map<Condition<?>, PowerResult<?>> result = new LinkedHashMap<>();
         for (Condition<?> c : statics) {
             result.put(c, c.check(player, i, Collections.unmodifiableMap(result)));
@@ -1621,7 +1630,7 @@ public class RPGItem {
         if (!getItemFlags().isEmpty()) {
             StringBuilder str = new StringBuilder();
             for (ItemFlag flag : getItemFlags()) {
-                if (!str.isEmpty()) {
+                if (str.length() != 0) {
                     str.append(", ");
                 }
                 str.append(flag.name());

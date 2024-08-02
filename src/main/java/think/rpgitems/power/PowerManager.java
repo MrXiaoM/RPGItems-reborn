@@ -142,13 +142,14 @@ public class PowerManager {
 
     private static Map<String, Pair<Method, PropertyInstance>> scanProperties(Class<? extends PropertyHolder> cls) {
         RPGItems.logger.finest("Scanning class " + cls.toGenericString());
-        List<Method> methods = Arrays.stream(cls.getMethods()).toList();
+        List<Method> methods = Arrays.stream(cls.getMethods())
+                .collect(Collectors.toList());
         List<Pair<Field, Property>> collect = getAllFields(cls)
                 .stream()
                 .map(field -> Pair.of(field, field.getAnnotation(Property.class)))
                 .filter(pair -> pair.getValue() != null)
                 .sorted(Comparator.comparingInt(p -> p.getValue().order()))
-                .toList();
+                .collect(Collectors.toList());
 
         int requiredOrder = collect.stream()
                 .map(Pair::getValue)
@@ -371,7 +372,9 @@ public class PowerManager {
     public static <T extends Pimpl> T adaptPower(Pimpl pimpl, Class<T> specified) {
         List<Class<? extends Pimpl>> generals = Arrays.asList(getMeta(pimpl.getPower().getNamespacedKey()).generalInterface());
         Set<Class<? extends Pimpl>> statics = Power.getStaticInterfaces(pimpl.getClass());
-        List<Class<? extends Pimpl>> preferences = generals.stream().filter(statics::contains).toList();
+        List<Class<? extends Pimpl>> preferences = generals.stream()
+                .filter(statics::contains)
+                .collect(Collectors.toList());
 
         for (Class<? extends Pimpl> general : preferences) {
             Function func = adapters.get(general, specified);

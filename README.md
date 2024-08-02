@@ -8,7 +8,8 @@ Active developing from [SweetRiceMC](https://www.pds.ink) developers team.
 
 Take it easy. **NO ANY** hard-dependency plugin is needed this time. Install just one plugin is OK! And one plugin file supports multi Minecraft versions from `1.8` to `1.21`!
 
-At least Java 11 is needed.
+At least Java 11 is needed. Supports 1.14-1.21 currently.
+PDC (PersistentDataContainer) since 1.14, so the plugin can't run on 1.8-1.13. We are trying to increase compatibility, target to support down to Minecraft 1.8 but Java 11. There is no way to downgrade java language version anymore.
 
 Recently, I targeted to make RPGItems more powerful and easy to use.  
 Original plugin is not only hard to learn and understand how to use, but also there are very few choices of powers, conditions and triggers.  
@@ -54,6 +55,8 @@ New version is currently testing. The version will be `4.0.0` when we release it
 | `1.19.X`          | `v1_19_R1`, `v1_19_R2`, `v1_19_R3`             |
 | `1.20.X`          | `v1_20_R1`, `v1_20_R2`, `v1_20_R3`, `v1_20_R4` |
 | `1.21`            | `v1_21_R1`                                     |
+
+We have tested it in `1.19.4 (v1_19_R3)` and `1.20.4 (v1_20_R3)`.
 
 ## What's new 
 

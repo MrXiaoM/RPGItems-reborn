@@ -37,6 +37,11 @@ public class Mythic4 implements IMythic {
         return mythic.getAPIHelper().castSkill(player, spell, player, player.getLocation(), eTargets, lTargets, 1.0F);
     }
 
+    @Override
+    public boolean isMythic(Entity entity) {
+        return mythic.getAPIHelper().isMythicMob(entity);
+    }
+
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {
         ActiveMob mob = mythic.getMobManager().getMythicMobInstance(e.getDamager());

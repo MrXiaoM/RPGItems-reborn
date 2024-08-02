@@ -35,6 +35,11 @@ public class Mythic5 implements IMythic {
         return mythic.getAPIHelper().castSkill(player, spell, player, player.getLocation(), eTargets, lTargets, 1.0F);
     }
 
+    @Override
+    public boolean isMythic(Entity entity) {
+        return mythic.getAPIHelper().isMythicMob(entity);
+    }
+
     @EventHandler
     public void onDamage(MythicDamageEvent e) {
         Entity entity = BukkitAdapter.adapt(e.getCaster().getEntity());

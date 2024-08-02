@@ -40,6 +40,7 @@ import think.rpgitems.RPGItems;
 import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.data.Context;
 import think.rpgitems.data.FactorModifier;
+import think.rpgitems.event.ItemUpdateEvent;
 import think.rpgitems.event.LoreUpdateEvent;
 import think.rpgitems.power.*;
 import think.rpgitems.power.cond.SlotCondition;
@@ -786,6 +787,34 @@ public class RPGItem {
         }
     }
 
+    private Material getMaterial() {
+        if (RPGItems.protocolLibAvailable() && plugin.cfg.useProtocolLib && plugin.cfg.plAutoReplaceArmorMaterial) {
+            boolean n = RPGItems.isNetheriteAvailable();
+            switch (getItem()) {
+                case LEATHER_HELMET:
+                case IRON_HELMET:
+                case GOLDEN_HELMET:
+                case DIAMOND_HELMET:
+                    return n ? NETHERITE_HELMET : DIAMOND_HELMET;
+                case LEATHER_CHESTPLATE:
+                case IRON_CHESTPLATE:
+                case GOLDEN_CHESTPLATE:
+                case DIAMOND_CHESTPLATE:
+                    return n ? NETHERITE_CHESTPLATE : DIAMOND_CHESTPLATE;
+                case LEATHER_LEGGINGS:
+                case IRON_LEGGINGS:
+                case GOLDEN_LEGGINGS:
+                case DIAMOND_LEGGINGS:
+                    return n ? NETHERITE_LEGGINGS : DIAMOND_LEGGINGS;
+                case LEATHER_BOOTS:
+                case IRON_BOOTS:
+                case GOLDEN_BOOTS:
+                case DIAMOND_BOOTS:
+                    return n ? NETHERITE_BOOTS : DIAMOND_BOOTS;
+            }
+        }
+        return getItem();
+    }
 
     @Deprecated
     public void updateItem(ItemStack item) {
@@ -805,40 +834,13 @@ public class RPGItem {
         if (item == null) return;
         List<String> oldLore = item.getItemMeta() == null || item.getItemMeta().getLore() == null ? new ArrayList<>() : new ArrayList<>(item.getItemMeta().getLore());
         List<String> reservedLore = this.filterLores(item);
-        if (RPGItems.protocolLibAvailable() && plugin.cfg.useProtocolLib && plugin.cfg.plAutoReplaceArmorMaterial) {
-            boolean n = RPGItems.isNetheriteAvailable();
-            switch (getItem()) {
-                case LEATHER_HELMET:
-                case IRON_HELMET:
-                case GOLDEN_HELMET:
-                case DIAMOND_HELMET:
-                    item.setType(n ? NETHERITE_HELMET : DIAMOND_HELMET);
-                    break;
-                case LEATHER_CHESTPLATE:
-                case IRON_CHESTPLATE:
-                case GOLDEN_CHESTPLATE:
-                case DIAMOND_CHESTPLATE:
-                    item.setType(n ? NETHERITE_CHESTPLATE : DIAMOND_CHESTPLATE);
-                    break;
-                case LEATHER_LEGGINGS:
-                case IRON_LEGGINGS:
-                case GOLDEN_LEGGINGS:
-                case DIAMOND_LEGGINGS:
-                    item.setType(n ? NETHERITE_LEGGINGS : DIAMOND_LEGGINGS);
-                    break;
-                case LEATHER_BOOTS:
-                case IRON_BOOTS:
-                case GOLDEN_BOOTS:
-                case DIAMOND_BOOTS:
-                    item.setType(n ? NETHERITE_BOOTS : DIAMOND_BOOTS);
-                    break;
-                default:
-                    item.setType(getItem());
-                    break;
-            }
-        } else {
-            item.setType(getItem());
-        }
+
+        Material material = getMaterial();
+        Integer cmd = getCustomModelData() == -1 ? null : getCustomModelData();
+        ItemUpdateEvent itemUpdateEvent = new ItemUpdateEvent(this, player, item, loreOnly, material, cmd, getItemFlags());
+        Bukkit.getPluginManager().callEvent(itemUpdateEvent);
+        item.setType(itemUpdateEvent.getMaterial());
+
         ItemMeta meta = item.getItemMeta();
         List<String> lore = new ArrayList<>(getLore());
 
@@ -869,10 +871,10 @@ public class RPGItem {
             lore.add("mcMMO Ability Tool");
 
         lore.addAll(reservedLore);
-        LoreUpdateEvent event = new LoreUpdateEvent(this, player, item, oldLore, lore);
-        Bukkit.getPluginManager().callEvent(event);
-        item = event.item;
-        meta.setLore(event.newLore);
+        LoreUpdateEvent loreUpdateEvent = new LoreUpdateEvent(this, player, item, oldLore, lore);
+        Bukkit.getPluginManager().callEvent(loreUpdateEvent);
+        item = loreUpdateEvent.item;
+        meta.setLore(loreUpdateEvent.newLore);
 
         //quality prefix
         String qualityPrefix = plugin.cfg.qualityPrefixes.get(getQuality());
@@ -915,12 +917,8 @@ public class RPGItem {
         meta.setUnbreakable(isCustomItemModel() || hasMarker(Unbreakable.class));
         meta.removeItemFlags(meta.getItemFlags().toArray(new ItemFlag[0]));
 
-        if (getCustomModelData() != -1) {
-            meta.setCustomModelData(customModelData);
-        }else{
-            meta.setCustomModelData(null);
-        }
-        for (ItemFlag flag : getItemFlags()) {
+        meta.setCustomModelData(itemUpdateEvent.getCustomModelData());
+        for (ItemFlag flag : itemUpdateEvent.getItemFlags()) {
             meta.addItemFlags(flag);
         }
         if (getEnchantMode() == EnchantMode.DISALLOW) {
@@ -946,7 +944,7 @@ public class RPGItem {
                     ItemTagUtils.setString(item, NBT_ITEM_UUID, uuid.toString());
                 }
             }
-            LoreUpdateEvent.Post post = new LoreUpdateEvent.Post(event, this, item);
+            LoreUpdateEvent.Post post = new LoreUpdateEvent.Post(loreUpdateEvent, this, item);
             Bukkit.getPluginManager().callEvent(post);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             StringWriter sw = new StringWriter();

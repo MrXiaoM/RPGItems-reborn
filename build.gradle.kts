@@ -202,7 +202,7 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("mavenRelease") {
-            from(components.getByName("java"))
+            //from(components.getByName("java"))
             groupId = "top.mrxiaom"
             artifactId = "rpgitems"
             version = mavenVersion

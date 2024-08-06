@@ -184,7 +184,11 @@ public class Utils {
      * @return the boolean
      */
     public static boolean checkCooldown(Power power, Player player, long cdTicks, boolean showWarn, boolean showPower) {
-        return checkAndSetCooldown(power, player, cdTicks, showWarn, showPower, "cooldown." + power.getItem().getUid() + "." + power.getNamespacedKey().toString());
+        String key = "cooldown." + power.getItem().getUid() + "." + power.getNamespacedKey().toString();
+        if (power instanceof BasePower) {
+            key += "." + ((BasePower) power).getPowerId();
+        }
+        return checkAndSetCooldown(power, player, cdTicks, showWarn, showPower, key);
     }
 
     public static boolean checkAndSetCooldown(Power power, Player player, long cooldownTick, boolean showWarn, boolean showPower, String key) {

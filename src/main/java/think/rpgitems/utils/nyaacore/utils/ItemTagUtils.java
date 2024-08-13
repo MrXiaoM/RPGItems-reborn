@@ -1,8 +1,10 @@
 package think.rpgitems.utils.nyaacore.utils;
 
 import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTList;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Optional;
 
 import static de.tr7zw.changeme.nbtapi.NBTType.*;
@@ -26,6 +28,24 @@ public class ItemTagUtils {
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setString(key, value);
             return value;
+        }));
+    }
+
+    public static Optional<List<String>> getStringList(ItemStack item, String key) {
+        if (checkItem(item)) return Optional.empty();
+        return Optional.ofNullable(NBT.get(item, it -> {
+            if (!it.hasTag(key, NBTTagList)) return null;
+            return it.getStringList(key).toListCopy();
+        }));
+    }
+
+    public static Optional<List<String>> setStringList(ItemStack item, String key, List<String> value) {
+        if (checkItem(item)) return Optional.empty();
+        return Optional.ofNullable(NBT.modify(item, it -> {
+            ReadWriteNBTList<String> list = it.getStringList(key);
+            list.clear();
+            list.addAll(value);
+            return list.toListCopy();
         }));
     }
 

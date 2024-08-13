@@ -95,6 +95,7 @@ public class RPGItem {
     public static final String NBT_UID = "rpgitem_uid";
     public static final String NBT_ITEM_UUID = "rpgitem_item_uuid";
     public static final String NBT_IS_MODEL = "rpgitem_is_model";
+    public static final String NBT_POWER_STONES = "rpgitem_power_stones";
 
     private static final Cache<UUID, List<Modifier>> modifierCache = CacheBuilder.newBuilder().concurrencyLevel(1).expireAfterAccess(1, TimeUnit.MINUTES).build();
 
@@ -1310,14 +1311,31 @@ public class RPGItem {
         return result;
     }
 
+    public Pair<List<Power>, List<Condition<?>>> getAllPowersAndConditions(ItemStack item) {
+        RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
+        if (rpg == null || !rpg.name.equals(this.name)) return Pair.of(getPowers(), getConditions());
+        List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElse(null);
+        if (list == null) return Pair.of(getPowers(), getConditions());
+        List<Power> extraPowers = new ArrayList<>();
+        List<Condition<?>> extraConditions = new ArrayList<>();
+        extraPowers.addAll(getPowers());
+        extraConditions.addAll(getConditions());
+        for (String id : list) {
+            // TODO: 解析技能石，获取额外技能和条件
+        }
+        return Pair.of(extraPowers, extraConditions);
+    }
+
     public <TEvent extends Event, TPower extends Pimpl, TResult, TReturn> TReturn power(Player player, ItemStack i, TEvent event, Trigger<TEvent, TPower, TResult, TReturn> trigger, Object context) {
         powerCustomTrigger(player, i, event, trigger, context);
 
-        List<TPower> powers = this.getPower(trigger, player, i);
+        Pair<List<Power>, List<Condition<?>>> pair = getAllPowersAndConditions(i);
+
+        List<TPower> powers = this.getPower(pair.getKey(), trigger, player, i);
         TReturn ret = trigger.def(player, i, event);
         if (!triggerPreCheck(player, i, event, trigger, powers)) return ret;
         try {
-            List<Condition<?>> conds = getConditions();
+            List<Condition<?>> conds = pair.getValue();
             Map<Condition<?>, PowerResult<?>> staticCond = checkStaticCondition(player, i, conds);
             Map<PropertyHolder, PowerResult<?>> resultMap = new LinkedHashMap<>(staticCond);
             int magicFlag = 0;
@@ -1365,7 +1383,8 @@ public class RPGItem {
                 .parallelStream()
                 .filter(e -> trigger.getClass().isInstance(e.getValue()))
                 .sorted(Comparator.comparing(en -> en.getValue().getPriority()))
-                .filter(e -> e.getValue().check(player, i, event)).forEachOrdered(e -> this.power(player, i, event, e.getValue(), context));
+                .filter(e -> e.getValue().check(player, i, event))
+                .forEachOrdered(e -> this.power(player, i, event, e.getValue(), context));
     }
 
     public <TEvent extends Event, TPower extends Pimpl, TResult, TReturn> TReturn power(Player player, ItemStack i, TEvent event, Trigger<TEvent, TPower, TResult, TReturn> trigger) {
@@ -1967,7 +1986,7 @@ public class RPGItem {
         return msg;
     }
 
-    private <TEvent extends Event, T extends Pimpl, TResult, TReturn> List<T> getPower(Trigger<TEvent, T, TResult, TReturn> trigger, Player player, ItemStack stack) {
+    private <TEvent extends Event, T extends Pimpl, TResult, TReturn> List<T> getPower(List<Power> powers, Trigger<TEvent, T, TResult, TReturn> trigger, Player player, ItemStack stack) {
         return powers.stream()
                 .filter(p -> p.getTriggers().contains(trigger))
                 .map(p -> {

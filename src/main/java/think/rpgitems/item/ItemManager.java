@@ -155,12 +155,10 @@ public class ItemManager {
     public static void refreshItem() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             for (ItemStack item : player.getInventory()) {
-                Optional<RPGItem> rpgItem = ItemManager.toRPGItemByMeta(item);
-                rpgItem.ifPresent(r -> r.updateItem(player, item));
+                updateItem(player, item);
             }
             for (ItemStack item : player.getInventory().getArmorContents()) {
-                Optional<RPGItem> rpgItem = ItemManager.toRPGItemByMeta(item);
-                rpgItem.ifPresent(r -> r.updateItem(player, item));
+                updateItem(player, item);
             }
         }
     }

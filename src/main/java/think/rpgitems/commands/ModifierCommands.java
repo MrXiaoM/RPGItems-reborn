@@ -16,7 +16,7 @@ import think.rpgitems.power.RPGCommandReceiver;
 import think.rpgitems.power.UnknownExtensionException;
 import think.rpgitems.power.propertymodifier.Modifier;
 import think.rpgitems.utils.ISubItemTagContainer;
-import think.rpgitems.utils.ItemTagUtils;
+import think.rpgitems.utils.ItemPDC;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 import static think.rpgitems.commands.AdminCommands.*;
 import static think.rpgitems.item.RPGItem.TAG_MODIFIER;
 import static think.rpgitems.item.RPGItem.TAG_VERSION;
-import static think.rpgitems.utils.ItemTagUtils.*;
 
 @SuppressWarnings({"rawtypes"})
 public class ModifierCommands extends RPGCommandReceiver {
@@ -106,10 +105,10 @@ public class ModifierCommands extends RPGCommandReceiver {
         Class<? extends Modifier> cls = keyClass.getValue();
         try {
             Modifier modifier = initPropertyHolder(sender, args, null, cls);
-            ISubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
-            set(modifierContainer, TAG_VERSION, UUID.randomUUID());
+            ISubItemTagContainer modifierContainer = ItemPDC.makeTag(container, TAG_MODIFIER);
+            ItemPDC.set(modifierContainer, TAG_VERSION, UUID.randomUUID());
             NamespacedKey seq = nextAvailable(modifierContainer);
-            ISubItemTagContainer modifierTag = ItemTagUtils.makeTag(modifierContainer, seq);
+            ISubItemTagContainer modifierTag = ItemPDC.makeTag(modifierContainer, seq);
             modifier.save(modifierTag);
             modifierTag.commit();
             if (rootContainer.getKey() != null){
@@ -177,7 +176,7 @@ public class ModifierCommands extends RPGCommandReceiver {
                 String baseStr = arguments.top();
                 Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, arguments, baseStr);
                 PersistentDataContainer container = rootContainer.getValue();
-                ISubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
+                ISubItemTagContainer modifierContainer = ItemPDC.makeTag(container, TAG_MODIFIER);
                 List<Modifier> modifiers = RPGItem.getModifiers(modifierContainer);
                 for (Modifier modifier : modifiers) {
                     completeStr.add(modifier.id());
@@ -210,11 +209,11 @@ public class ModifierCommands extends RPGCommandReceiver {
                 return;
             }
             setPropertyHolder(sender, args, modifier.getClass(), modifier, false);
-            ISubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
-            set(modifierContainer, TAG_VERSION, UUID.randomUUID());
+            ISubItemTagContainer modifierContainer = ItemPDC.makeTag(container, TAG_MODIFIER);
+            ItemPDC.set(modifierContainer, TAG_VERSION, UUID.randomUUID());
             NamespacedKey namespacedKey = PowerManager.parseKey(String.valueOf(modifierPair.getKey()));
             modifierContainer.remove(namespacedKey);
-            ISubItemTagContainer m = ItemTagUtils.makeTag(modifierContainer, namespacedKey);
+            ISubItemTagContainer m = ItemPDC.makeTag(modifierContainer, namespacedKey);
             modifier.save(m);
             m.commit();
             if (rootContainer.getKey() != null){
@@ -236,7 +235,7 @@ public class ModifierCommands extends RPGCommandReceiver {
     }
 
     public Pair<Integer, Modifier> nextModifier(PersistentDataContainer container, Arguments args) {
-        ISubItemTagContainer modifierContainer = ItemTagUtils.makeTag(container, TAG_MODIFIER);
+        ISubItemTagContainer modifierContainer = ItemPDC.makeTag(container, TAG_MODIFIER);
         List<Modifier> modifiers = RPGItem.getModifiers(modifierContainer);
         String next = args.nextString();
         OptionalInt index = IntStream.range(0, modifiers.size()).filter(i -> modifiers.get(i).id().equals((next))).findFirst();
@@ -254,8 +253,8 @@ public class ModifierCommands extends RPGCommandReceiver {
         PersistentDataContainer container = rootContainer.getValue();
         try {
             Pair<Integer, Modifier> modifierPair = nextModifier(container, args);
-            ISubItemTagContainer modifierContainer = makeTag(container, TAG_MODIFIER);
-            set(modifierContainer, TAG_VERSION, UUID.randomUUID());
+            ISubItemTagContainer modifierContainer = ItemPDC.makeTag(container, TAG_MODIFIER);
+            ItemPDC.set(modifierContainer, TAG_VERSION, UUID.randomUUID());
             NamespacedKey currentKey = PowerManager.parseKey(String.valueOf(modifierPair.getKey()));
             int i = 0;
             for (NamespacedKey key = PowerManager.parseKey(String.valueOf(i)); modifierContainer.has(key, PersistentDataType.TAG_CONTAINER); key = PowerManager.parseKey(String.valueOf(i))) {
@@ -264,9 +263,9 @@ public class ModifierCommands extends RPGCommandReceiver {
             --i;
             modifierContainer.remove(currentKey);
             NamespacedKey lastKey = PowerManager.parseKey(String.valueOf(i));
-            PersistentDataContainer lastContainer = getTag(modifierContainer, lastKey);
+            PersistentDataContainer lastContainer = ItemPDC.getTag(modifierContainer, lastKey);
             if (lastContainer != null){
-                set(modifierContainer, currentKey, lastContainer);
+                ItemPDC.set(modifierContainer, currentKey, lastContainer);
             }
             modifierContainer.remove(lastKey);
             modifierContainer.commit();

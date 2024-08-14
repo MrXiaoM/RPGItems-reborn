@@ -34,14 +34,14 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 @SuppressWarnings({"unused"})
-public final class ItemTagUtils {
+public final class ItemPDC { // TODO: 通过 NBT-API 实现 ItemPDC，而非使用 Bukkit 内置实现
 
     public static final PersistentDataType<byte[], UUID> BA_UUID = new UUIDPersistentDataType();
     public static final PersistentDataType<Byte, Boolean> BYTE_BOOLEAN = new BooleanPersistentDataType();
     public static final PersistentDataType<byte[], OfflinePlayer> BA_OFFLINE_PLAYER = new OfflinePlayerPersistentDataType();
     public static final PersistentDataType<String, ItemStack> STRING_ITEMSTACK = new ItemStackPersistentDataType();
 
-    private ItemTagUtils() {
+    private ItemPDC() {
         throw new IllegalStateException();
     }
 

@@ -31,10 +31,7 @@ import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.support.WGSupport;
-import think.rpgitems.utils.IOUtils;
-import think.rpgitems.utils.MaterialUtils;
-import think.rpgitems.utils.MessageType;
-import think.rpgitems.utils.NetworkUtils;
+import think.rpgitems.utils.*;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
@@ -68,8 +65,6 @@ import static think.rpgitems.item.RPGItem.AttributeMode.FULL_UPDATE;
 import static think.rpgitems.item.RPGItem.AttributeMode.PARTIAL_UPDATE;
 import static think.rpgitems.item.RPGItem.*;
 import static think.rpgitems.power.Utils.rethrow;
-import static think.rpgitems.utils.ItemTagUtils.getInt;
-import static think.rpgitems.utils.ItemTagUtils.getTag;
 import static think.rpgitems.utils.NetworkUtils.Location.GIST;
 
 @SuppressWarnings({"deprecation"})
@@ -227,7 +222,7 @@ public class AdminCommands extends RPGCommandReceiver {
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer tagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
         if (tagContainer.has(TAG_META, PersistentDataType.TAG_CONTAINER)) {
-            int uid = getInt(getTag(tagContainer, TAG_META), TAG_ITEM_UID);
+            int uid = ItemPDC.getInt(ItemPDC.getTag(tagContainer, TAG_META), TAG_ITEM_UID);
             player.sendMessage("new item: " + uid);
             Optional<RPGItem> rpgItem = ItemManager.getItem(uid);
             player.sendMessage("rpgItem: " + rpgItem.map(RPGItem::getName).orElse(null));

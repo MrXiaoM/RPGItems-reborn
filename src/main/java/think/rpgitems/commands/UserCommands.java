@@ -9,6 +9,7 @@ import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.Completion;
 import think.rpgitems.power.RPGCommandReceiver;
+import think.rpgitems.utils.ItemPDC;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
@@ -17,8 +18,6 @@ import java.util.Optional;
 
 import static think.rpgitems.item.RPGItem.TAG_IS_MODEL;
 import static think.rpgitems.item.RPGItem.TAG_META;
-import static think.rpgitems.utils.ItemTagUtils.getTag;
-import static think.rpgitems.utils.ItemTagUtils.optBoolean;
 
 public class UserCommands extends RPGCommandReceiver {
 
@@ -39,8 +38,8 @@ public class UserCommands extends RPGCommandReceiver {
         ItemStack itemStack = p.getInventory().getItemInMainHand();
         item.print(sender, false);
         PersistentDataContainer tagContainer = itemStack.getItemMeta().getPersistentDataContainer();
-        PersistentDataContainer metaTag = getTag(tagContainer, TAG_META);
-        Optional<Boolean> optIsModel = optBoolean(metaTag, TAG_IS_MODEL);
+        PersistentDataContainer metaTag = ItemPDC.getTag(tagContainer, TAG_META);
+        Optional<Boolean> optIsModel = ItemPDC.optBoolean(metaTag, TAG_IS_MODEL);
         if (optIsModel.orElse(false)) {
             msg(p, "message.model.is");
         }

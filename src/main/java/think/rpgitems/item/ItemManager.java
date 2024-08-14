@@ -3,6 +3,7 @@ package think.rpgitems.item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
+import think.rpgitems.utils.ItemPDC;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.cache.Cache;
@@ -46,7 +47,6 @@ import java.util.logging.Level;
 
 import static think.rpgitems.item.RPGItem.*;
 import static think.rpgitems.power.Utils.rethrow;
-import static think.rpgitems.utils.ItemTagUtils.*;
 
 public class ItemManager {
     private static final long OFFSET_BASIS = 2166136261L;// 32位offset basis
@@ -570,10 +570,10 @@ public class ItemManager {
 
         PersistentDataContainer tagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
         if (tagContainer.has(TAG_META, PersistentDataType.TAG_CONTAINER)) {
-            PersistentDataContainer metaTag = getTag(tagContainer, TAG_META);
-            Integer uid = getInt(metaTag, TAG_ITEM_UID);
+            PersistentDataContainer metaTag = ItemPDC.getTag(tagContainer, TAG_META);
+            Integer uid = ItemPDC.getInt(metaTag, TAG_ITEM_UID);
             if (uid == null)return Optional.empty();
-            Optional<Boolean> optIsModel = optBoolean(metaTag, TAG_IS_MODEL);
+            Optional<Boolean> optIsModel = ItemPDC.optBoolean(metaTag, TAG_IS_MODEL);
             if (ignoreModel && optIsModel.orElse(false)) {
                 return Optional.empty();
             }
@@ -601,19 +601,19 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer tagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
         if (tagContainer.has(TAG_META, PersistentDataType.TAG_CONTAINER)) {
-            PersistentDataContainer itemMeta = getTag(tagContainer, TAG_META);
-            int uid = getInt(itemMeta, TAG_ITEM_UID);
+            PersistentDataContainer itemMeta = ItemPDC.getTag(tagContainer, TAG_META);
+            int uid = ItemPDC.getInt(itemMeta, TAG_ITEM_UID);
             Optional<RPGItem> opt = ItemManager.getItem(uid);
             if (opt.isEmpty()) return null;
             RPGItem rpgItem = opt.get();
             ItemInfo itemInfo = new ItemInfo(rpgItem);
             if (rpgItem.getMaxDurability() > 0) {
-                OptionalInt optDur = optInt(itemMeta, TAG_DURABILITY);
+                OptionalInt optDur = ItemPDC.optInt(itemMeta, TAG_DURABILITY);
                 itemInfo.durability = optDur.orElseGet(rpgItem::getDefaultDurability);
             }
 
-            itemInfo.stackOwner = optUUID(itemMeta, TAG_OWNER).orElse(null);
-            itemInfo.stackId = optUUID(itemMeta, TAG_STACK_ID).orElse(null);
+            itemInfo.stackOwner = ItemPDC.optUUID(itemMeta, TAG_OWNER).orElse(null);
+            itemInfo.stackId = ItemPDC.optUUID(itemMeta, TAG_STACK_ID).orElse(null);
             return itemInfo;
         }
         return null;

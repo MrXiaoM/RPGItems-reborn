@@ -113,6 +113,10 @@ public class Events implements Listener {
         removeProjectiles.add(entityId);
     }
 
+    public static void cancelAutoRemoveProjectile(int entityId) {
+        removeProjectiles.remove(entityId);
+    }
+
     public Events() {
         if (RPGItems.isPaper()) {
             new EventsPaper(plugin, this::onPlayerArmorUpdate);
@@ -181,7 +185,7 @@ public class Events implements Listener {
                 if (e.getHitEntity() != null && e.getEntity() instanceof AbstractArrow && ((AbstractArrow) e.getEntity()).getPierceLevel() > 0 ) {
                     return;
                 }
-                removeProjectiles.remove(entity.getEntityId());
+                cancelAutoRemoveProjectile(entity.getEntityId());
                 entity.remove();
             });
         }
@@ -568,7 +572,7 @@ public class Events implements Listener {
         }
         ItemStack tridentItem = e.getItem().getItemStack();
         ItemMeta itemMeta = tridentItem.getItemMeta();
-        if (!rpgProjectiles.containsKey(e.getArrow().getEntityId()) || !itemMeta.hasLore() || itemMeta.getLore() == null || itemMeta.getLore().isEmpty()) {
+        if (!rpgProjectiles.containsKey(e.getArrow().getEntityId()) || itemMeta == null || !itemMeta.hasLore() || itemMeta.getLore() == null || itemMeta.getLore().isEmpty()) {
             return;
         }
         try {

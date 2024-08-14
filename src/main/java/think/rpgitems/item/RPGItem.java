@@ -1351,7 +1351,7 @@ public class RPGItem {
                         if (power.getPower().requiredContext() != null) {
                             result = handleContext(player, i, event, trigger, power);
                         } else {
-                            result = trigger.run(power, player, i, event, context);
+                            result = trigger.run(this, power, player, i, event, context);
                         }
                     }
                     resultMap.put(power.getPower(), result);
@@ -1394,7 +1394,7 @@ public class RPGItem {
         }
         if (context instanceof Location) {
             if (power instanceof PowerLocation) {
-                PowerResult<Void> overrideResult = BaseTriggers.LOCATION.run((PowerLocation) power, player, i, event, context);
+                PowerResult<Void> overrideResult = BaseTriggers.LOCATION.run(this, (PowerLocation) power, player, i, event, context);
                 result = trigger.warpResult(overrideResult, power, player, i, event);
             } else {
                 throw new IllegalStateException();
@@ -1402,7 +1402,7 @@ public class RPGItem {
         } else if (context instanceof Pair) {
             Object key = ((Pair<?, ?>) context).getKey();
             if (key instanceof LivingEntity) {
-                PowerResult<Void> overrideResult = BaseTriggers.LIVINGENTITY.run((PowerLivingEntity) power, player, i, event, context);
+                PowerResult<Void> overrideResult = BaseTriggers.LIVINGENTITY.run(this, (PowerLivingEntity) power, player, i, event, context);
                 result = trigger.warpResult(overrideResult, power, player, i, event);
             } else {
                 throw new IllegalStateException();

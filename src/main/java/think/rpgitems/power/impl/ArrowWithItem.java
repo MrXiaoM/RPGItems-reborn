@@ -133,13 +133,11 @@ public class ArrowWithItem extends BasePower {
     }
 
     public class Impl implements PowerRightClick, PowerLeftClick, PowerPlain {
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return this.fire(player, stack);
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return this.fire(player, item, stack);
         }
 
-        public PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             if (!Utils.checkCooldown(item, this.getPower(), player, getCooldown(), true, true)) {
                 return PowerResult.cd();
             } else if (!item.consumeDurability(player, stack, getCost())) {
@@ -171,8 +169,8 @@ public class ArrowWithItem extends BasePower {
             return ArrowWithItem.this;
         }
 
-        public PowerResult<Void> leftClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return this.fire(player, stack);
+        public PowerResult<Void> leftClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return this.fire(player, item, stack);
         }
     }
 }

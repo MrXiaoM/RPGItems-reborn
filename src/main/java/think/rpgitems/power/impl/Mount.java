@@ -56,9 +56,7 @@ public class Mount extends BasePower {
     public class Impl implements PowerRightClick {
 
         @Override
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (player.isInsideVehicle()) {
                 return PowerResult.fail();

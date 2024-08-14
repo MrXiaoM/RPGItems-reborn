@@ -10,6 +10,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.math.BigDecimal;
@@ -55,7 +56,7 @@ public class EvalDamage extends BasePower {
     public class Impl implements PowerHit, PowerHitTaken {
         // Feel free to add variable below
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             try {
                 Expression ex = new Expression(getExpression());
                 boolean byProjectile = false;
@@ -103,7 +104,7 @@ public class EvalDamage extends BasePower {
         }
 
         @Override
-        public PowerResult<Double> takeHit(Player player, ItemStack stack, double damage, EntityDamageEvent event) {
+        public PowerResult<Double> takeHit(Player player, RPGItem item, ItemStack stack, double damage, EntityDamageEvent event) {
             boolean byEntity = event instanceof EntityDamageByEntityEvent;
             try {
 

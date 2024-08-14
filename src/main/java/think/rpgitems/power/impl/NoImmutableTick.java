@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 /**
@@ -38,7 +39,7 @@ public class NoImmutableTick extends BasePower {
     public class Impl implements PowerHit {
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             new BukkitRunnable(){
                 @Override
                 public void run() {

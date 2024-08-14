@@ -1,5 +1,6 @@
 package think.rpgitems.power.trigger;
 
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -18,14 +19,14 @@ class Attachment extends Trigger<Event, PowerAttachment, Void, Void> {
     }
 
     @Override
-    public PowerResult<Void> run(PowerAttachment power, Player player, ItemStack i, Event event) {
+    public PowerResult<Void> run(RPGItem item, PowerAttachment power, Player player, ItemStack i, Event event) {
         throw new IllegalStateException();
     }
 
     @Override
-    public PowerResult<Void> run(PowerAttachment power, Player player, ItemStack i, Event event, Object data) {
+    public PowerResult<Void> run(RPGItem item, PowerAttachment power, Player player, ItemStack i, Event event, Object data) {
         ItemStack originalItemstack = (ItemStack) ((Pair) data).getKey();
         Event originalEvent = (Event) ((Pair) data).getValue();
-        return power.attachment(player, i, ItemManager.toRPGItem(originalItemstack).orElseThrow(IllegalArgumentException::new), originalEvent, originalItemstack);
+        return power.attachment(player, item, i, ItemManager.toRPGItem(originalItemstack).orElseThrow(IllegalArgumentException::new), originalEvent, originalItemstack);
     }
 }

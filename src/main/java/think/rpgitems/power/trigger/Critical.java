@@ -4,6 +4,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerHit;
 import think.rpgitems.power.PowerResult;
 import think.rpgitems.power.Property;
@@ -48,8 +49,8 @@ public class Critical extends Trigger<EntityDamageByEntityEvent, PowerHit, Doubl
     }
 
     @Override
-    public PowerResult<Double> run(PowerHit power, Player player, ItemStack i, EntityDamageByEntityEvent event) {
-        return power.hit(player, i, (LivingEntity) event.getEntity(), event.getDamage(), event);
+    public PowerResult<Double> run(RPGItem item, PowerHit power, Player player, ItemStack i, EntityDamageByEntityEvent event) {
+        return power.hit(player, item, i, (LivingEntity) event.getEntity(), event.getDamage(), event);
     }
 
     @Override

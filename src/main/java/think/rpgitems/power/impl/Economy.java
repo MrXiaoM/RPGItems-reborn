@@ -105,17 +105,15 @@ public class Economy extends BasePower {
 
 
         @Override
-        public PowerResult<Double> takeHit(Player target, ItemStack stack, double damage, EntityDamageEvent event) {
+        public PowerResult<Double> takeHit(Player target, RPGItem item, ItemStack stack, double damage, EntityDamageEvent event) {
             if (!isRequireHurtByEntity() || event instanceof EntityDamageByEntityEvent) {
-                return fire(target, stack).with(damage);
+                return fire(target, item, stack).with(damage);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), true, true))
                 return isAbortOnFailure() ? PowerResult.abort() : PowerResult.cd();
             EconomyResponse economyResponse;
@@ -139,31 +137,31 @@ public class Economy extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> hurt(Player target, ItemStack stack, EntityDamageEvent event) {
+        public PowerResult<Void> hurt(Player target, RPGItem item, ItemStack stack, EntityDamageEvent event) {
             if (!isRequireHurtByEntity() || event instanceof EntityDamageByEntityEvent) {
-                return fire(target, stack);
+                return fire(target, item, stack);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Void> leftClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> leftClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Float> bowShoot(Player player, ItemStack stack, EntityShootBowEvent event) {
-            return fire(player, stack).with(event.getForce());
+        public PowerResult<Float> bowShoot(Player player, RPGItem item, ItemStack stack, EntityShootBowEvent event) {
+            return fire(player, item, stack).with(event.getForce());
         }
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            return fire(player, stack).with(damage);
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+            return fire(player, item, stack).with(damage);
         }
     }
 }

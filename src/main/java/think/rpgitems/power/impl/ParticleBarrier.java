@@ -1,9 +1,5 @@
 package think.rpgitems.power.impl;
 
-import think.rpgitems.item.ItemManager;
-import think.rpgitems.item.RPGItem;
-import think.rpgitems.utils.nyaacore.Pair;
-import think.rpgitems.utils.nyaacore.utils.RayTraceUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.bukkit.Bukkit;
@@ -29,8 +25,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.PotionEffectUtils;
+import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.utils.RayTraceUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -188,14 +187,12 @@ public class ParticleBarrier extends BasePower {
     public class Impl implements PowerPlain, PowerRightClick, PowerLeftClick, PowerTick, PowerBowShoot {
 
         @Override
-        public PowerResult<Void> leftClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> leftClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (!isProjected()) {
@@ -284,17 +281,17 @@ public class ParticleBarrier extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Float> bowShoot(Player player, ItemStack stack, EntityShootBowEvent event) {
-            return fire(player, stack).with(event.getForce());
+        public PowerResult<Float> bowShoot(Player player, RPGItem item, ItemStack stack, EntityShootBowEvent event) {
+            return fire(player, item, stack).with(event.getForce());
         }
 
         @Override
-        public PowerResult<Void> tick(Player player, ItemStack stack) {
+        public PowerResult<Void> tick(Player player, RPGItem item, ItemStack stack) {
             Pair<Long, Double> pair = getEnergys().getIfPresent(player.getUniqueId());
             if (pair == null) return PowerResult.noop();
             long currentTimeMillis = System.currentTimeMillis();

@@ -1,9 +1,5 @@
 package think.rpgitems.power.impl;
 
-import org.bukkit.util.RayTraceResult;
-import think.rpgitems.item.ItemManager;
-import think.rpgitems.item.RPGItem;
-import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -15,13 +11,16 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import think.rpgitems.I18n;
 import think.rpgitems.data.Context;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
+import think.rpgitems.utils.nyaacore.Pair;
 
 @Meta(defaultTrigger = "HIT", implClass = Headshot.Impl.class)
 public class Headshot extends BasePower {
@@ -84,15 +83,15 @@ public class Headshot extends BasePower {
     public class Impl implements PowerHit, PowerBeamHit{
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             if (!(event.getDamager() instanceof Projectile)) {
                 return PowerResult.noop();
             }
             Projectile damager = (Projectile) event.getDamager();
-            return check(player, entity, stack, damage, damager.getVelocity(), damager.getBoundingBox(), entity.getBoundingBox(), event);
+            return check(player, item, entity, stack, damage, damager.getVelocity(), damager.getBoundingBox(), entity.getBoundingBox(), event);
         }
 
-        private PowerResult<Double> check(Player player, LivingEntity entity, ItemStack stack, double damage, Vector velocity, BoundingBox damagerOrigBb, BoundingBox entityBb, EntityDamageByEntityEvent event){
+        private PowerResult<Double> check(Player player, RPGItem item, LivingEntity entity, ItemStack stack, double damage, Vector velocity, BoundingBox damagerOrigBb, BoundingBox entityBb, EntityDamageByEntityEvent event){
             double maxAxis = Math.max(entityBb.getHeight(), Math.max(entityBb.getWidthX(), entityBb.getWidthZ()));
             double minAxis = Math.min(entityBb.getHeight(), Math.min(entityBb.getWidthX(), entityBb.getWidthZ()));
             double maximum = minAxis * minAxis;
@@ -121,8 +120,6 @@ public class Headshot extends BasePower {
                 hs = squared <= maximum;
             }
             if (hs) {
-                RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-                if (item == null) return PowerResult.fail();
                 Context.instance().putExpiringSeconds(player.getUniqueId(), "headshot.target", entity, 3);
                 if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 if (isSoundSelf()) {
@@ -148,20 +145,20 @@ public class Headshot extends BasePower {
         }
 
         @Override
-        public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
+        public PowerResult<Double> hitEntity(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
             EntityDamageByEntityEvent fake = new EntityDamageByEntityEvent(player, player, EntityDamageEvent.DamageCause.CUSTOM, damage);
-            PowerResult<Double> check = check(player, entity, stack, damage, event.getVelocity(), event.getBoundingBox().expand(0.5), entity.getBoundingBox(), fake);
+            PowerResult<Double> check = check(player, item, entity, stack, damage, event.getVelocity(), event.getBoundingBox().expand(0.5), entity.getBoundingBox(), fake);
             event.setDamage(fake.getDamage());
             return check;
         }
 
         @Override
-        public PowerResult<Void> hitBlock(Player player, ItemStack stack, Location location, BeamHitBlockEvent event) {
+        public PowerResult<Void> hitBlock(Player player, RPGItem item, ItemStack stack, Location location, BeamHitBlockEvent event) {
             return PowerResult.fail();
         }
 
         @Override
-        public PowerResult<Void> beamEnd(Player player, ItemStack stack, Location location, BeamEndEvent event) {
+        public PowerResult<Void> beamEnd(Player player, RPGItem item, ItemStack stack, Location location, BeamEndEvent event) {
             return PowerResult.fail();
         }
     }

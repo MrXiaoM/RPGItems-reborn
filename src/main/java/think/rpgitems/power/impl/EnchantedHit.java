@@ -5,6 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 @Meta(defaultTrigger = "HIT", implClass = EnchantedHit.Impl.class)
@@ -63,7 +64,7 @@ public class EnchantedHit extends BasePower {
 
     public class Impl implements PowerHit {
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             int enchLevel = stack.getEnchantmentLevel(getEnchantmentType());
             if (getMode() == Mode.ADDITION) {
                 damage += (enchLevel * getAmountPerLevel());

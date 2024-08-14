@@ -42,9 +42,7 @@ public class ConsumeHit extends BasePower {
 
     public class Impl implements PowerHit {
         @Override
-        public PowerResult<Double> hit(final Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Double> hit(final Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), false, true)) return PowerResult.cd();
             int count = stack.getAmount() - 1;
             if (count == 0) {

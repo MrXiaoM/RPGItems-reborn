@@ -51,14 +51,12 @@ public class DelayedCommand extends Command {
 
     public class Impl extends Command.Impl {
         @Override
-        public PowerResult<Void> leftClick(final Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> leftClick(final Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player target, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player target, RPGItem item, ItemStack stack) {
             int uid = item.getUid();
             if (!checkAndSetCooldown(item, getPower(), target, getCooldown(), true, false, uid + "." + getCommand()))
                 return PowerResult.cd();
@@ -88,23 +86,23 @@ public class DelayedCommand extends Command {
         }
 
         @Override
-        public PowerResult<Void> sneak(Player player, ItemStack stack, PlayerToggleSneakEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sneak(Player player, RPGItem item, ItemStack stack, PlayerToggleSneakEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> sprint(Player player, ItemStack stack, PlayerToggleSprintEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sprint(Player player, RPGItem item, ItemStack stack, PlayerToggleSprintEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> hurt(Player target, ItemStack stack, EntityDamageEvent event) {
-            return fire(target, stack);
+        public PowerResult<Void> hurt(Player target, RPGItem item, ItemStack stack, EntityDamageEvent event) {
+            return fire(target, item, stack);
         }
 
         @Override
-        public PowerResult<Void> rightClick(final Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(final Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
     }
 }

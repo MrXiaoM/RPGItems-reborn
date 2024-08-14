@@ -1,8 +1,5 @@
 package think.rpgitems.power.impl;
 
-import think.rpgitems.item.ItemManager;
-import think.rpgitems.item.RPGItem;
-import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -25,8 +22,10 @@ import think.rpgitems.RPGItems;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.marker.Selector;
+import think.rpgitems.utils.nyaacore.Pair;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -217,14 +216,12 @@ public class Scoreboard extends BasePower {
     public class Impl implements PowerHit, PowerHitTaken, PowerHurt, PowerLeftClick, PowerRightClick, PowerOffhandClick, PowerProjectileHit, PowerSneak, PowerSprint, PowerOffhandItem, PowerMainhandItem, PowerTick, PowerSneaking, PowerPlain, PowerBowShoot, PowerBeamHit, PowerLivingEntity, PowerLocation{
 
         @Override
-        public PowerResult<Void> leftClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> leftClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
 
@@ -290,99 +287,99 @@ public class Scoreboard extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            return fire(player, stack).with(damage);
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+            return fire(player, item, stack).with(damage);
         }
 
         @Override
-        public PowerResult<Double> takeHit(Player target, ItemStack stack, double damage, EntityDamageEvent event) {
+        public PowerResult<Double> takeHit(Player target, RPGItem item, ItemStack stack, double damage, EntityDamageEvent event) {
             if (!isRequireHurtByEntity() || event instanceof EntityDamageByEntityEvent) {
-                return fire(target, stack).with(damage);
+                return fire(target, item, stack).with(damage);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Void> hurt(Player target, ItemStack stack, EntityDamageEvent event) {
+        public PowerResult<Void> hurt(Player target, RPGItem item, ItemStack stack, EntityDamageEvent event) {
             if (!isRequireHurtByEntity() || event instanceof EntityDamageByEntityEvent) {
-                return fire(target, stack);
+                return fire(target, item, stack);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Void> offhandClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> offhandClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> projectileHit(Player player, RPGItem item, ItemStack stack, ProjectileHitEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> sneak(Player player, ItemStack stack, PlayerToggleSneakEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sneak(Player player, RPGItem item, ItemStack stack, PlayerToggleSneakEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> sprint(Player player, ItemStack stack, PlayerToggleSprintEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sprint(Player player, RPGItem item, ItemStack stack, PlayerToggleSprintEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Float> bowShoot(Player player, ItemStack itemStack, EntityShootBowEvent e) {
-            return fire(player, itemStack).with(e.getForce());
+        public PowerResult<Float> bowShoot(Player player, RPGItem item, ItemStack itemStack, EntityShootBowEvent e) {
+            return fire(player, item, itemStack).with(e.getForce());
         }
 
         @Override
-        public PowerResult<Boolean> swapToMainhand(Player player, ItemStack stack, PlayerSwapHandItemsEvent event) {
-            return fire(player, stack).with(true);
+        public PowerResult<Boolean> swapToMainhand(Player player, RPGItem item, ItemStack stack, PlayerSwapHandItemsEvent event) {
+            return fire(player, item, stack).with(true);
         }
 
         @Override
-        public PowerResult<Boolean> swapToOffhand(Player player, ItemStack stack, PlayerSwapHandItemsEvent event) {
-            return fire(player, stack).with(true);
+        public PowerResult<Boolean> swapToOffhand(Player player, RPGItem item, ItemStack stack, PlayerSwapHandItemsEvent event) {
+            return fire(player, item, stack).with(true);
         }
 
         @Override
-        public PowerResult<Void> tick(Player player, ItemStack stack) {
-            return fire(player, stack);
+        public PowerResult<Void> tick(Player player, RPGItem item, ItemStack stack) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> sneaking(Player player, ItemStack stack) {
-            return fire(player, stack);
+        public PowerResult<Void> sneaking(Player player, RPGItem item, ItemStack stack) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
-            return fire(player, stack).with(damage);
+        public PowerResult<Double> hitEntity(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
+            return fire(player, item, stack).with(damage);
         }
 
         @Override
-        public PowerResult<Void> hitBlock(Player player, ItemStack stack, Location location, BeamHitBlockEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> hitBlock(Player player, RPGItem item, ItemStack stack, Location location, BeamHitBlockEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> beamEnd(Player player, ItemStack stack, Location location, BeamEndEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> beamEnd(Player player, RPGItem item, ItemStack stack, Location location, BeamEndEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
-            return fire(player, stack);
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, LivingEntity entity, @Nullable Double value) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack, Location location) {
-            return fire(player, stack);
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, Location location) {
+            return fire(player, item, stack);
         }
     }
 }

@@ -3,7 +3,6 @@ package think.rpgitems.power.impl;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
@@ -68,13 +67,12 @@ public class CommandTick extends BasePower {
         public Impl() {
         }
 
-        public PowerResult<Void> tick(Player player, ItemStack stack) {
-            return this.fire(player, stack);
+        @Override
+        public PowerResult<Void> tick(Player player, RPGItem item, ItemStack stack) {
+            return this.fire(player, item, stack);
         }
 
-        private PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        private PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             if (!Utils.checkAndSetCooldown(item, getPower(), player, getInterval(), false, true, item.getUid() + ".commandtick." + getPowerId())) {
                 return PowerResult.cd();
             } else if (!item.consumeDurability(player, stack, getCost())) {
@@ -114,12 +112,14 @@ public class CommandTick extends BasePower {
             }
         }
 
+        @Override
         public Power getPower() {
             return CommandTick.this;
         }
 
-        public PowerResult<Void> sneaking(Player player, ItemStack stack) {
-            return this.fire(player, stack);
+        @Override
+        public PowerResult<Void> sneaking(Player player, RPGItem item, ItemStack stack) {
+            return this.fire(player, item, stack);
         }
     }
 }

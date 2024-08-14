@@ -99,9 +99,7 @@ public class Translocator extends BasePower {
 
     public class Impl implements PowerMainhandItem, PowerOffhandItem {
         @Override
-        public PowerResult<Boolean> swapToMainhand(Player player, ItemStack stack, PlayerSwapHandItemsEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Boolean> swapToMainhand(Player player, RPGItem item, ItemStack stack, PlayerSwapHandItemsEvent event) {
             checkCooldown(item, getPower(), player, getCooldown(), false, true);
             UUID translocatorUUID = playerTranslocatorMap.getIfPresent(player.getUniqueId());
             if (translocatorUUID == null) {
@@ -130,9 +128,7 @@ public class Translocator extends BasePower {
         }
 
         @Override
-        public PowerResult<Boolean> pickupOffhand(Player player, ItemStack stack, InventoryClickEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Boolean> pickupOffhand(Player player, RPGItem item, ItemStack stack, InventoryClickEvent event) {
             checkCooldown(item, getPower(), player, getCooldown(), false, true);
             UUID armorStandUUID = playerTranslocatorMap.getIfPresent(player.getUniqueId());
             if (armorStandUUID == null) {
@@ -155,9 +151,7 @@ public class Translocator extends BasePower {
 
         @SuppressWarnings({"deprecation"})
         @Override
-        public PowerResult<Boolean> swapToOffhand(Player player, ItemStack stack, PlayerSwapHandItemsEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Boolean> swapToOffhand(Player player, RPGItem item, ItemStack stack, PlayerSwapHandItemsEvent event) {
             if (!checkCooldown(item, getPower(), player, 0, true, true)) return PowerResult.ok(false);
             if (!item.consumeDurability(player, stack, getSetupCost())) return PowerResult.cost();
             SpectralArrow arrow = player.launchProjectile(SpectralArrow.class, player.getLocation().getDirection().multiply(getSpeed()));
@@ -199,7 +193,7 @@ public class Translocator extends BasePower {
         }
 
         @Override
-        public PowerResult<Boolean> placeOffhand(Player player, ItemStack stack, InventoryClickEvent event) {
+        public PowerResult<Boolean> placeOffhand(Player player, RPGItem item, ItemStack stack, InventoryClickEvent event) {
             return PowerResult.ok(false);
         }
     }

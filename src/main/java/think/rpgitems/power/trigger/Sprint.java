@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerResult;
 import think.rpgitems.power.PowerSprint;
 
@@ -16,7 +17,7 @@ class Sprint extends Trigger<PlayerToggleSprintEvent, PowerSprint, Void, Void> {
     }
 
     @Override
-    public PowerResult<Void> run(PowerSprint power, Player player, ItemStack i, PlayerToggleSprintEvent event) {
-        return power.sprint(player, i, event);
+    public PowerResult<Void> run(RPGItem item, PowerSprint power, Player player, ItemStack i, PlayerToggleSprintEvent event) {
+        return power.sprint(player, item, i, event);
     }
 }

@@ -3,7 +3,6 @@ package think.rpgitems.power.impl;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
-import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
@@ -52,14 +51,12 @@ public class ParticleTick extends ParticlePower {
     public class Impl implements PowerTick, PowerSneaking, PowerPlain {
 
         @Override
-        public PowerResult<Void> tick(Player player, ItemStack stack) {
-            return fire(player, stack);
+        public PowerResult<Void> tick(Player player, RPGItem item, ItemStack stack) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             if (!checkCooldown(item, getPower(), player, getInterval(), false, true)) return PowerResult.cd();
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             spawnParticle(player);
@@ -72,8 +69,8 @@ public class ParticleTick extends ParticlePower {
         }
 
         @Override
-        public PowerResult<Void> sneaking(Player player, ItemStack stack) {
-            return fire(player, stack);
+        public PowerResult<Void> sneaking(Player player, RPGItem item, ItemStack stack) {
+            return fire(player, item, stack);
         }
     }
 }

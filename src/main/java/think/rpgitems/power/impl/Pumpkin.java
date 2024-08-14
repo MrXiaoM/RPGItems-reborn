@@ -67,9 +67,7 @@ public class Pumpkin extends BasePower {
     public class Impl implements PowerHit {
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (rand.nextInt(getChance()) != 0) return PowerResult.noop();
             if (entity instanceof Skeleton || entity instanceof Zombie) {

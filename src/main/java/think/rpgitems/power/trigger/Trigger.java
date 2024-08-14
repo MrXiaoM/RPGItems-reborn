@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import javax.annotation.Nullable;
@@ -159,10 +160,10 @@ public abstract class Trigger<TEvent extends Event, TPower extends Pimpl, TResul
         return true;
     }
 
-    public abstract PowerResult<TResult> run(TPower power, Player player, ItemStack i, TEvent event);
+    public abstract PowerResult<TResult> run(RPGItem item, TPower power, Player player, ItemStack i, TEvent event);
 
-    public PowerResult<TResult> run(TPower power, Player player, ItemStack i, TEvent event, Object data) {
-        return run(power, player, i, event);
+    public PowerResult<TResult> run(RPGItem item, TPower power, Player player, ItemStack i, TEvent event, Object data) {
+        return run(item, power, player, i, event);
     }
 
     public PowerResult<TResult> warpResult(PowerResult<Void> overrideResult, TPower power, Player player, ItemStack i, TEvent event) {

@@ -84,14 +84,12 @@ public class Rainbow extends BasePower {
     public class Impl implements PowerRightClick, PowerPlain, PowerBowShoot {
 
         @Override
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1.0f, 1.0f);
@@ -154,8 +152,8 @@ public class Rainbow extends BasePower {
         }
 
         @Override
-        public PowerResult<Float> bowShoot(Player player, ItemStack stack, EntityShootBowEvent event) {
-            return fire(player, stack).with(event.getForce());
+        public PowerResult<Float> bowShoot(Player player, RPGItem item, ItemStack stack, EntityShootBowEvent event) {
+            return fire(player, item, stack).with(event.getForce());
         }
     }
 }

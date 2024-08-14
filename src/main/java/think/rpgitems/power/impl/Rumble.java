@@ -15,7 +15,6 @@ import org.bukkit.util.Vector;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.data.Context;
-import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
@@ -96,14 +95,12 @@ public class Rumble extends BasePower {
 
     public class Impl implements PowerRightClick, PowerLeftClick, PowerSneak, PowerSprint, PowerPlain, PowerBowShoot, PowerLivingEntity{
         @Override
-        public PowerResult<Void> leftClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> leftClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(final Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(final Player player, RPGItem item, ItemStack stack) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             final Location location = player.getLocation().add(0, -0.2, 0);
@@ -191,29 +188,27 @@ public class Rumble extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Float> bowShoot(Player player, ItemStack stack, EntityShootBowEvent event) {
-            return fire(player, stack).with(event.getForce());
+        public PowerResult<Float> bowShoot(Player player, RPGItem item, ItemStack stack, EntityShootBowEvent event) {
+            return fire(player, item, stack).with(event.getForce());
         }
 
         @Override
-        public PowerResult<Void> sneak(Player player, ItemStack stack, PlayerToggleSneakEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sneak(Player player, RPGItem item, ItemStack stack, PlayerToggleSneakEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> sprint(Player player, ItemStack stack, PlayerToggleSprintEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sprint(Player player, RPGItem item, ItemStack stack, PlayerToggleSprintEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, LivingEntity entity, @Nullable Double value) {
             return fire(player, item, entity.getLocation(), entity.getLocation().getDirection());
         }
     }

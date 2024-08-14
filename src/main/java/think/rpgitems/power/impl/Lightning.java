@@ -61,16 +61,14 @@ public class Lightning extends BasePower {
     public class Impl implements PowerHit, PowerProjectileHit, PowerLocation {
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             Location location = entity.getLocation();
-            return fire(player, stack, location).with(damage);
+            return fire(player, item, stack, location).with(damage);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack, Location location) {
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, Location location) {
             if (getRandom().nextInt(getChance()) == 0) {
-                RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-                if (item == null) return PowerResult.fail();
                 if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 location.getWorld().strikeLightning(location);
                 Context.instance().putExpiringSeconds(player.getUniqueId(), "lightning.location", location, 3);
@@ -80,10 +78,10 @@ public class Lightning extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
+        public PowerResult<Void> projectileHit(Player player, RPGItem item, ItemStack stack, ProjectileHitEvent event) {
             Projectile hit = event.getEntity();
             Location location = hit.getLocation();
-            return fire(player, stack, location);
+            return fire(player, item, stack, location);
         }
 
         @Override

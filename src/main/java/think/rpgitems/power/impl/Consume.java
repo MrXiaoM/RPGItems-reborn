@@ -27,7 +27,6 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
-import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
@@ -91,13 +90,12 @@ public class Consume extends BasePower {
 
     public class Impl implements PowerPlain, PowerRightClick, PowerLeftClick, PowerSneak, PowerHitTaken, PowerHurt, PowerSprint, PowerAttachment {
         @Override
-        public PowerResult<Void> rightClick(final Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(final Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
-        public PowerResult<Void> fire(final Player player, ItemStack s) {
-            RPGItem item = ItemManager.toRPGItem(s).orElse(null);
-            if (item == null) return PowerResult.fail();
+        @Override
+        public PowerResult<Void> fire(final Player player, RPGItem item, ItemStack s) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), false, true)) return PowerResult.cd();
             if (!item.consumeDurability(player, s, getCost())) return PowerResult.cost();
             int count = s.getAmount() - 1;
@@ -117,39 +115,39 @@ public class Consume extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> leftClick(final Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> leftClick(final Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> sneak(Player player, ItemStack stack, PlayerToggleSneakEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sneak(Player player, RPGItem item, ItemStack stack, PlayerToggleSneakEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> sprint(Player player, ItemStack stack, PlayerToggleSprintEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sprint(Player player, RPGItem item, ItemStack stack, PlayerToggleSprintEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Double> takeHit(Player target, ItemStack stack, double damage, EntityDamageEvent event) {
+        public PowerResult<Double> takeHit(Player target, RPGItem item, ItemStack stack, double damage, EntityDamageEvent event) {
             if (!isRequireHurtByEntity() || event instanceof EntityDamageByEntityEvent) {
-                return fire(target, stack).with(damage);
+                return fire(target, item, stack).with(damage);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Void> hurt(Player target, ItemStack stack, EntityDamageEvent event) {
+        public PowerResult<Void> hurt(Player target, RPGItem item, ItemStack stack, EntityDamageEvent event) {
             if (!isRequireHurtByEntity() || event instanceof EntityDamageByEntityEvent) {
-                return fire(target, stack);
+                return fire(target, item, stack);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Void> attachment(Player player, ItemStack stack, RPGItem originItem, Event originEvent, ItemStack originStack) {
-            return fire(player, stack);
+        public PowerResult<Void> attachment(Player player, RPGItem item, ItemStack stack, RPGItem originItem, Event originEvent, ItemStack originStack) {
+            return fire(player, item, stack);
         }
     }
 }

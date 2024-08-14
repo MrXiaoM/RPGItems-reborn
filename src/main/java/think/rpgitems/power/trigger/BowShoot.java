@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerBowShoot;
 import think.rpgitems.power.PowerResult;
 import think.rpgitems.power.Property;
@@ -43,8 +44,8 @@ class BowShoot extends Trigger<EntityShootBowEvent, PowerBowShoot, Float, Option
     }
 
     @Override
-    public PowerResult<Float> run(PowerBowShoot power, Player player, ItemStack i, EntityShootBowEvent event) {
-        return power.bowShoot(player, i, event);
+    public PowerResult<Float> run(RPGItem item, PowerBowShoot power, Player player, ItemStack i, EntityShootBowEvent event) {
+        return power.bowShoot(player, item, i, event);
     }
 
     @Override

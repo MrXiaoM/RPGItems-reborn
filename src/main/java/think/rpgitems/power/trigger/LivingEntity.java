@@ -1,5 +1,6 @@
 package think.rpgitems.power.trigger;
 
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -16,12 +17,14 @@ class LivingEntity extends Trigger<Event, PowerLivingEntity, Void, Void> {
     }
 
     @Override
-    public PowerResult<Void> run(PowerLivingEntity power, Player player, ItemStack i, Event event) {
+    public PowerResult<Void> run(RPGItem item, PowerLivingEntity power, Player player, ItemStack i, Event event) {
         throw new IllegalStateException();
     }
 
     @Override
-    public PowerResult<Void> run(PowerLivingEntity power, Player player, ItemStack i, Event event, Object data) {
-        return power.fire(player, i, (org.bukkit.entity.LivingEntity) ((Pair) data).getKey(), (Double) ((Pair) data).getValue());
+    @SuppressWarnings({"unchecked"})
+    public PowerResult<Void> run(RPGItem item, PowerLivingEntity power, Player player, ItemStack i, Event event, Object data) {
+        Pair<org.bukkit.entity.LivingEntity, Double> pair = (Pair<org.bukkit.entity.LivingEntity, Double>) data;
+        return power.fire(player, item, i, pair.getKey(), pair.getValue());
     }
 }

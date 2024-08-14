@@ -4,6 +4,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 @Meta(immutableTrigger = true, defaultTrigger = "BOW_SHOOT", implClass = CancelBowArrow.Impl.class)
@@ -28,7 +29,7 @@ public class CancelBowArrow extends BasePower {
 
     public class Impl implements PowerBowShoot {
         @Override
-        public PowerResult<Float> bowShoot(Player player, ItemStack itemStack, EntityShootBowEvent e) {
+        public PowerResult<Float> bowShoot(Player player, RPGItem item, ItemStack itemStack, EntityShootBowEvent e) {
             if (isCancelArrow()) {
                 Entity projectile = e.getProjectile();
                 projectile.remove();

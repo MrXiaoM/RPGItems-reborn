@@ -20,7 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
-import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.support.MythicSupport;
@@ -68,13 +67,11 @@ public class Mythic extends BasePower {
 
     public class Impl implements PowerPlain, PowerRightClick, PowerLeftClick {
         @Override
-        public PowerResult<Void> rightClick(final Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(final Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
-        public PowerResult<Void> fire(final Player player, ItemStack s) {
-            RPGItem item = ItemManager.toRPGItem(s).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(final Player player, RPGItem item, ItemStack s) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), false, true)) return PowerResult.cd();
             if (!item.consumeDurability(player, s, getCost())) return PowerResult.cost();
 
@@ -89,8 +86,8 @@ public class Mythic extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> leftClick(final Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> leftClick(final Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
     }
 }

@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
-import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
@@ -115,22 +114,18 @@ public class AOECommand extends Command {
 
     public class Impl implements PowerPlain, PowerRightClick, PowerLeftClick, PowerHit, PowerBeamHit, PowerProjectileHit, PowerSneak, PowerLivingEntity{
         @Override
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             List<LivingEntity> nearbyEntities = getNearestLivingEntities(item, getPower(), player.getLocation(), player, getR(), getRm());
             List<LivingEntity> livingEntitiesInCone = getLivingEntitiesInCone(nearbyEntities, player.getEyeLocation().toVector(), getFacing(), player.getEyeLocation().getDirection());
-            return fire(player, stack, livingEntitiesInCone);
+            return fire(player, item, stack, livingEntitiesInCone);
         }
 
-        private PowerResult<Void> fire(Player player, ItemStack stack, List<LivingEntity> entitiesInCone){
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        private PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, List<LivingEntity> entitiesInCone){
             if (!checkAndSetCooldown(item, getPower(), player, getCooldown(), true, false, item.getUid() + "." + getCommand()))
                 return PowerResult.cd();
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
@@ -180,78 +175,68 @@ public class AOECommand extends Command {
         }
 
         @Override
-        public PowerResult<Void> leftClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> leftClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            return fire(player, stack).with(damage);
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+            return fire(player, item, stack).with(damage);
         }
 
         @Override
-        public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Double> hitEntity(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
             int r = getR();
             List<LivingEntity> nearbyEntities = getNearbyEntities(item, getPower(), player.getLocation(), player, r).stream()
                     .filter(entity1 -> entity1 instanceof LivingEntity)
                     .map(entity1 -> entity)
                     .collect(Collectors.toList());
 
-            return fire(player, stack, nearbyEntities).with(damage);
+            return fire(player, item, stack, nearbyEntities).with(damage);
         }
 
         @Override
-        public PowerResult<Void> hitBlock(Player player, ItemStack stack, Location location, BeamHitBlockEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> hitBlock(Player player, RPGItem item, ItemStack stack, Location location, BeamHitBlockEvent event) {
             int r = getR();
             List<LivingEntity> nearbyEntities = getNearbyEntities(item, getPower(), location, player, r).stream()
                     .filter(entity -> entity instanceof LivingEntity)
                     .map(entity ->  ((LivingEntity) entity))
                     .collect(Collectors.toList());
 
-            return fire(player, stack, nearbyEntities);
+            return fire(player, item, stack, nearbyEntities);
         }
 
         @Override
-        public PowerResult<Void> beamEnd(Player player, ItemStack stack, Location location, BeamEndEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> beamEnd(Player player, RPGItem item, ItemStack stack, Location location, BeamEndEvent event) {
             int r = getR();
             List<LivingEntity> nearbyEntities = getNearbyEntities(item, getPower(), location, player, r).stream()
                     .filter(entity -> entity instanceof LivingEntity)
                     .map(entity ->  ((LivingEntity) entity))
                     .collect(Collectors.toList());
-            return fire(player, stack, nearbyEntities);
+            return fire(player, item, stack, nearbyEntities);
         }
 
         @Override
-        public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> projectileHit(Player player, RPGItem item, ItemStack stack, ProjectileHitEvent event) {
             int r = getR();
             List<LivingEntity> nearbyEntities = getNearbyEntities(item, getPower(), event.getEntity().getLocation(), player, r).stream()
                     .filter(entity -> entity instanceof LivingEntity)
                     .map(entity ->  ((LivingEntity) entity))
                     .collect(Collectors.toList());
 
-            return fire(player, stack, nearbyEntities);
+            return fire(player, item, stack, nearbyEntities);
         }
 
         @Override
-        public PowerResult<Void> sneak(Player player, ItemStack stack, PlayerToggleSneakEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sneak(Player player, RPGItem item, ItemStack stack, PlayerToggleSneakEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, LivingEntity entity, @Nullable Double value) {
             List<LivingEntity> nearbyEntities = getNearestLivingEntities(item, getPower(), entity.getLocation(), player, getR(), getRm());
             List<LivingEntity> livingEntitiesInCone = getLivingEntitiesInCone(nearbyEntities, entity.getEyeLocation().toVector(), getFacing(), entity.getEyeLocation().getDirection());
-            return fire(player, stack, livingEntitiesInCone);
+            return fire(player, item, stack, livingEntitiesInCone);
         }
     }
 }

@@ -62,7 +62,7 @@ public class Glove extends BasePower {
 
     public class Impl implements PowerRightClick {
         @Override
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
             if (!player.getPassengers().isEmpty()) {
                 Entity entity = player.getPassengers().get(0);
                 entity.leaveVehicle();
@@ -72,8 +72,6 @@ public class Glove extends BasePower {
                 }
                 return PowerResult.ok();
             }
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
             if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
 
             List<LivingEntity> entities = getLivingEntitiesInCone(getNearestLivingEntities(item, getPower(), player.getEyeLocation(), player, getMaxDistance(), 0), player.getLocation().toVector(), 30, player.getLocation().getDirection());

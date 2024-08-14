@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerHitTaken;
 import think.rpgitems.power.PowerResult;
 import think.rpgitems.power.Property;
@@ -43,8 +44,8 @@ class HitTaken extends Trigger<EntityDamageEvent, PowerHitTaken, Double, Optiona
     }
 
     @Override
-    public PowerResult<Double> run(PowerHitTaken power, Player player, ItemStack i, EntityDamageEvent event) {
-        return power.takeHit(player, i, event.getDamage(), event);
+    public PowerResult<Double> run(RPGItem item, PowerHitTaken power, Player player, ItemStack i, EntityDamageEvent event) {
+        return power.takeHit(player, item, i, event.getDamage(), event);
     }
 
     @Override

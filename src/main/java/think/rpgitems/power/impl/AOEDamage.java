@@ -20,7 +20,6 @@ import think.rpgitems.data.Context;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
-import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.LightContext;
@@ -212,14 +211,12 @@ public class AOEDamage extends BasePower {
     public class Impl implements PowerOffhandClick, PowerPlain, PowerLeftClick, PowerRightClick, PowerHit, PowerSprint, PowerSneak, PowerHurt, PowerHitTaken, PowerTick, PowerBowShoot, PowerSneaking, PowerBeamHit, PowerProjectileHit, PowerLivingEntity, PowerLocation{
 
         @Override
-        public PowerResult<Void> rightClick(final Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> rightClick(final Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             Supplier<Location> traceResultSupplier = player::getEyeLocation;
             if (getFiringLocation().equals(FiringLocation.TARGET)){
                 if (isCastOff()) {
@@ -236,7 +233,7 @@ public class AOEDamage extends BasePower {
             }
 
             Supplier<Location> finalTraceResultSupplier = traceResultSupplier;
-            return fire(player, stack, () -> {
+            return fire(player, item, stack, () -> {
                 List<LivingEntity> nearbyEntities;
                 List<LivingEntity> ent;
                 if(getFiringLocation().equals(FiringLocation.TARGET)){
@@ -250,9 +247,7 @@ public class AOEDamage extends BasePower {
             });
         }
 
-        private PowerResult<Void> fire(Player player, ItemStack stack, Supplier<List<LivingEntity>> supplier){
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        private PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, Supplier<List<LivingEntity>> supplier){
             if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             Context.instance().putTemp(player.getUniqueId(), DAMAGE_SOURCE, getNamespacedKey().toString());
@@ -335,62 +330,60 @@ public class AOEDamage extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> leftClick(final Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> leftClick(final Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> offhandClick(final Player player, ItemStack stack, PlayerInteractEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> offhandClick(final Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            return fire(player, stack).with(damage);
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+            return fire(player, item, stack).with(damage);
         }
 
         @Override
-        public PowerResult<Void> sprint(Player player, ItemStack stack, PlayerToggleSprintEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sprint(Player player, RPGItem item, ItemStack stack, PlayerToggleSprintEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> sneak(Player player, ItemStack stack, PlayerToggleSneakEvent event) {
-            return fire(player, stack);
+        public PowerResult<Void> sneak(Player player, RPGItem item, ItemStack stack, PlayerToggleSneakEvent event) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> hurt(Player target, ItemStack stack, EntityDamageEvent event) {
-            return fire(target, stack);
+        public PowerResult<Void> hurt(Player target, RPGItem item, ItemStack stack, EntityDamageEvent event) {
+            return fire(target, item, stack);
         }
 
         @Override
-        public PowerResult<Double> takeHit(Player target, ItemStack stack, double damage, EntityDamageEvent event) {
-            return fire(target, stack).with(damage);
+        public PowerResult<Double> takeHit(Player target, RPGItem item, ItemStack stack, double damage, EntityDamageEvent event) {
+            return fire(target, item, stack).with(damage);
         }
 
         @Override
-        public PowerResult<Float> bowShoot(Player player, ItemStack stack, EntityShootBowEvent event) {
-            return fire(player, stack).with(event.getForce());
+        public PowerResult<Float> bowShoot(Player player, RPGItem item, ItemStack stack, EntityShootBowEvent event) {
+            return fire(player, item, stack).with(event.getForce());
         }
 
         @Override
-        public PowerResult<Void> tick(Player player, ItemStack stack) {
-            return fire(player, stack);
+        public PowerResult<Void> tick(Player player, RPGItem item, ItemStack stack) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Void> sneaking(Player player, ItemStack stack) {
-            return fire(player, stack);
+        public PowerResult<Void> sneaking(Player player, RPGItem item, ItemStack stack) {
+            return fire(player, item, stack);
         }
 
         @Override
-        public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Double> hitEntity(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
             Location location = entity.getLocation();
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(item, player, location, range)).with(damage);
+            return fire(player, item, stack, () -> getNearbyEntities(item, player, location, range)).with(damage);
         }
 
         private List<LivingEntity> getNearbyEntities(RPGItem item, Player player, Location location, int range) {
@@ -401,33 +394,25 @@ public class AOEDamage extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> hitBlock(Player player, ItemStack stack, Location location, BeamHitBlockEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> hitBlock(Player player, RPGItem item, ItemStack stack, Location location, BeamHitBlockEvent event) {
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(item, player, location, range));
+            return fire(player, item, stack, () -> getNearbyEntities(item, player, location, range));
         }
 
         @Override
-        public PowerResult<Void> beamEnd(Player player, ItemStack stack, Location location, BeamEndEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> beamEnd(Player player, RPGItem item, ItemStack stack, Location location, BeamEndEvent event) {
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(item, player, location, range));
+            return fire(player, item, stack, () -> getNearbyEntities(item, player, location, range));
         }
 
         @Override
-        public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> projectileHit(Player player, RPGItem item, ItemStack stack, ProjectileHitEvent event) {
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(item, player, event.getEntity().getLocation(), range));
+            return fire(player, item, stack, () -> getNearbyEntities(item, player, event.getEntity().getLocation(), range));
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, LivingEntity entity, @Nullable Double value) {
             Supplier<Location> traceResultSupplier = entity::getEyeLocation;
             if (getFiringLocation().equals(FiringLocation.TARGET)){
                 if (isCastOff()) {
@@ -444,7 +429,7 @@ public class AOEDamage extends BasePower {
             }
 
             Supplier<Location> finalTraceResultSupplier = traceResultSupplier;
-            return fire(player, stack, () -> {
+            return fire(player, item, stack, () -> {
                 List<LivingEntity> nearbyEntities;
                 List<LivingEntity> ent;
                 if(getFiringLocation().equals(FiringLocation.TARGET)){
@@ -459,11 +444,9 @@ public class AOEDamage extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack, Location location) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, Location location) {
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(item, player, location, range));
+            return fire(player, item, stack, () -> getNearbyEntities(item, player, location, range));
         }
     }
 

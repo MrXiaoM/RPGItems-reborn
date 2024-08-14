@@ -85,15 +85,13 @@ public class LifeSteal extends BasePower {
     public class Impl implements PowerHit, PowerLivingEntity {
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            return fire(player, stack, entity, damage).with(damage);
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+            return fire(player, item, stack, entity, damage).with(damage);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, Double damage) {
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, LivingEntity entity, Double damage) {
             if (getRandom().nextInt(getChance()) == 0 && damage != null) {
-                RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-                if (item == null) return PowerResult.fail();
                 if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 player.setHealth(Math.max(Math.min(player.getHealth() + damage * getFactor(), player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()), 0.01));
                 return PowerResult.ok();

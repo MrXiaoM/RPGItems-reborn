@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerHurt;
 import think.rpgitems.power.PowerResult;
 import think.rpgitems.power.Property;
@@ -24,8 +25,8 @@ class AntiCritical extends Trigger<EntityDamageEvent, PowerHurt, Void, Void> {
     }
 
     @Override
-    public PowerResult<Void> run(PowerHurt power, Player player, ItemStack i, EntityDamageEvent event) {
-        return power.hurt(player, i, event);
+    public PowerResult<Void> run(RPGItem item, PowerHurt power, Player player, ItemStack i, EntityDamageEvent event) {
+        return power.hurt(player, item, i, event);
     }
 
     @Override

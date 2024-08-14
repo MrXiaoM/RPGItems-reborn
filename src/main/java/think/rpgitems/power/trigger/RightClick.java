@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerResult;
 import think.rpgitems.power.PowerRightClick;
 
@@ -16,7 +17,7 @@ class RightClick extends Trigger<PlayerInteractEvent, PowerRightClick, Void, Voi
     }
 
     @Override
-    public PowerResult<Void> run(PowerRightClick power, Player player, ItemStack i, PlayerInteractEvent event) {
-        return power.rightClick(player, i, event);
+    public PowerResult<Void> run(RPGItem item, PowerRightClick power, Player player, ItemStack i, PlayerInteractEvent event) {
+        return power.rightClick(player, item, i, event);
     }
 }

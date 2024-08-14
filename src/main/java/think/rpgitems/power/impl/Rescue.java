@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import think.rpgitems.I18n;
-import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
@@ -101,16 +100,14 @@ public class Rescue extends BasePower {
 
         // shouldn't be called if takeHit works. leave it as-is now
         @Override
-        public PowerResult<Void> hurt(Player target, ItemStack stack, EntityDamageEvent event) {
+        public PowerResult<Void> hurt(Player target, RPGItem item, ItemStack stack, EntityDamageEvent event) {
             double health = target.getHealth() - event.getFinalDamage();
             if (health > getHealthTrigger()) return PowerResult.noop();
-            rescue(target, stack, event, false);
+            rescue(target, item, stack, event, false);
             return PowerResult.ok();
         }
 
-        private PowerResult<Double> rescue(Player target, ItemStack stack, EntityDamageEvent event, boolean canceled) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        private PowerResult<Double> rescue(Player target, RPGItem item, ItemStack stack, EntityDamageEvent event, boolean canceled) {
             if (!checkCooldown(item, getPower(), target, getCooldown(), true, true)) return PowerResult.cd();
             if (!item.consumeDurability(target, stack, getCost())) return PowerResult.cost();
             rescueTime.put(target.getUniqueId(), System.currentTimeMillis());
@@ -146,7 +143,7 @@ public class Rescue extends BasePower {
         }
 
         @Override
-        public PowerResult<Double> takeHit(Player target, ItemStack stack, double damage, EntityDamageEvent event) {
+        public PowerResult<Double> takeHit(Player target, RPGItem item, ItemStack stack, double damage, EntityDamageEvent event) {
             double health = target.getHealth() - event.getFinalDamage();
             if (health > getHealthTrigger() && event.getFinalDamage() < getDamageTrigger()) return PowerResult.noop();
             Long last = rescueTime.getIfPresent(target.getUniqueId());
@@ -154,7 +151,7 @@ public class Rescue extends BasePower {
                 event.setCancelled(true);
                 return PowerResult.ok(0.0);
             }
-            return rescue(target, stack, event, true);
+            return rescue(target, item, stack, event, true);
         }
     }
 }

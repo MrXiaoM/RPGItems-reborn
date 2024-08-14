@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerLeftClick;
 import think.rpgitems.power.PowerResult;
 
@@ -17,7 +18,7 @@ public class ClickBlock extends Trigger<PlayerInteractEvent, PowerLeftClick, Voi
     }
 
     @Override
-    public PowerResult<Void> run(PowerLeftClick power, Player player, ItemStack item, PlayerInteractEvent event) {
-        return power.leftClick(player, item, event);
+    public PowerResult<Void> run(RPGItem item, PowerLeftClick power, Player player, ItemStack stack, PlayerInteractEvent event) {
+        return power.leftClick(player, item, stack, event);
     }
 }

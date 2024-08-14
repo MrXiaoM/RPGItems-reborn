@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerProjectileHit;
 import think.rpgitems.power.PowerResult;
 
@@ -16,7 +17,7 @@ class ProjectileHit extends Trigger<ProjectileHitEvent, PowerProjectileHit, Void
     }
 
     @Override
-    public PowerResult<Void> run(PowerProjectileHit power, Player player, ItemStack i, ProjectileHitEvent event) {
-        return power.projectileHit(player, i, event);
+    public PowerResult<Void> run(RPGItem item, PowerProjectileHit power, Player player, ItemStack i, ProjectileHitEvent event) {
+        return power.projectileHit(player, item, i, event);
     }
 }

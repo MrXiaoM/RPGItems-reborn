@@ -1,9 +1,5 @@
 package think.rpgitems.power.impl;
 
-import think.rpgitems.item.ItemManager;
-import think.rpgitems.item.RPGItem;
-import think.rpgitems.utils.nyaacore.Message;
-import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import com.google.common.base.Strings;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -19,8 +15,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 
 import java.util.Collections;
 
@@ -156,17 +155,15 @@ public class Repair extends BasePower {
     public class Impl implements PowerRightClick, PowerLeftClick, PowerPlain, PowerHitTaken, PowerHurt, PowerBowShoot {
 
         @Override
-        public PowerResult<Double> takeHit(Player target, ItemStack stack, double damage, EntityDamageEvent event) {
+        public PowerResult<Double> takeHit(Player target, RPGItem item, ItemStack stack, double damage, EntityDamageEvent event) {
             if (!isRequireHurtByEntity() || event instanceof EntityDamageByEntityEvent) {
-                return fire(target, stack).with(damage);
+                return fire(target, item, stack).with(damage);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             int max = item.getMaxDurability();
             int repairCount = 0;
@@ -228,32 +225,32 @@ public class Repair extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> hurt(Player target, ItemStack stack, EntityDamageEvent event) {
+        public PowerResult<Void> hurt(Player target, RPGItem item, ItemStack stack, EntityDamageEvent event) {
             if (!isRequireHurtByEntity() || event instanceof EntityDamageByEntityEvent) {
-                return fire(target, stack);
+                return fire(target, item, stack);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
+        public PowerResult<Void> rightClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
             if (player.isSneaking() == isSneak()) {
-                return fire(player, stack);
+                return fire(player, item, stack);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Void> leftClick(Player player, ItemStack stack, PlayerInteractEvent event) {
+        public PowerResult<Void> leftClick(Player player, RPGItem item, ItemStack stack, PlayerInteractEvent event) {
             if (player.isSneaking() == isSneak()) {
-                return fire(player, stack);
+                return fire(player, item, stack);
             }
             return PowerResult.noop();
         }
 
         @Override
-        public PowerResult<Float> bowShoot(Player player, ItemStack itemStack, EntityShootBowEvent e) {
-            return fire(player, itemStack).with(e.getForce());
+        public PowerResult<Float> bowShoot(Player player, RPGItem item, ItemStack itemStack, EntityShootBowEvent e) {
+            return fire(player, item, itemStack).with(e.getForce());
         }
     }
 }

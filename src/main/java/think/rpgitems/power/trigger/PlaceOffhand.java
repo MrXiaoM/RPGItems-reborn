@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerMainhandItem;
 import think.rpgitems.power.PowerResult;
 
@@ -31,7 +32,7 @@ class PlaceOffhand extends Trigger<InventoryClickEvent, PowerMainhandItem, Boole
     }
 
     @Override
-    public PowerResult<Boolean> run(PowerMainhandItem power, Player player, ItemStack i, InventoryClickEvent event) {
-        return power.placeOffhand(player, i, event);
+    public PowerResult<Boolean> run(RPGItem item, PowerMainhandItem power, Player player, ItemStack i, InventoryClickEvent event) {
+        return power.placeOffhand(player, item, i, event);
     }
 }

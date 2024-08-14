@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 /**
@@ -50,7 +51,7 @@ public class Airborne extends BasePower {
     class Impl implements PowerHit {
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             if (!player.isGliding())
                 return PowerResult.noop();
             double originDamage = damage;

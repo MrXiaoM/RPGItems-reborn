@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerOffhandItem;
 import think.rpgitems.power.PowerResult;
 
@@ -31,7 +32,7 @@ class SwapToMainhand extends Trigger<PlayerSwapHandItemsEvent, PowerOffhandItem,
     }
 
     @Override
-    public PowerResult<Boolean> run(PowerOffhandItem power, Player player, ItemStack i, PlayerSwapHandItemsEvent event) {
-        return power.swapToMainhand(player, i, event);
+    public PowerResult<Boolean> run(RPGItem item, PowerOffhandItem power, Player player, ItemStack i, PlayerSwapHandItemsEvent event) {
+        return power.swapToMainhand(player, item, i, event);
     }
 }

@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerPlain;
 import think.rpgitems.power.PowerResult;
 
@@ -17,9 +18,9 @@ public class Drop extends Trigger<PlayerDropItemEvent, PowerPlain, Void, Void> {
     }
 
     @Override
-    public PowerResult<Void> run(PowerPlain power, Player player, ItemStack i, PlayerDropItemEvent event) {
+    public PowerResult<Void> run(RPGItem item, PowerPlain power, Player player, ItemStack i, PlayerDropItemEvent event) {
         event.setCancelled(true);
-        return power.fire(player, i);
+        return power.fire(player, item, i);
     }
 
     public static class Sneak extends Drop {

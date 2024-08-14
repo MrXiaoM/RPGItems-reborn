@@ -51,14 +51,12 @@ public class Flame extends BasePower {
     public class Impl implements PowerHit, PowerLivingEntity {
 
         @Override
-        public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            return fire(player, stack, entity, damage).with(damage);
+        public PowerResult<Double> hit(Player player, RPGItem item, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
+            return fire(player, item, stack, entity, damage).with(damage);
         }
 
         @Override
-        public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, Double value) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        public PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack, LivingEntity entity, Double value) {
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             entity.setFireTicks(getBurntime());
             return PowerResult.ok();

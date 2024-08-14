@@ -6,7 +6,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import think.rpgitems.I18n;
-import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.PotionEffectUtils;
@@ -106,13 +105,11 @@ public class PotionTick extends BasePower {
 
     public class Impl implements PowerTick, PowerSneaking {
         @Override
-        public PowerResult<Void> tick(Player player, ItemStack stack) {
-            return fire(player, stack);
+        public PowerResult<Void> tick(Player player, RPGItem item, ItemStack stack) {
+            return fire(player, item, stack);
         }
 
-        private PowerResult<Void> fire(Player player, ItemStack stack) {
-            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
-            if (item == null) return PowerResult.fail();
+        private PowerResult<Void> fire(Player player, RPGItem item, ItemStack stack) {
             if (!checkAndSetCooldown(item, getPower(), player, getInterval(), false, true, item.getUid() + "." + "potiontick." + getEffect().getName()))
                 return PowerResult.cd();
             if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
@@ -144,8 +141,8 @@ public class PotionTick extends BasePower {
         }
 
         @Override
-        public PowerResult<Void> sneaking(Player player, ItemStack stack) {
-            return fire(player, stack);
+        public PowerResult<Void> sneaking(Player player, RPGItem item, ItemStack stack) {
+            return fire(player, item, stack);
         }
     }
 }

@@ -3,6 +3,7 @@ package think.rpgitems.power.trigger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.PowerHitTaken;
 import think.rpgitems.power.PowerResult;
 import think.rpgitems.power.Property;
@@ -41,8 +42,8 @@ public class Dying extends Trigger<EntityDamageEvent, PowerHitTaken, Void, Optio
     }
 
     @Override
-    public PowerResult<Void> run(PowerHitTaken power, Player player, ItemStack i, EntityDamageEvent event) {
-        return power.takeHit(player, i, event.getDamage(), event).with(null);
+    public PowerResult<Void> run(RPGItem item, PowerHitTaken power, Player player, ItemStack i, EntityDamageEvent event) {
+        return power.takeHit(player, item, i, event.getDamage(), event).with(null);
     }
 
     @Override

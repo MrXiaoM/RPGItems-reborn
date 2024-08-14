@@ -76,10 +76,9 @@ import java.util.stream.Stream;
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
 import static think.rpgitems.item.RPGStone.NBT_POWER_STONES;
-//import static think.rpgitems.utils.pdc.ItemPDC.*;
 
 @SuppressWarnings({"deprecation", "rawtypes", "unused"})
-public class RPGItem {
+public class RPGItem implements RPGBaseHolder {
     @Deprecated
     public static final int MC_ENCODED_ID_LENGTH = 16;
     public static final NamespacedKey TAG_META = new NamespacedKey(RPGItems.plugin, "meta");
@@ -607,6 +606,10 @@ public class RPGItem {
         triggers.put(triggerName, newTrigger);
     }
 
+    @Override
+    public void save() {
+        ItemManager.save(this);
+    }
 
     @SuppressWarnings("rawtypes")
     public void save(ConfigurationSection s) {
@@ -1794,6 +1797,7 @@ public class RPGItem {
         return list;
     }
 
+    @Override
     public <T extends Power> List<T> getPower(NamespacedKey key, Class<T> power) {
         List<T> list = new ArrayList<>();
         for (Power p : powers) {
@@ -1804,6 +1808,7 @@ public class RPGItem {
         return list;
     }
 
+    @Override
     public <T extends Condition<?>> List<T> getCondition(NamespacedKey key, Class<T> condition) {
         List<T> list = new ArrayList<>();
         for (Condition<?> p : conditions) {
@@ -1814,6 +1819,7 @@ public class RPGItem {
         return list;
     }
 
+    @Override
     public Condition<?> getCondition(String id) {
         for (Condition<?> c : conditions) {
             if (c.id().equals(id)) return c;
@@ -1821,6 +1827,7 @@ public class RPGItem {
         return null;
     }
 
+    @Override
     public void addPower(NamespacedKey key, Power power) {
         addPower(key, power, true);
     }
@@ -1839,6 +1846,7 @@ public class RPGItem {
         }
     }
 
+    @Override
     public void removePower(Power power) {
         powers.remove(power);
         keys.remove(power);
@@ -1850,6 +1858,7 @@ public class RPGItem {
         rebuild();
     }
 
+    @Override
     public void addCondition(NamespacedKey key, Condition<?> condition) {
         addCondition(key, condition, true);
     }
@@ -1868,6 +1877,7 @@ public class RPGItem {
         }
     }
 
+    @Override
     public void removeCondition(Condition<?> condition) {
         conditions.remove(condition);
         keys.remove(condition);
@@ -2321,10 +2331,12 @@ public class RPGItem {
         return Strings.isNullOrEmpty(permission) ? "rpgitems.item.use." + getName() : permission;
     }
 
+    @Override
     public NamespacedKey getPropertyHolderKey(PropertyHolder power) {
         return Objects.requireNonNull(keys.get(power));
     }
 
+    @Override
     public NamespacedKey removePropertyHolderKey(PropertyHolder power) {
         return Objects.requireNonNull(keys.remove(power));
     }

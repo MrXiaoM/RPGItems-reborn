@@ -29,7 +29,7 @@ import java.util.*;
 
 import static think.rpgitems.item.RPGItem.TAG_META;
 
-public class RPGStone {
+public class RPGStone implements RPGBaseHolder {
     static RPGItems plugin;
     public static final NamespacedKey TAG_POWER_STONE_ITEM_UID = new NamespacedKey(RPGItems.plugin, "power_stone_uid");
     public static final String NBT_POWER_STONES = "rpgitem_power_stones";
@@ -107,6 +107,11 @@ public class RPGStone {
         }
     }
 
+    @Override
+    public void save() {
+        ItemManager.save(this);
+    }
+
     public void save(ConfigurationSection s) {
         s.set("author", getAuthor());
         s.set("note", getNote());
@@ -151,8 +156,7 @@ public class RPGStone {
         }
         Power pow = PowerManager.instantiate(power);
         pow.init(section, getName());
-        keys.put(pow, key);
-        powers.add(pow);
+        addPower(key, pow, false);
     }
 
     private void loadCondition(ConfigurationSection section, String powerName) throws UnknownPowerException {
@@ -162,12 +166,75 @@ public class RPGStone {
             plugin.getLogger().warning("Unknown condition:" + key + " on item " + this.name);
             throw new UnknownPowerException(key);
         }
-        Condition<?> pow = PowerManager.instantiate(condition);
-        pow.init(section, getName());
-        keys.put(pow, key);
-        conditions.add(pow);
+        Condition<?> cond = PowerManager.instantiate(condition);
+        cond.init(section, getName());
+        addCondition(key, cond, false);
     }
 
+    @Override
+    public <T extends Power> List<T> getPower(NamespacedKey key, Class<T> power) {
+        List<T> list = new ArrayList<>();
+        for (Power p : powers) {
+            if (p.getClass().equals(power) && getPropertyHolderKey(p).equals(key)) {
+                list.add(power.cast(p));
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public <T extends Condition<?>> List<T> getCondition(NamespacedKey key, Class<T> condition) {
+        List<T> list = new ArrayList<>();
+        for (Condition<?> p : conditions) {
+            if (p.getClass().equals(condition) && getPropertyHolderKey(p).equals(key)) {
+                list.add(condition.cast(p));
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public Condition<?> getCondition(String id) {
+        for (Condition<?> c : conditions) {
+            if (c.id().equals(id)) return c;
+        }
+        return null;
+    }
+
+    @Override
+    public void addPower(NamespacedKey key, Power power) {
+        addPower(key, power, true);
+    }
+
+    private void addPower(NamespacedKey key, Power power, boolean update) {
+        powers.add(power);
+        keys.put(power, key);
+    }
+
+    @Override
+    public void removePower(Power power) {
+        powers.remove(power);
+        keys.remove(power);
+        power.deinit();
+    }
+
+    @Override
+    public void addCondition(NamespacedKey key, Condition<?> condition) {
+        addCondition(key, condition, true);
+    }
+
+    private void addCondition(NamespacedKey key, Condition<?> condition, boolean update) {
+        conditions.add(condition);
+        keys.put(condition, key);
+    }
+
+    @Override
+    public void removeCondition(Condition<?> condition) {
+        conditions.remove(condition);
+        keys.remove(condition);
+    }
+
+    @Override
     public void deinit() {
         powers.forEach(Power::deinit);
     }
@@ -234,6 +301,15 @@ public class RPGStone {
 
         updateItem(rStack, false);
         return rStack;
+    }
+
+    public void give(Player player, int count) {
+        ItemStack itemStack = toItemStack();
+        itemStack.setAmount(count);
+        HashMap<Integer, ItemStack> overflow = player.getInventory().addItem(itemStack);
+        for (ItemStack o : overflow.values()) {
+            player.getWorld().dropItemNaturally(player.getLocation(), o);
+        }
     }
 
     public String getDisplayNameRaw() {

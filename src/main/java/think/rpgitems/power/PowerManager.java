@@ -239,7 +239,7 @@ public class PowerManager {
         return new NamespacedKey(namespace, split[1]);
     }
 
-    public static void setPowerProperty(CommandSender sender, PropertyHolder power, String field, String value) throws IllegalAccessException {
+    public static void setPowerProperty(CommandSender sender, String itemName, PropertyHolder power, String field, String value) throws IllegalAccessException {
         Field f;
         Class<? extends PropertyHolder> cls = power.getClass();
         try {
@@ -247,7 +247,7 @@ public class PowerManager {
         } catch (NoSuchFieldException e) {
             throw new AdminCommands.CommandException("internal.error.invalid_command_arg", e);//TODO
         }
-        Utils.setPowerProperty(sender, power, f, value);
+        Utils.setPowerProperty(sender, itemName, power, f, value);
     }
 
     public static List<String> getAcceptedValue(Class<? extends PropertyHolder> cls, AcceptedValue anno) {

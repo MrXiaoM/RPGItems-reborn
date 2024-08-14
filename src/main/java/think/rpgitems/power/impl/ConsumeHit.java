@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import static think.rpgitems.power.Utils.checkCooldown;
@@ -41,7 +43,9 @@ public class ConsumeHit extends BasePower {
     public class Impl implements PowerHit {
         @Override
         public PowerResult<Double> hit(final Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), false, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), false, true)) return PowerResult.cd();
             int count = stack.getAmount() - 1;
             if (count == 0) {
                 stack.setAmount(0);

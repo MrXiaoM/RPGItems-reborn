@@ -1,5 +1,7 @@
 package think.rpgitems.power.cond;
 
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -48,7 +50,9 @@ public class AndCondition extends BaseCondition<Map.Entry<Condition<?>, PowerRes
             }
         }
         if (!isStatic) {
-            List<Condition<?>> powerConditions = getItem().getConditions();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            List<Condition<?>> powerConditions = item.getAllPowersAndConditions(stack).getValue();
             for (Condition<?> condition : powerConditions) {
                 if (!conditions.contains(condition.id())) continue;
                 if (condition.isStatic()) throw new IllegalStateException();

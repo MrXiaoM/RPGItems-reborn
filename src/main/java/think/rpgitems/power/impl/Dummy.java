@@ -18,6 +18,8 @@ import org.bukkit.inventory.ItemStack;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import static think.rpgitems.power.Utils.checkAndSetCooldown;
@@ -94,11 +96,11 @@ public class Dummy extends BasePower {
     public boolean globalCooldown = false;
 
     @Override
-    public void init(ConfigurationSection section) {
+    public void init(ConfigurationSection section, String itemName) {
         if (section.isBoolean("ignoreDurabilityBound")) {
             checkDurabilityBound = section.isBoolean("ignoreDurabilityBound");
         }
-        super.init(section);
+        super.init(section, itemName);
     }
 
     /**
@@ -216,7 +218,10 @@ public class Dummy extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, Double damage) {
-            if (!checkAndSetCooldown(getPower(), player, getCooldown(), isShowCDWarning(), false, (isGlobalCooldown() ? "" : (getItem().getUid() + ".")) + getCooldownKey()))
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            int uid = item.getUid();
+            if (!checkAndSetCooldown(item, getPower(), player, getCooldown(), isShowCDWarning(), false, (isGlobalCooldown() ? "" : (uid + ".")) + getCooldownKey()))
                 return PowerResult.of(getCooldownResult());
             int damageCost = getCost();
             if (damage != null && isCostByDamage()) {
@@ -235,7 +240,7 @@ public class Dummy extends BasePower {
                 }
                 if (isDoEnchReduceCost()) finalCost = damageCost - finalCost;
             }
-            if (!getItem().consumeDurability(player, stack, finalCost, isCheckDurabilityBound()))
+            if (!item.consumeDurability(player, stack, finalCost, isCheckDurabilityBound()))
                 return PowerResult.of(getCostResult());
             return PowerResult.of(getSuccessResult());
         }

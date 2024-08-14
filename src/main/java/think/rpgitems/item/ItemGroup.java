@@ -1,6 +1,8 @@
 package think.rpgitems.item;
 
 import com.google.common.base.Strings;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -14,18 +16,24 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Getter
 public class ItemGroup {
     static RPGItems plugin;
 
-    private String name;
-    private int uid;
-    private String regex;
+    private final String name;
+    private final int uid;
+    private final String regex;
     private Set<Integer> itemUids;
+    @Setter
     private Set<RPGItem> items;
+    @Setter
     private File file;
 
+    @Setter
     private String author = plugin.cfg.defaultAuthor;
+    @Setter
     private String note = plugin.cfg.defaultNote;
+    @Setter
     private String license = plugin.cfg.defaultLicense;
 
     public ItemGroup(String name, int uid, String regex, CommandSender author) {
@@ -109,64 +117,8 @@ public class ItemGroup {
         }
     }
 
-    public String getAuthor() {
-        return author;
-    }
-
-    public File getFile() {
-        return file;
-    }
-
-    public Set<Integer> getItemUids() {
-        return itemUids;
-    }
-
-    public Set<RPGItem> getItems() {
-        return items;
-    }
-
-    public String getLicense() {
-        return license;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public String getRegex() {
-        return regex;
-    }
-
-    public int getUid() {
-        return uid;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public void setFile(File file) {
-        this.file = file;
-    }
-
     public void setItemUids(Set<Integer> itemUids) {
         this.itemUids = itemUids;
         setItems(getItemUids().stream().map(ItemManager::getItemById).filter(Objects::nonNull).collect(Collectors.toSet()));
-    }
-
-    private void setItems(Set<RPGItem> items) {
-        this.items = items;
-    }
-
-    public void setLicense(String license) {
-        this.license = license;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
     }
 }

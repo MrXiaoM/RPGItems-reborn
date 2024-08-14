@@ -5,17 +5,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import think.rpgitems.RPGItems;
-import think.rpgitems.item.RPGItem;
 
 import java.util.Locale;
 
 public interface PropertyHolder {
+    @Deprecated
+    default void init(ConfigurationSection s) {
+        init(s, "");
+    }
     /**
      * Loads configuration for this object
      *
      * @param s Configuration
      */
-    void init(ConfigurationSection s);
+    void init(ConfigurationSection s, String itemName);
 
     /**
      * Saves configuration for this object
@@ -30,14 +33,6 @@ public interface PropertyHolder {
      * @return NamespacedKey
      */
     NamespacedKey getNamespacedKey();
-
-    /**
-     * @return Item it belongs to
-     */
-    RPGItem getItem();
-
-    void setItem(RPGItem item);
-
 
     /**
      * Static. Code name of this object

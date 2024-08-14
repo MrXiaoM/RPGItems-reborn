@@ -14,6 +14,8 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.util.ArrayList;
@@ -85,8 +87,10 @@ public class Torch extends BasePower {
 
         @Override
         public PowerResult<Void> fire(final Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             player.playSound(player.getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 1.0f, 0.8f);
             final FallingBlock block = player.getWorld().spawnFallingBlock(player.getLocation().add(0, 1.8, 0), Material.TORCH.createBlockData());
             block.setVelocity(player.getLocation().getDirection().multiply(2d));

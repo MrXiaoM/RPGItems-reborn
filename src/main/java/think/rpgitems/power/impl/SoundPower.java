@@ -16,6 +16,8 @@ import think.rpgitems.RPGItems;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.cast.CastUtils;
 
@@ -145,13 +147,15 @@ public class SoundPower extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             Location location = player.getLocation();
             if (getPlayLocation().equals(PlayLocation.TARGET)){
                 CastUtils.CastLocation castLocation = CastUtils.rayTrace(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), getFiringRange());
                 location = castLocation.getTargetLocation();
             }
-            return this.sound(player, stack, location);
+            return this.sound(player, item, stack, location);
         }
 
         @Override
@@ -159,8 +163,8 @@ public class SoundPower extends BasePower {
             return SoundPower.this;
         }
 
-        private PowerResult<Void> sound(Entity player, ItemStack stack, Location location) {
-            if (!getItem().consumeDurability(player instanceof Player ? (Player) player : null, stack, getCost())) return PowerResult.cost();
+        private PowerResult<Void> sound(Entity player, RPGItem item, ItemStack stack, Location location) {
+            if (!item.consumeDurability(player instanceof Player ? (Player) player : null, stack, getCost())) return PowerResult.cost();
             if (getDelay()>0){
                 new BukkitRunnable() {
                     @Override
@@ -181,13 +185,15 @@ public class SoundPower extends BasePower {
 
         @Override
         public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             Location location = entity.getLocation();
             if (getPlayLocation().equals(PlayLocation.HIT_LOCATION)) {
             }else if (getPlayLocation().equals(PlayLocation.SELF)){
                 location = player.getLocation();
             }
-            return sound(entity, stack, location).with(damage);
+            return sound(entity, item, stack, location).with(damage);
         }
 
         @Override
@@ -213,77 +219,93 @@ public class SoundPower extends BasePower {
 
         @Override
         public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             Location location = entity.getLocation();
             if (getPlayLocation().equals(PlayLocation.HIT_LOCATION)) {
             }else if (getPlayLocation().equals(PlayLocation.SELF)){
                 location = player.getLocation();
             }
-            return sound(player, stack, location).with(damage);
+            return sound(player, item, stack, location).with(damage);
         }
 
         @Override
         public PowerResult<Void> hitBlock(Player player, ItemStack stack, Location location, BeamHitBlockEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (getPlayLocation().equals(PlayLocation.HIT_LOCATION)) {
             }else if (getPlayLocation().equals(PlayLocation.SELF)){
                 location = player.getLocation();
             }
-            return sound(player, stack, location);
+            return sound(player, item, stack, location);
         }
 
         @Override
         public PowerResult<Void> beamEnd(Player player, ItemStack stack, Location location, BeamEndEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (getPlayLocation().equals(PlayLocation.HIT_LOCATION)) {
             }else if (getPlayLocation().equals(PlayLocation.SELF)){
                 location = player.getLocation();
             }
-            return sound(player, stack, location);
+            return sound(player, item, stack, location);
         }
 
         @Override
         public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             Location location = event.getEntity().getLocation();
             if (getPlayLocation().equals(PlayLocation.HIT_LOCATION)) {
             }else if (getPlayLocation().equals(PlayLocation.SELF)){
                 location = player.getLocation();
             }
-            return sound(player, stack, location);
+            return sound(player, item, stack, location);
         }
 
         @Override
         public PowerResult<Void> sneaking(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            return sound(player, stack, player.getEyeLocation());
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            return sound(player, item, stack, player.getEyeLocation());
         }
 
         @Override
         public PowerResult<Void> tick(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            return sound(player, stack, player.getEyeLocation());
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            return sound(player, item, stack, player.getEyeLocation());
         }
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             Location location = entity.getLocation();
             if (getPlayLocation().equals(PlayLocation.HIT_LOCATION)) {
             }else if (getPlayLocation().equals(PlayLocation.SELF)){
                 location = player.getLocation();
             }
-            return sound(player, stack, location);
+            return sound(player, item, stack, location);
         }
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, Location location) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (getPlayLocation().equals(PlayLocation.HIT_LOCATION)) {
             }else if (getPlayLocation().equals(PlayLocation.SELF)){
                 location = player.getLocation();
             }
-            return sound(player, stack, location);
+            return sound(player, item, stack, location);
         }
     }
 }

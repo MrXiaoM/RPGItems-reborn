@@ -1,5 +1,7 @@
 package think.rpgitems.power.impl;
 
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.utils.RayTraceUtils;
 import com.google.common.cache.Cache;
@@ -74,9 +76,9 @@ public class ParticleBarrier extends BasePower {
     public PotionEffectType effect = PotionEffectType.INCREASE_DAMAGE;
 
     @Override
-    public void init(ConfigurationSection s) {
+    public void init(ConfigurationSection s, String itemName) {
         int orc = getRc().getAndIncrement();
-        super.init(s);
+        super.init(s, itemName);
         if (orc == 0) {
             event = new Listener() {
                 @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -192,8 +194,10 @@ public class ParticleBarrier extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (!isProjected()) {
                 barrier(player, player);
                 return PowerResult.ok();

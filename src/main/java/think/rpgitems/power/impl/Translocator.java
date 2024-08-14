@@ -10,6 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import think.rpgitems.I18n;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.util.UUID;
@@ -98,7 +100,9 @@ public class Translocator extends BasePower {
     public class Impl implements PowerMainhandItem, PowerOffhandItem {
         @Override
         public PowerResult<Boolean> swapToMainhand(Player player, ItemStack stack, PlayerSwapHandItemsEvent event) {
-            checkCooldown(getPower(), player, getCooldown(), false, true);
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            checkCooldown(item, getPower(), player, getCooldown(), false, true);
             UUID translocatorUUID = playerTranslocatorMap.getIfPresent(player.getUniqueId());
             if (translocatorUUID == null) {
                 return PowerResult.fail();
@@ -114,7 +118,7 @@ public class Translocator extends BasePower {
                 return PowerResult.fail();
             }
             translocator.remove();
-            if (!getItem().consumeDurability(player, stack, getTpCost())) return PowerResult.cost();
+            if (!item.consumeDurability(player, stack, getTpCost())) return PowerResult.cost();
             Location newLoc = translocator.getLocation();
             Vector direction = player.getLocation().getDirection();
             newLoc.setDirection(direction);
@@ -127,7 +131,9 @@ public class Translocator extends BasePower {
 
         @Override
         public PowerResult<Boolean> pickupOffhand(Player player, ItemStack stack, InventoryClickEvent event) {
-            checkCooldown(getPower(), player, getCooldown(), false, true);
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            checkCooldown(item, getPower(), player, getCooldown(), false, true);
             UUID armorStandUUID = playerTranslocatorMap.getIfPresent(player.getUniqueId());
             if (armorStandUUID == null) {
                 return PowerResult.fail();
@@ -150,8 +156,10 @@ public class Translocator extends BasePower {
         @SuppressWarnings({"deprecation"})
         @Override
         public PowerResult<Boolean> swapToOffhand(Player player, ItemStack stack, PlayerSwapHandItemsEvent event) {
-            if (!checkCooldown(getPower(), player, 0, true, true)) return PowerResult.ok(false);
-            if (!getItem().consumeDurability(player, stack, getSetupCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, 0, true, true)) return PowerResult.ok(false);
+            if (!item.consumeDurability(player, stack, getSetupCost())) return PowerResult.cost();
             SpectralArrow arrow = player.launchProjectile(SpectralArrow.class, player.getLocation().getDirection().multiply(getSpeed()));
             arrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
             arrow.setPersistent(false);

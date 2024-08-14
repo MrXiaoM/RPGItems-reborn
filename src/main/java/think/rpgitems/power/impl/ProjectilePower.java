@@ -20,6 +20,8 @@ import org.bukkit.util.Vector;
 import think.rpgitems.Events;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.cast.CastUtils;
 import think.rpgitems.utils.cast.RangedDoubleValue;
@@ -177,9 +179,9 @@ public class ProjectilePower extends BasePower {
     private Cache<UUID, Integer> burstTask = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).concurrencyLevel(2).build();
 
     @Override
-    public void init(ConfigurationSection section) {
+    public void init(ConfigurationSection section, String itemName) {
         cooldown = section.getInt("cooldownTime");
-        super.init(section);
+        super.init(section, itemName);
         if (getYield() != null && getYield() == -1) {
             yield = null;
         }
@@ -373,8 +375,10 @@ public class ProjectilePower extends BasePower {
         }
 
         public PowerResult<Void> fire(Player player, ItemStack stack, float speedFactor) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             CastUtils.CastLocation castLocation = null;
             if (getFiringLocation().equals(FiringLocation.TARGET)) {
                 castLocation = CastUtils.rayTrace(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), getFiringRange());
@@ -465,7 +469,7 @@ public class ProjectilePower extends BasePower {
         private void fire(Player player, LivingEntity source, ItemStack stack, RoundedConeInfo roundedConeInfo, float speedFactor) {
             Vector direction1 = source.getEyeLocation().getDirection();
             Vector v = CastUtils.makeCone(source.getEyeLocation(), direction1, roundedConeInfo);
-            Events.registerRPGProjectile(getPower().getItem(), stack, player, source);
+            Events.registerRPGProjectile(stack, player, source);
             org.bukkit.entity.Projectile projectile = source.launchProjectile(getProjectileType(), v.clone().normalize().multiply(getSpeed() * speedFactor));
             if (projectile instanceof AbstractArrow) {
                 ((AbstractArrow) projectile).setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
@@ -538,8 +542,10 @@ public class ProjectilePower extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, Double value) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             CastUtils.CastLocation castLocation = null;
             if (getFiringLocation().equals(FiringLocation.TARGET)) {
                 castLocation = CastUtils.rayTrace(entity, entity.getEyeLocation(), entity.getEyeLocation().getDirection(), getFiringRange());

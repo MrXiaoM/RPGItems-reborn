@@ -215,8 +215,8 @@ public class Selector extends BaseMarker {
     }
 
     @Override
-    public void init(ConfigurationSection section) {
-        super.init(section);
+    public void init(ConfigurationSection section, String itemName) {
+        super.init(section, itemName);
         if (count != null && count < 0) count = null;
         if (dx != null && dx < 0) dx = null;
         if (dy != null && dy < 0) dy = null;

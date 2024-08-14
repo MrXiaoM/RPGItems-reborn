@@ -208,7 +208,7 @@ public class ModifierCommands extends RPGCommandReceiver {
                 showModifier(sender, modifier);
                 return;
             }
-            setPropertyHolder(sender, args, modifier.getClass(), modifier, false);
+            setPropertyHolder(sender, args, modifier.getItem(), modifier.getClass(), modifier, false);
             ISubItemTagContainer modifierContainer = ItemPDC.makeTag(container, TAG_MODIFIER);
             ItemPDC.set(modifierContainer, TAG_VERSION, UUID.randomUUID());
             NamespacedKey namespacedKey = PowerManager.parseKey(String.valueOf(modifierPair.getKey()));

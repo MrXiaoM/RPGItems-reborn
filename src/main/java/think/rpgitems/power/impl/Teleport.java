@@ -1,5 +1,7 @@
 package think.rpgitems.power.impl;
 
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -101,8 +103,10 @@ public class Teleport extends BasePower {
         }
 
         public PowerResult<Void> fire(Player player, ItemStack stack, Supplier<Location> supplier) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             Location newLoc = supplier.get();
             World world = player.getWorld();
             Vector velocity = player.getVelocity();
@@ -202,8 +206,10 @@ public class Teleport extends BasePower {
 
         @Override
         public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             World world = player.getWorld();
             Location start = player.getLocation();
             Location newLoc = getEntityLocation(player, event.getEntity());

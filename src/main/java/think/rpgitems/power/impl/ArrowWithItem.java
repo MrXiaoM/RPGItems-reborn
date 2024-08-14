@@ -84,8 +84,8 @@ public class ArrowWithItem extends BasePower {
     }
 
     @Override
-    public void init(ConfigurationSection section) {
-        super.init(section);
+    public void init(ConfigurationSection section, String itemName) {
+        super.init(section, itemName);
         load();
     }
 
@@ -138,9 +138,11 @@ public class ArrowWithItem extends BasePower {
         }
 
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!Utils.checkCooldown(this.getPower(), player, getCooldown(), true, true)) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!Utils.checkCooldown(item, this.getPower(), player, getCooldown(), true, true)) {
                 return PowerResult.cd();
-            } else if (!getItem().consumeDurability(player, stack, getCost())) {
+            } else if (!item.consumeDurability(player, stack, getCost())) {
                 return PowerResult.cost();
             } else {
                 Material displayItem = consumeArrow(player);
@@ -149,7 +151,7 @@ public class ArrowWithItem extends BasePower {
                     return PowerResult.fail();
                 }
                 player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1.0F, 1.0F);
-                Events.registerRPGProjectile(this.getPower().getItem(), stack, player);
+                Events.registerRPGProjectile(stack, player);
                 Snowball arrow = player.launchProjectile(Snowball.class);
                 arrow.addScoreboardTag("rgi_projectile");
                 arrow.setShooter(player);

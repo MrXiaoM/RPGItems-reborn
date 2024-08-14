@@ -12,6 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import javax.annotation.Nullable;
@@ -119,15 +121,19 @@ public class AOECommand extends Command {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            List<LivingEntity> nearbyEntities = getNearestLivingEntities(getPower(), player.getLocation(), player, getR(), getRm());
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            List<LivingEntity> nearbyEntities = getNearestLivingEntities(item, getPower(), player.getLocation(), player, getR(), getRm());
             List<LivingEntity> livingEntitiesInCone = getLivingEntitiesInCone(nearbyEntities, player.getEyeLocation().toVector(), getFacing(), player.getEyeLocation().getDirection());
             return fire(player, stack, livingEntitiesInCone);
         }
 
         private PowerResult<Void> fire(Player player, ItemStack stack, List<LivingEntity> entitiesInCone){
-            if (!checkAndSetCooldown(getPower(), player, getCooldown(), true, false, getItem().getUid() + "." + getCommand()))
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkAndSetCooldown(item, getPower(), player, getCooldown(), true, false, item.getUid() + "." + getCommand()))
                 return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (!player.isOnline()) return PowerResult.noop();
 
             attachPermission(player, getPermission());
@@ -185,8 +191,10 @@ public class AOECommand extends Command {
 
         @Override
         public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             int r = getR();
-            List<LivingEntity> nearbyEntities = getNearbyEntities(getPower(), player.getLocation(), player, r).stream()
+            List<LivingEntity> nearbyEntities = getNearbyEntities(item, getPower(), player.getLocation(), player, r).stream()
                     .filter(entity1 -> entity1 instanceof LivingEntity)
                     .map(entity1 -> entity)
                     .collect(Collectors.toList());
@@ -196,8 +204,10 @@ public class AOECommand extends Command {
 
         @Override
         public PowerResult<Void> hitBlock(Player player, ItemStack stack, Location location, BeamHitBlockEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             int r = getR();
-            List<LivingEntity> nearbyEntities = getNearbyEntities(getPower(), location, player, r).stream()
+            List<LivingEntity> nearbyEntities = getNearbyEntities(item, getPower(), location, player, r).stream()
                     .filter(entity -> entity instanceof LivingEntity)
                     .map(entity ->  ((LivingEntity) entity))
                     .collect(Collectors.toList());
@@ -207,8 +217,10 @@ public class AOECommand extends Command {
 
         @Override
         public PowerResult<Void> beamEnd(Player player, ItemStack stack, Location location, BeamEndEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             int r = getR();
-            List<LivingEntity> nearbyEntities = getNearbyEntities(getPower(), location, player, r).stream()
+            List<LivingEntity> nearbyEntities = getNearbyEntities(item, getPower(), location, player, r).stream()
                     .filter(entity -> entity instanceof LivingEntity)
                     .map(entity ->  ((LivingEntity) entity))
                     .collect(Collectors.toList());
@@ -217,8 +229,10 @@ public class AOECommand extends Command {
 
         @Override
         public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             int r = getR();
-            List<LivingEntity> nearbyEntities = getNearbyEntities(getPower(), event.getEntity().getLocation(), player, r).stream()
+            List<LivingEntity> nearbyEntities = getNearbyEntities(item, getPower(), event.getEntity().getLocation(), player, r).stream()
                     .filter(entity -> entity instanceof LivingEntity)
                     .map(entity ->  ((LivingEntity) entity))
                     .collect(Collectors.toList());
@@ -233,7 +247,9 @@ public class AOECommand extends Command {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
-            List<LivingEntity> nearbyEntities = getNearestLivingEntities(getPower(), entity.getLocation(), player, getR(), getRm());
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            List<LivingEntity> nearbyEntities = getNearestLivingEntities(item, getPower(), entity.getLocation(), player, getR(), getRm());
             List<LivingEntity> livingEntitiesInCone = getLivingEntitiesInCone(nearbyEntities, entity.getEyeLocation().toVector(), getFacing(), entity.getEyeLocation().getDirection());
             return fire(player, stack, livingEntitiesInCone);
         }

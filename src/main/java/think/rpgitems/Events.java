@@ -98,9 +98,11 @@ public class Events implements Listener {
         Events.projectilePlayer = player;
         projectileRegisterMap.put(source.getUniqueId(), player.getUniqueId());
     }
-
-    public static void registerRPGProjectile(RPGItem rpgItem, ItemStack itemStack, Player player) {
-        registerRPGProjectile(rpgItem, itemStack, player, player);
+    public static void registerRPGProjectile(ItemStack itemStack, Player player, LivingEntity source) {
+        ItemManager.toRPGItem(itemStack).ifPresent(rpgItem -> registerRPGProjectile(rpgItem, itemStack, player, source));
+    }
+    public static void registerRPGProjectile(ItemStack itemStack, Player player) {
+        ItemManager.toRPGItem(itemStack).ifPresent(rpgItem -> registerRPGProjectile(rpgItem, itemStack, player, player));
     }
 
     public static void registerRPGProjectile(int entityId, int uid) {

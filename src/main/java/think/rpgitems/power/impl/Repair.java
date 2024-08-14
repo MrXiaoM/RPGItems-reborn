@@ -1,5 +1,7 @@
 package think.rpgitems.power.impl;
 
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import com.google.common.base.Strings;
@@ -73,11 +75,11 @@ public class Repair extends BasePower {
     public boolean requireHurtByEntity = true;
 
     @Override
-    public void init(ConfigurationSection section) {
+    public void init(ConfigurationSection section, String itemName) {
         if (section.isBoolean("isRight")) {
             triggers = section.getBoolean("isRight", true) ? Collections.singleton(BaseTriggers.RIGHT_CLICK) : Collections.singleton(BaseTriggers.LEFT_CLICK);
         }
-        super.init(section);
+        super.init(section, itemName);
     }
 
     public int getAmount() {
@@ -163,11 +165,13 @@ public class Repair extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            int max = getItem().getMaxDurability();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            int max = item.getMaxDurability();
             int repairCount = 0;
             for (int i = 0; i < getAmount(); i++) {
-                int itemDurability = getItem().getItemStackDurability(stack).orElseThrow(() -> new IllegalStateException("Repair is not allowed on item without durability"));
+                int itemDurability = item.getItemStackDurability(stack).orElseThrow(() -> new IllegalStateException("Repair is not allowed on item without durability"));
                 int delta = max - itemDurability;
                 if (getMode() != RepairMode.ALWAYS) {
                     if (max == -1 || delta == 0) {
@@ -181,7 +185,7 @@ public class Repair extends BasePower {
                     break;
                 }
                 if (removeItem(player.getInventory(), getMaterial(), 1)) {
-                    getItem().setItemStackDurability(player, stack, Math.min(itemDurability + getDurability(), max));
+                    item.setItemStackDurability(player, stack, Math.min(itemDurability + getDurability(), max));
                     repairCount++;
                 } else {
                     if (isShowFailMsg()) {

@@ -20,6 +20,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.support.MythicSupport;
 
@@ -71,8 +73,10 @@ public class Mythic extends BasePower {
         }
 
         public PowerResult<Void> fire(final Player player, ItemStack s) {
-            if (!checkCooldown(getPower(), player, getCooldown(), false, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, s, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(s).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), false, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, s, getCost())) return PowerResult.cost();
 
             boolean result = MythicSupport.castSkill(player, getSkill());
 

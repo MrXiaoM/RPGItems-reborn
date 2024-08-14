@@ -8,6 +8,8 @@ import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.Meta;
 import think.rpgitems.power.Power;
 import think.rpgitems.power.PowerResult;
@@ -55,9 +57,12 @@ public class DelayedCommand extends Command {
 
         @Override
         public PowerResult<Void> fire(Player target, ItemStack stack) {
-            if (!checkAndSetCooldown(getPower(), target, getCooldown(), true, false, getItem().getUid() + "." + getCommand()))
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            int uid = item.getUid();
+            if (!checkAndSetCooldown(item, getPower(), target, getCooldown(), true, false, uid + "." + getCommand()))
                 return PowerResult.cd();
-            if (!getItem().consumeDurability(target, stack, getCost())) return PowerResult.cost();
+            if (!item.consumeDurability(target, stack, getCost())) return PowerResult.cost();
             String cmd;
             if (!cmdInPlace) {
                 cmd = handlePlayerPlaceHolder(target, getCommand());

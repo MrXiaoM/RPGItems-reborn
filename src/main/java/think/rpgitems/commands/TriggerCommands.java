@@ -77,9 +77,8 @@ public class TriggerCommands extends RPGCommandReceiver {
             return;
         }
         Trigger trigger = base.copy(name);
-        trigger.setItem(item);
         try {
-            item.addTrigger(name, setPropertyHolder(sender, args, base.getClass(), trigger, true));
+            item.addTrigger(name, setPropertyHolder(sender, args, item, base.getClass(), trigger, true));
             ItemManager.refreshItem();
             ItemManager.save(item);
             msgs(sender, "message.trigger.ok");
@@ -139,7 +138,7 @@ public class TriggerCommands extends RPGCommandReceiver {
                 showTrigger(sender, item, trigger);
                 return;
             }
-            setPropertyHolder(sender, args, trigger.getClass(), trigger, false);
+            setPropertyHolder(sender, args, item, trigger.getClass(), trigger, false);
             item.rebuild();
             ItemManager.refreshItem();
             ItemManager.save(item);

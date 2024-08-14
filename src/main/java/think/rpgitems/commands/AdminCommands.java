@@ -1288,12 +1288,11 @@ public class AdminCommands extends RPGCommandReceiver {
 
     public static <T extends PropertyHolder> T initPropertyHolder(CommandSender sender, Arguments args, RPGItem item, Class<? extends T> cls) throws IllegalAccessException {
         T power = PowerManager.instantiate(cls);
-        power.setItem(item);
-        power.init(new YamlConfiguration());
-        return setPropertyHolder(sender, args, cls, power, true);
+        power.init(new YamlConfiguration(), item.getName());
+        return setPropertyHolder(sender, args, item, cls, power, true);
     }
 
-    public static <T extends PropertyHolder> T setPropertyHolder(CommandSender sender, Arguments args, Class<? extends T> cls, T power, boolean checkRequired) throws IllegalAccessException {
+    public static <T extends PropertyHolder> T setPropertyHolder(CommandSender sender, Arguments args, RPGItem item, Class<? extends T> cls, T power, boolean checkRequired) throws IllegalAccessException {
         Map<String, Pair<Method, PropertyInstance>> argMap = PowerManager.getProperties(cls);
 
         List<Field> required = argMap.values().stream()
@@ -1308,7 +1307,7 @@ public class AdminCommands extends RPGCommandReceiver {
             String name = prop.getKey();
             String value = args.argString(name, null);
             if (value != null) {
-                Utils.setPowerProperty(sender, power, field, value);
+                Utils.setPowerProperty(sender, item.getName(), power, field, value);
                 required.remove(field);
             }
         }

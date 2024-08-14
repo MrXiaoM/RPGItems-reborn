@@ -20,6 +20,8 @@ import think.rpgitems.data.Context;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.LightContext;
 import think.rpgitems.utils.cast.CastUtils;
@@ -216,6 +218,8 @@ public class AOEDamage extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             Supplier<Location> traceResultSupplier = player::getEyeLocation;
             if (getFiringLocation().equals(FiringLocation.TARGET)){
                 if (isCastOff()) {
@@ -237,9 +241,9 @@ public class AOEDamage extends BasePower {
                 List<LivingEntity> ent;
                 if(getFiringLocation().equals(FiringLocation.TARGET)){
                     Location targetLocation = finalTraceResultSupplier.get();
-                    ent = getNearestLivingEntities(getPower(), targetLocation, player, getRange(), getMinrange());
+                    ent = getNearestLivingEntities(item, getPower(), targetLocation, player, getRange(), getMinrange());
                 }else {
-                    nearbyEntities = getNearestLivingEntities(getPower(), player.getLocation(), player, getRange(), getMinrange());
+                    nearbyEntities = getNearestLivingEntities(item, getPower(), player.getLocation(), player, getRange(), getMinrange());
                     ent = getLivingEntitiesInCone(nearbyEntities, player.getEyeLocation().toVector(), getAngle(), player.getEyeLocation().getDirection());
                 }
                 return ent;
@@ -247,8 +251,10 @@ public class AOEDamage extends BasePower {
         }
 
         private PowerResult<Void> fire(Player player, ItemStack stack, Supplier<List<LivingEntity>> supplier){
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             Context.instance().putTemp(player.getUniqueId(), DAMAGE_SOURCE, getNamespacedKey().toString());
             Context.instance().putTemp(player.getUniqueId(), OVERRIDING_DAMAGE, getDamage());
             Context.instance().putTemp(player.getUniqueId(), SUPPRESS_MELEE, isSuppressMelee());
@@ -380,13 +386,15 @@ public class AOEDamage extends BasePower {
 
         @Override
         public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             Location location = entity.getLocation();
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(player, location, range)).with(damage);
+            return fire(player, stack, () -> getNearbyEntities(item, player, location, range)).with(damage);
         }
 
-        private List<LivingEntity> getNearbyEntities(Player player, Location location, int range) {
-            return Utils.getNearbyEntities(getPower(), location, player, range).stream()
+        private List<LivingEntity> getNearbyEntities(RPGItem item, Player player, Location location, int range) {
+            return Utils.getNearbyEntities(item, getPower(), location, player, range).stream()
                     .filter(entity -> entity instanceof LivingEntity)
                     .map(entity ->  ((LivingEntity) entity))
                     .collect(Collectors.toList());
@@ -394,24 +402,32 @@ public class AOEDamage extends BasePower {
 
         @Override
         public PowerResult<Void> hitBlock(Player player, ItemStack stack, Location location, BeamHitBlockEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(player, location, range));
+            return fire(player, stack, () -> getNearbyEntities(item, player, location, range));
         }
 
         @Override
         public PowerResult<Void> beamEnd(Player player, ItemStack stack, Location location, BeamEndEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(player, location, range));
+            return fire(player, stack, () -> getNearbyEntities(item, player, location, range));
         }
 
         @Override
         public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(player, event.getEntity().getLocation(), range));
+            return fire(player, stack, () -> getNearbyEntities(item, player, event.getEntity().getLocation(), range));
         }
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             Supplier<Location> traceResultSupplier = entity::getEyeLocation;
             if (getFiringLocation().equals(FiringLocation.TARGET)){
                 if (isCastOff()) {
@@ -433,9 +449,9 @@ public class AOEDamage extends BasePower {
                 List<LivingEntity> ent;
                 if(getFiringLocation().equals(FiringLocation.TARGET)){
                     Location targetLocation = finalTraceResultSupplier.get();
-                    ent = getNearestLivingEntities(getPower(), targetLocation, player, getRange(), getMinrange());
+                    ent = getNearestLivingEntities(item, getPower(), targetLocation, player, getRange(), getMinrange());
                 }else {
-                    nearbyEntities = getNearestLivingEntities(getPower(), player.getLocation(), player, getRange(), getMinrange());
+                    nearbyEntities = getNearestLivingEntities(item, getPower(), player.getLocation(), player, getRange(), getMinrange());
                     ent = getLivingEntitiesInCone(nearbyEntities, player.getEyeLocation().toVector(), getAngle(), player.getEyeLocation().getDirection());
                 }
                 return ent;
@@ -444,8 +460,10 @@ public class AOEDamage extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, Location location) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             int range = getRange();
-            return fire(player, stack, () -> getNearbyEntities(player, location, range));
+            return fire(player, stack, () -> getNearbyEntities(item, player, location, range));
         }
     }
 

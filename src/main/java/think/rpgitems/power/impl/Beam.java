@@ -1,5 +1,7 @@
 package think.rpgitems.power.impl;
 
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Message;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.udojava.evalex.Expression;
@@ -406,7 +408,7 @@ public class Beam extends BasePower {
     }
 
     @Override
-    public void init(ConfigurationSection section) {
+    public void init(ConfigurationSection section, String itemName) {
         //check new version var name
         if (section.contains("coneRange")) {
             updateFromV1(section);
@@ -415,7 +417,7 @@ public class Beam extends BasePower {
             int spawnsPerBlock = section.getInt("spawnsPerBlock");
             section.set("particleDensity", spawnsPerBlock);
         }
-        super.init(section);
+        super.init(section, itemName);
     }
 
     private void updateFromV1(ConfigurationSection section) {
@@ -1210,14 +1212,18 @@ public class Beam extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             return beam(player, player, stack);
         }
 
         public PowerResult<Void> fire(Player player, ItemStack stack, Location castLocation, LivingEntity target, int depth) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
 
             CastUtils.CastLocation loc = CastUtils.of(castLocation, target, yAxis.clone());
             return beam(player, player, stack, loc, depth);
@@ -1411,8 +1417,10 @@ public class Beam extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             return beam(player, entity, stack);
         }
     }

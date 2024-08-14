@@ -8,6 +8,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import think.rpgitems.Events;
 import think.rpgitems.I18n;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.PotionEffectUtils;
 
@@ -86,10 +88,12 @@ public class TippedArrows extends BasePower {
     public class Impl implements PowerRightClick {
         @Override
         public PowerResult<Void> rightClick(Player player, ItemStack stack, PlayerInteractEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1.0f, 1.0f);
-            Events.registerRPGProjectile(getPower().getItem(), stack, player);
+            Events.registerRPGProjectile(stack, player);
             org.bukkit.entity.TippedArrow arrow = player.launchProjectile(org.bukkit.entity.TippedArrow.class);
             arrow.addCustomEffect(new PotionEffect(getType(), getDuration(), getAmplifier()), true);
             Events.autoRemoveProjectile(arrow.getEntityId());

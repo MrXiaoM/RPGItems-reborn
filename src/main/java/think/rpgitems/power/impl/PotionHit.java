@@ -7,6 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import think.rpgitems.I18n;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.PotionEffectUtils;
 
@@ -99,7 +101,9 @@ public class PotionHit extends BasePower {
             if (getRand().nextInt(getChance()) != 0) {
                 return PowerResult.noop();
             }
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             entity.addPotionEffect(new PotionEffect(getType(), getDuration(), getAmplifier()), true);
             return PowerResult.ok();
         }

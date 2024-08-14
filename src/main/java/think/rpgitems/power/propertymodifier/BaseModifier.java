@@ -1,5 +1,6 @@
 package think.rpgitems.power.propertymodifier;
 
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.base.Strings;
 import org.bukkit.Bukkit;
@@ -27,6 +28,8 @@ public abstract class BaseModifier<T> extends BasePropertyHolder implements Modi
     public String targetProperty;
     @Property(order = 4, required = true)
     public int priority;
+
+    private RPGItem item;
 
     @Override
     public String getPropertyHolderType() {
@@ -72,7 +75,7 @@ public abstract class BaseModifier<T> extends BasePropertyHolder implements Modi
                 }
             }
             if (value != null) {
-                Utils.setPowerPropertyUnchecked(Bukkit.getConsoleSender(), this, field, value);
+                Utils.setPowerPropertyUnchecked(Bukkit.getConsoleSender(), item.getName(), this, field, value);
             }
         }
     }
@@ -115,13 +118,23 @@ public abstract class BaseModifier<T> extends BasePropertyHolder implements Modi
     }
 
     @Override
-    public boolean match(Power orig, PropertyInstance propertyInstance) {
-        if (!Strings.isNullOrEmpty(targetItem) && !orig.getItem().getName().equals(targetItem)) {
+    public boolean match(RPGItem rpg, Power orig, PropertyInstance propertyInstance) {
+        if (!Strings.isNullOrEmpty(targetItem) && !rpg.getName().equals(targetItem)) {
             return false;
         }
         if (!Strings.isNullOrEmpty(targetPower) && !orig.getNamespacedKey().equals(PowerManager.parseKey(targetPower))) {
             return false;
         }
         return Strings.isNullOrEmpty(targetProperty) || propertyInstance.name().equals(targetProperty);
+    }
+
+    @Override
+    public RPGItem getItem() {
+        return item;
+    }
+
+    @Override
+    public void setItem(RPGItem item) {
+        this.item = item;
     }
 }

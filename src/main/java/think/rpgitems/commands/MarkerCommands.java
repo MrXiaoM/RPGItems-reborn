@@ -198,7 +198,7 @@ public class MarkerCommands extends RPGCommandReceiver {
                 showMarker(sender, item, marker);
                 return;
             }
-            setPropertyHolder(sender, args, marker.getClass(), marker, false);
+            setPropertyHolder(sender, args, item, marker.getClass(), marker, false);
             item.rebuild();
             ItemManager.refreshItem();
             ItemManager.save(item);

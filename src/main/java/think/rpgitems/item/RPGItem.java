@@ -572,8 +572,7 @@ public class RPGItem {
             throw new UnknownPowerException(key);
         }
         Power pow = PowerManager.instantiate(power);
-        pow.setItem(this);
-        pow.init(section);
+        pow.init(section, getName());
         addPower(key, pow, false);
     }
 
@@ -585,8 +584,7 @@ public class RPGItem {
             throw new UnknownPowerException(key);
         }
         Condition<?> pow = PowerManager.instantiate(condition);
-        pow.setItem(this);
-        pow.init(section);
+        pow.init(section, getName());
         addCondition(key, pow, false);
     }
 
@@ -598,8 +596,7 @@ public class RPGItem {
             throw new UnknownPowerException(key);
         }
         Marker pow = PowerManager.instantiate(marker);
-        pow.setItem(this);
-        pow.init(section);
+        pow.init(section, getName());
         addMarker(key, pow, false);
     }
 
@@ -617,8 +614,7 @@ public class RPGItem {
 
         Trigger newTrigger = base.copy(triggerName);
 
-        newTrigger.setItem(this);
-        newTrigger.init(section);
+        newTrigger.init(section, getName());
         triggers.put(triggerName, newTrigger);
     }
 
@@ -2015,8 +2011,7 @@ public class RPGItem {
             }
             Class<? extends Power> pwClz = ((Power) oldPh).getClass();
             Power pow = PowerManager.instantiate(pwClz);
-            pow.setItem(this);
-            pow.init(yamlConfiguration);
+            pow.init(yamlConfiguration, getName());
             powers.set(i, pow);
             newPh = pow;
         }else if (oldPh instanceof Condition){
@@ -2026,8 +2021,7 @@ public class RPGItem {
             }
             Class<? extends Condition> pwClz = ((Condition<?>) oldPh).getClass();
             Condition<?> pow = PowerManager.instantiate(pwClz);
-            pow.setItem(this);
-            pow.init(yamlConfiguration);
+            pow.init(yamlConfiguration, getName());
             conditions.set(i, pow);
             newPh = pow;
         }else if (oldPh instanceof Marker){
@@ -2037,8 +2031,7 @@ public class RPGItem {
             }
             Class<? extends Marker> pwClz = ((Marker) oldPh).getClass();
             Marker pow = PowerManager.instantiate(pwClz);
-            pow.setItem(this);
-            pow.init(yamlConfiguration);
+            pow.init(yamlConfiguration, getName());
             markers.set(i, pow);
             newPh = pow;
         }

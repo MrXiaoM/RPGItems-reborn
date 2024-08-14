@@ -20,6 +20,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
@@ -63,7 +65,7 @@ public class Stuck extends BasePower {
     private Random random = new Random();
 
     @Override
-    public void init(ConfigurationSection s) {
+    public void init(ConfigurationSection s, String itemName) {
         int orc = rc.getAndIncrement();
         boolean allowHit = s.getBoolean("allowHit", true);
         boolean allowAoe = s.getBoolean("allowAoe", false);
@@ -75,7 +77,7 @@ public class Stuck extends BasePower {
             triggerTypes.add(BaseTriggers.RIGHT_CLICK);
         }
         triggers = triggerTypes;
-        super.init(s);
+        super.init(s, itemName);
         if (orc == 0) {
             listener = new Listener() {
                 @EventHandler
@@ -197,11 +199,13 @@ public class Stuck extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCostAoe())) return PowerResult.cost();
-            List<LivingEntity> entities = getLivingEntitiesInCone(getNearestLivingEntities(getPower(), player.getEyeLocation(), player, getRange(), 0), player.getLocation().toVector(), getFacing(), player.getLocation().getDirection());
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCostAoe())) return PowerResult.cost();
+            List<LivingEntity> entities = getLivingEntitiesInCone(getNearestLivingEntities(item, getPower(), player.getEyeLocation(), player, getRange(), 0), player.getLocation().toVector(), getFacing(), player.getLocation().getDirection());
             entities.forEach(entity -> {
-                        if (!getItem().consumeDurability(player, stack, getCostPerEntity())) return;
+                        if (!item.consumeDurability(player, stack, getCostPerEntity())) return;
                         stucked.put(entity.getUniqueId(), System.currentTimeMillis());
                         entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, getDuration(), 10), true);
 //                    entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, duration, 128), true);
@@ -240,9 +244,11 @@ public class Stuck extends BasePower {
 
         @Override
         public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
             if (random.nextInt(getChance()) == 0) {
-                if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+                if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 stucked.put(entity.getUniqueId(), System.currentTimeMillis());
                 entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, getDuration(), 10), true);
                 // entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, duration, 128), true);

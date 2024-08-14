@@ -15,6 +15,8 @@ Recently, I targeted to make RPGItems more powerful and easy to use.
 Original plugin is not only hard to learn and understand how to use, but also there are very few choices of powers, conditions and triggers.  
 That's the problem I want to solve.
 
+**CURRENT VERSION DO NOT COMPATIBLE WITH ANY OLD VERSION EXTENSIONS.**
+
 We work well on Spigot, but we recommend you to use Paper.  
 Spigot lost these features:
 + Trigger `ARMOR` and `ARMOR_UPDATE`

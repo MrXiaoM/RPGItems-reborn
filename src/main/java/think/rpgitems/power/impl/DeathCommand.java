@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.util.Random;
@@ -88,7 +90,9 @@ public class DeathCommand extends BasePower {
         @Override
         public PowerResult<Double> hit(Player player, ItemStack stack, LivingEntity entity, double damage, EntityDamageByEntityEvent event) {
             if (getRand().nextInt(getChance()) == 0) {
-                if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+                RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+                if (item == null) return PowerResult.fail();
+                if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 Location loc = entity.getLocation();
                 int x = (int) loc.getX();
                 int y = (int) loc.getY();

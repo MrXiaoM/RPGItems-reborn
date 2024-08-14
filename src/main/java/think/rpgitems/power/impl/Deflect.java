@@ -11,6 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import think.rpgitems.Events;
 import think.rpgitems.I18n;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
@@ -49,7 +51,7 @@ public class Deflect extends BasePower {
     public double facing = 30;
 
     @Override
-    public void init(ConfigurationSection section) {
+    public void init(ConfigurationSection section, String itemName) {
         cooldownpassive = section.getInt("cooldownpassive", 20);
         boolean passive = section.getBoolean("passive", false);
         boolean initiative = section.getBoolean("initiative", true);
@@ -61,7 +63,7 @@ public class Deflect extends BasePower {
         if (initiative) {
             triggers.add(isRight ? BaseTriggers.RIGHT_CLICK : BaseTriggers.LEFT_CLICK);
         }
-        super.init(section);
+        super.init(section, itemName);
     }
 
     @Override
@@ -139,6 +141,8 @@ public class Deflect extends BasePower {
         @Override
         @SuppressWarnings({"removation"})
         public PowerResult<Double> takeHit(Player target, ItemStack stack, double damage, EntityDamageEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             if (!(target.getInventory().getItemInMainHand().equals(stack) || target.getInventory().getItemInOffHand().equals(stack))) {
                 return PowerResult.noop();
             }
@@ -156,10 +160,10 @@ public class Deflect extends BasePower {
                 if (!triggers.contains(BaseTriggers.HIT_TAKEN)
                             || ThreadLocalRandom.current().nextInt(0, 100) >= getChance())
                     return PowerResult.noop();
-                if (!checkCooldown(getPower(), target, getCooldownpassive(), false, true)) return PowerResult.cd();
+                if (!checkCooldown(item, getPower(), target, getCooldownpassive(), false, true)) return PowerResult.cd();
             }
 
-            if (!getItem().consumeDurability(target, stack, getDeflectCost())) return PowerResult.cost();
+            if (!item.consumeDurability(target, stack, getDeflectCost())) return PowerResult.cost();
 
             if (!(p.getShooter() instanceof LivingEntity)) return PowerResult.noop();
             LivingEntity source = (LivingEntity) p.getShooter();
@@ -170,7 +174,7 @@ public class Deflect extends BasePower {
                 event.setCancelled(true);
                 target.getLocation().getWorld().playSound(target.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1.0f, 3.0f);
                 Projectile t = target.launchProjectile(p.getClass());
-                Events.registerRPGProjectile(t.getEntityId(), getItem().getUid());
+                Events.registerRPGProjectile(t.getEntityId(), item.getUid());
                 if (p instanceof TippedArrow) {
                     TippedArrow tippedArrowP = (TippedArrow) p;
                     TippedArrow tippedArrowT = (TippedArrow) t;
@@ -214,9 +218,11 @@ public class Deflect extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkAndSetCooldown(getPower(), player, getCooldown(), true, true, getItem().getUid() + "." + "deflect.initiative"))
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkAndSetCooldown(item, getPower(), player, getCooldown(), true, true, item.getUid() + "." + "deflect.initiative"))
                 return PowerResult.noop();
-            if (!getItem().consumeDurability(player, stack, getCost()))
+            if (!item.consumeDurability(player, stack, getCost()))
                 return PowerResult.cost();
             getTime().put(player.getUniqueId(), System.currentTimeMillis() / 50 + getDuration());
             return PowerResult.ok();

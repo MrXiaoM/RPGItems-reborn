@@ -15,6 +15,8 @@ import org.bukkit.util.Vector;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.data.Context;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import javax.annotation.Nullable;
@@ -100,14 +102,16 @@ public class Rumble extends BasePower {
 
         @Override
         public PowerResult<Void> fire(final Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             final Location location = player.getLocation().add(0, -0.2, 0);
             final Vector direction = player.getLocation().getDirection();
-            return fire(player, location, direction);
+            return fire(player, item, location, direction);
         }
 
-        private PowerResult<Void> fire(Player player, Location location, Vector direction) {
+        private PowerResult<Void> fire(Player player, RPGItem item, Location location, Vector direction) {
             direction.setY(0);
             direction.normalize();
             BukkitRunnable task = new BukkitRunnable() {
@@ -129,7 +133,7 @@ public class Rumble extends BasePower {
                             temp.getWorld().playEffect(temp, Effect.STEP_SOUND, block.getType());
                         }
                     }
-                    List<Entity> near = getNearbyEntities(Rumble.this, location, player, 1.5);
+                    List<Entity> near = getNearbyEntities(item, Rumble.this, location, player, 1.5);
                     boolean hit = false;
                     Random random = new Random();
                     for (Entity e : near) {
@@ -139,7 +143,7 @@ public class Rumble extends BasePower {
                         }
                     }
                     if (hit) {
-                        near = getNearbyEntities(Rumble.this, location, player, power * 2 + 1);
+                        near = getNearbyEntities(item, Rumble.this, location, player, power * 2 + 1);
                         for (Entity e : near) {
                             if (e != player) {
                                 if (e instanceof ItemFrame || e instanceof Painting) {
@@ -208,7 +212,9 @@ public class Rumble extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
-            return fire(player, entity.getLocation(), entity.getLocation().getDirection());
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            return fire(player, item, entity.getLocation(), entity.getLocation().getDirection());
         }
     }
 

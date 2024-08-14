@@ -3,6 +3,8 @@ package think.rpgitems.power.impl;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.util.logging.Level;
@@ -71,9 +73,11 @@ public class CommandTick extends BasePower {
         }
 
         private PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!Utils.checkAndSetCooldown(getPower(), player, getInterval(), false, true, getItem().getUid() + ".commandtick." + getPowerId())) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!Utils.checkAndSetCooldown(item, getPower(), player, getInterval(), false, true, item.getUid() + ".commandtick." + getPowerId())) {
                 return PowerResult.cd();
-            } else if (!getItem().consumeDurability(stack, getCost())) {
+            } else if (!item.consumeDurability(player, stack, getCost())) {
                 return PowerResult.cost();
             } else {
                 String cmd = Command.handlePlayerPlaceHolder(player, getCommand());

@@ -9,6 +9,8 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
 import think.rpgitems.data.Context;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.util.Random;
@@ -67,7 +69,9 @@ public class Lightning extends BasePower {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, Location location) {
             if (getRandom().nextInt(getChance()) == 0) {
-                if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+                RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+                if (item == null) return PowerResult.fail();
+                if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 location.getWorld().strikeLightning(location);
                 Context.instance().putExpiringSeconds(player.getUniqueId(), "lightning.location", location, 3);
                 return PowerResult.ok();

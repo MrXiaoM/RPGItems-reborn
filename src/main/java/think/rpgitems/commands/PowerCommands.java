@@ -193,7 +193,7 @@ public class PowerCommands extends RPGCommandReceiver {
                 showPower(sender, item.getPowers().indexOf(power), item, power);
                 return;
             }
-            setPropertyHolder(sender, args, power.getClass(), power, false);
+            setPropertyHolder(sender, args, item, power.getClass(), power, false);
             item.rebuild();
             ItemManager.refreshItem();
             ItemManager.save(item);

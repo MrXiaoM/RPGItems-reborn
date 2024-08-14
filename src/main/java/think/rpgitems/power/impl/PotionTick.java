@@ -6,6 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import think.rpgitems.I18n;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.PotionEffectUtils;
 
@@ -109,9 +111,11 @@ public class PotionTick extends BasePower {
         }
 
         private PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkAndSetCooldown(getPower(), player, getInterval(), false, true, getItem().getUid() + "." + "potiontick." + getEffect().getName()))
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkAndSetCooldown(item, getPower(), player, getInterval(), false, true, item.getUid() + "." + "potiontick." + getEffect().getName()))
                 return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             double health = player.getHealth();
             boolean hasEffect = false;
             for (PotionEffect potionEffect : player.getActivePotionEffects()) {

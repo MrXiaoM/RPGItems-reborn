@@ -17,6 +17,8 @@ import think.rpgitems.RPGItems;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.cast.CastUtils;
 
@@ -173,18 +175,22 @@ public class Attract extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             Location location = player.getLocation();
             if (getFiringLocation().equals(FiringLocation.TARGET)){
                 CastUtils.CastLocation result = CastUtils.rayTrace(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), getFiringRange());
                 location = result.getTargetLocation();
             }
             Location finalLocation = location;
-            return fire(player, location, stack, () -> getNearbyEntities(getPower(), finalLocation, player, getRadius()));
+            return fire(player, location, stack, () -> getNearbyEntities(item, getPower(), finalLocation, player, getRadius()));
         }
 
         private PowerResult<Void> fire(Player player, Location location, ItemStack stack, Supplier<List<Entity>> supplier) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             new BukkitRunnable() {
                 int dur = getDuration();
 
@@ -209,14 +215,16 @@ public class Attract extends BasePower {
             if (!player.isOnline() || player.isDead()) {
                 return PowerResult.noop();
             }
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             double factor = Math.sqrt(getRadius() - 1.0) / getMaxSpeed();
             List<Entity> entities = supplier.get();
             if (entities.isEmpty()) return PowerResult.ok();
-            if (!getItem().consumeDurability(player, stack, getAttractingTickCost())) return PowerResult.ok();
+            if (!item.consumeDurability(player, stack, getAttractingTickCost())) return PowerResult.ok();
             for (Entity e : entities) {
                 if (e instanceof LivingEntity
                             && (isAttractPlayer() || !(e instanceof Player))) {
-                    if (!getItem().consumeDurability(player, stack, getAttractingEntityTickCost())) break;
+                    if (!item.consumeDurability(player, stack, getAttractingEntityTickCost())) break;
                     Location locTarget = e.getLocation();
                     Location locPlayer = location;
                     double d = locTarget.distance(locPlayer);
@@ -246,8 +254,10 @@ public class Attract extends BasePower {
         }
 
         private PowerResult<Void> attract(Player player, ItemStack stack) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             Location location = player.getLocation();
-            return attract(player, location,stack, () -> getNearbyEntities(getPower(), player.getLocation(), player, getRadius()));
+            return attract(player, location,stack, () -> getNearbyEntities(item, getPower(), player.getLocation(), player, getRadius()));
         }
 
         @Override
@@ -272,40 +282,52 @@ public class Attract extends BasePower {
 
         @Override
         public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             Location location = event.getLoc();
-            return fire(player, location, stack, () -> getNearbyEntities(getPower(), location, player, getRadius())).with(damage);
+            return fire(player, location, stack, () -> getNearbyEntities(item, getPower(), location, player, getRadius())).with(damage);
         }
 
         @Override
         public PowerResult<Void> hitBlock(Player player, ItemStack stack, Location location, BeamHitBlockEvent event) {
-            return fire(player, location, stack, () -> getNearbyEntities(getPower(), location, player, getRadius()));
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            return fire(player, location, stack, () -> getNearbyEntities(item, getPower(), location, player, getRadius()));
         }
 
         @Override
         public PowerResult<Void> beamEnd(Player player, ItemStack stack, Location location, BeamEndEvent event) {
-            return fire(player, location, stack, () -> getNearbyEntities(getPower(), location, player, getRadius()));
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            return fire(player, location, stack, () -> getNearbyEntities(item, getPower(), location, player, getRadius()));
         }
 
         @Override
         public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             Location location = event.getEntity().getLocation();
-            return fire(player, location, stack, () -> getNearbyEntities(getPower(), location, player, getRadius()));
+            return fire(player, location, stack, () -> getNearbyEntities(item, getPower(), location, player, getRadius()));
         }
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, @Nullable Double value) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
             Location location = entity.getLocation();
             if (getFiringLocation().equals(FiringLocation.TARGET)){
                 CastUtils.CastLocation result = CastUtils.rayTrace(entity, entity.getEyeLocation(), entity.getEyeLocation().getDirection(), getFiringRange());
                 location = result.getTargetLocation();
             }
             Location finalLocation = location;
-            return fire(player, location, stack, () -> getNearbyEntities(getPower(), finalLocation, player, getRadius()));
+            return fire(player, location, stack, () -> getNearbyEntities(item, getPower(), finalLocation, player, getRadius()));
         }
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, Location location) {
-            return fire(player, location, stack, () -> getNearbyEntities(getPower(), location, player, getRadius()));
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            return fire(player, location, stack, () -> getNearbyEntities(item, getPower(), location, player, getRadius()));
         }
     }
 }

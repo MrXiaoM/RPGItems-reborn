@@ -192,7 +192,7 @@ public class ConditionCommands extends RPGCommandReceiver {
                 showCondition(sender, item, condition);
                 return;
             }
-            setPropertyHolder(sender, args, condition.getClass(), condition, false);
+            setPropertyHolder(sender, args, item, condition.getClass(), condition, false);
             item.rebuild();
             ItemManager.refreshItem();
             ItemManager.save(item);

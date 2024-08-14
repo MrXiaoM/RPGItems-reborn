@@ -12,6 +12,7 @@ import net.bytebuddy.matcher.ElementMatchers;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.Power;
 import think.rpgitems.power.PowerManager;
@@ -58,6 +59,7 @@ public class Interceptor {
     private final Power orig;
     private final Player player;
     private final Map<Method, PropertyInstance> getters;
+    private final RPGItem rpg;
     private final ItemStack stack;
     private final MethodHandles.Lookup lookup;
 
@@ -70,6 +72,7 @@ public class Interceptor {
                 .stream()
                 .collect(Collectors.toMap(e -> e.getValue().getKey(), e -> e.getValue().getValue()));
         this.stack = stack;
+        this.rpg = ItemManager.toRPGItem(stack).orElseThrow();
     }
 
     public static Power create(Power orig, Player player, ItemStack stack, Trigger trigger) {
@@ -158,13 +161,13 @@ public class Interceptor {
 
                     List<Modifier<Double>> numberModifiers = new ArrayList<>();
                     for (Modifier m : modifiers) {
-                        if (!(m.getModifierTargetType() == Double.class) && m.match(orig, propertyInstance)) continue;
+                        if (!(m.getModifierTargetType() == Double.class) && m.match(rpg, orig, propertyInstance)) continue;
                         numberModifiers.add((Modifier<Double>) m);
                     }
                     Number value = (Number) invokeMethod(method, orig, args);
                     double origValue = value.doubleValue();
                     for (Modifier<Double> numberModifier : numberModifiers) {
-                        RgiParameter param = new RgiParameter<>(orig.getItem(), orig, stack, origValue);
+                        RgiParameter param = new RgiParameter<>(rpg, orig, stack, origValue);
 
                         origValue = numberModifier.apply(param);
                     }

@@ -1,5 +1,7 @@
 package think.rpgitems.power.impl;
 
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Message;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -55,8 +57,8 @@ public class Economy extends BasePower {
     public boolean requireHurtByEntity = true;
 
     @Override
-    public void init(ConfigurationSection section) {
-        super.init(section);
+    public void init(ConfigurationSection section, String itemName) {
+        super.init(section, itemName);
         RegisteredServiceProvider<net.milkbowl.vault.economy.Economy> provider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
         if (provider != null) {
             eco = provider.getProvider();
@@ -112,7 +114,9 @@ public class Economy extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true))
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true))
                 return isAbortOnFailure() ? PowerResult.abort() : PowerResult.cd();
             EconomyResponse economyResponse;
             if (getAmountToPlayer() > 0) {

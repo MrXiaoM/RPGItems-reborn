@@ -1,5 +1,7 @@
 package think.rpgitems.power.impl;
 
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.utils.NmsUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -49,10 +51,10 @@ public class Throw extends BasePower {
     public boolean requireHurtByEntity = true;
 
     @Override
-    public void init(ConfigurationSection section) {
+    public void init(ConfigurationSection section, String itemName) {
         boolean isRight = section.getBoolean("isRight", true);
         triggers = Collections.singleton(isRight ? BaseTriggers.RIGHT_CLICK : BaseTriggers.LEFT_CLICK);
-        super.init(section);
+        super.init(section, itemName);
     }
 
     public int getCooldown() {
@@ -109,7 +111,9 @@ public class Throw extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (checkAndSetCooldown(getPower(), player, getCooldown(), true, true, getItem().getUid() + "." + getEntityName() + getEntityData()) && getItem().consumeDurability(player, stack, getCost())) {
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (checkAndSetCooldown(item, getPower(), player, getCooldown(), true, true, item.getUid() + "." + getEntityName() + getEntityData()) && item.consumeDurability(player, stack, getCost())) {
                 summonEntity(player);
                 return PowerResult.ok();
             }

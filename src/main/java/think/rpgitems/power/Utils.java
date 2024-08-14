@@ -1,7 +1,5 @@
 package think.rpgitems.power;
 
-import think.rpgitems.utils.nyaacore.Message;
-import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -22,9 +20,9 @@ import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
-import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.data.Context;
 import think.rpgitems.data.Font;
 import think.rpgitems.item.RPGItem;
@@ -32,6 +30,8 @@ import think.rpgitems.power.marker.Selector;
 import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.Weightable;
+import think.rpgitems.utils.nyaacore.Message;
+import think.rpgitems.utils.nyaacore.Pair;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -59,8 +59,9 @@ public class Utils {
         return Arrays.asList(str.split(";"));
     }
 
-    public static List<Entity> getNearbyEntities(Power power, Location l, Player player, double radius, double dx, double dy, double dz) {
+    public static List<Entity> getNearbyEntities(RPGItem item, Power power, Location l, Player player, double radius, double dx, double dy, double dz) {
         List<Entity> entities = new ArrayList<>();
+        if (item == null) return entities;
         Collection<Entity> nearbyEntities = l.getWorld().getNearbyEntities(l, dx, dy, dz);
         if (!nearbyEntities.isEmpty()) {
             for (Entity e : nearbyEntities) {
@@ -69,7 +70,7 @@ public class Utils {
                 }
             }
         }
-        power.getItem().getMarkers().stream().filter(pow -> pow instanceof Selector).forEach(
+        item.getMarkers().stream().filter(pow -> pow instanceof Selector).forEach(
                 selector -> {
                     if (power.getSelectors().contains(((Selector) selector).id())) {
                         ((Selector) selector).inPlaceFilter(player, entities);
@@ -88,8 +89,8 @@ public class Utils {
      * @param radius radius
      * @return nearby entities
      */
-    public static List<Entity> getNearbyEntities(Power power, Location l, Player player, double radius) {
-        return getNearbyEntities(power, l, player, radius, radius, radius, radius);
+    public static List<Entity> getNearbyEntities(RPGItem item, Power power, Location l, Player player, double radius) {
+        return getNearbyEntities(item, power, l, player, radius, radius, radius, radius);
     }
 
     /**
@@ -102,9 +103,9 @@ public class Utils {
      * @param min    min radius
      * @return nearby living entities ordered by distance
      */
-    public static List<LivingEntity> getNearestLivingEntities(Power power, Location l, Player player, double radius, double min) {
+    public static List<LivingEntity> getNearestLivingEntities(RPGItem item, Power power, Location l, Player player, double radius, double min) {
         final List<Map.Entry<LivingEntity, Double>> entities = new ArrayList<>();
-        for (Entity e : getNearbyEntities(power, l, player, radius)) {
+        for (Entity e : getNearbyEntities(item, power, l, player, radius)) {
             if (e instanceof LivingEntity && !player.equals(e) && !Utils.isUtilArmorStand(e)) {
                 double d = l.distance(e.getLocation());
                 if (d <= radius && d >= min) {
@@ -183,15 +184,15 @@ public class Utils {
      * @param showPower whether to show power name in warning
      * @return the boolean
      */
-    public static boolean checkCooldown(Power power, Player player, long cdTicks, boolean showWarn, boolean showPower) {
-        String key = "cooldown." + power.getItem().getUid() + "." + power.getNamespacedKey().toString();
+    public static boolean checkCooldown(RPGItem item, Power power, Player player, long cdTicks, boolean showWarn, boolean showPower) {
+        String key = "cooldown." + item.getUid() + "." + power.getNamespacedKey().toString();
         if (power instanceof BasePower) {
             key += "." + ((BasePower) power).getPowerId();
         }
-        return checkAndSetCooldown(power, player, cdTicks, showWarn, showPower, key);
+        return checkAndSetCooldown(item, power, player, cdTicks, showWarn, showPower, key);
     }
 
-    public static boolean checkAndSetCooldown(Power power, Player player, long cooldownTick, boolean showWarn, boolean showPower, String key) {
+    public static boolean checkAndSetCooldown(RPGItem item, Power power, Player player, long cooldownTick, boolean showWarn, boolean showPower, String key) {
         long cooldown;
         Long value = (Long) Context.instance().get(player.getUniqueId(), key);
         long nowTime = Context.getCurrentMillis();
@@ -207,12 +208,13 @@ public class Utils {
         } else {
             if (showWarn) {
                 I18n i18n = I18n.getInstance(player.getLocale());
+                String displayName = item.getDisplayName();
                 if (showPower) {
-                    String message = i18n.getFormatted("message.cooldown.power", ((double) (cooldown - nowTime)) / 50d / 20d, power.getItem().getDisplayName(), power.getLocalizedName(player));
+                    String message = i18n.getFormatted("message.cooldown.power", ((double) (cooldown - nowTime)) / 50d / 20d, displayName, power.getLocalizedName(player));
                     if (player.hasPermission("rpgitems.actionbar.cooldown")) player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
                     else player.sendMessage(message);
                 } else {
-                    String message = i18n.getFormatted("message.cooldown.general", ((double) (cooldown - nowTime)) / 50d / 20d, power.getItem().getDisplayName());
+                    String message = i18n.getFormatted("message.cooldown.general", ((double) (cooldown - nowTime)) / 50d / 20d, displayName);
                     if (player.hasPermission("rpgitems.actionbar.cooldown")) player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
                     else player.sendMessage(message);
                 }
@@ -479,7 +481,7 @@ public class Utils {
     }
 
     @SuppressWarnings({"unchecked", "deprecation"})
-    public static void setPowerPropertyUnchecked(CommandSender sender, PropertyHolder power, Field field, String value) {
+    public static void setPowerPropertyUnchecked(CommandSender sender, String itemName, PropertyHolder power, Field field, String value) {
         String locale = RPGItems.plugin.cfg.language;
         if (sender instanceof Player) {
             locale = ((Player) sender).getLocale();
@@ -575,7 +577,7 @@ public class Utils {
                             Set<String> ignored = new LinkedHashSet<>();
                             Set<Trigger> set = Trigger.getValid(values.collect(Collectors.toList()), ignored);
                             if (!ignored.isEmpty()) {
-                                new Message(I18n.formatDefault("message.power.ignored_trigger", String.join(", ", ignored), power.getName(), power.getItem().getName())).send(sender);
+                                new Message(I18n.formatDefault("message.power.ignored_trigger", String.join(", ", ignored), power.getName(), itemName)).send(sender);
                             }
                             field.set(power, set);
                         } else if (listArg.equals(Integer.class)) {
@@ -636,7 +638,7 @@ public class Utils {
         }
     }
 
-    public static void setPowerProperty(CommandSender sender, PropertyHolder power, Field field, String value) throws
+    public static void setPowerProperty(CommandSender sender, String itemName, PropertyHolder power, Field field, String value) throws
             IllegalAccessException {
         Class<? extends PropertyHolder> cls = power.getClass();
         BooleanChoice bc = field.getAnnotation(BooleanChoice.class);
@@ -664,7 +666,7 @@ public class Utils {
                 }
             }
         }
-        setPowerPropertyUnchecked(sender, power, field, value);
+        setPowerPropertyUnchecked(sender, itemName, power, field, value);
     }
 
     public static byte[] decodeUUID(UUID complex) {

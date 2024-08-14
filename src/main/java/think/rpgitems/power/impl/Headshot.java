@@ -1,6 +1,8 @@
 package think.rpgitems.power.impl;
 
 import org.bukkit.util.RayTraceResult;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -119,8 +121,10 @@ public class Headshot extends BasePower {
                 hs = squared <= maximum;
             }
             if (hs) {
+                RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+                if (item == null) return PowerResult.fail();
                 Context.instance().putExpiringSeconds(player.getUniqueId(), "headshot.target", entity, 3);
-                if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+                if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
                 if (isSoundSelf()) {
                     player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 3);
                 }

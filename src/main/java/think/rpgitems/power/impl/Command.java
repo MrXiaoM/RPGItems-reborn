@@ -11,6 +11,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 
@@ -58,12 +60,12 @@ public class Command extends BasePower {
     }
 
     @Override
-    public void init(ConfigurationSection section) {
+    public void init(ConfigurationSection section, String itemName) {
         if (section.isBoolean("isRight")) {
             boolean isRight = section.getBoolean("isRight", true);
             triggers = Collections.singleton(isRight ? BaseTriggers.RIGHT_CLICK : BaseTriggers.LEFT_CLICK);
         }
-        super.init(section);
+        super.init(section, itemName);
     }
 
     /**
@@ -126,9 +128,11 @@ public class Command extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player target, ItemStack stack) {
-            if (!checkAndSetCooldown(getPower(), target, getCooldown(), true, false, getItem().getUid() + "." + getCommand()))
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkAndSetCooldown(item, getPower(), target, getCooldown(), true, false, item.getUid() + "." + getCommand()))
                 return PowerResult.cd();
-            if (!getItem().consumeDurability(target, stack, getCost())) return PowerResult.cost();
+            if (!item.consumeDurability(target, stack, getCost())) return PowerResult.cost();
             return executeCommand(target);
         }
 

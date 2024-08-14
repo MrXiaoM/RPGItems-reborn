@@ -2,6 +2,8 @@ package think.rpgitems.power.cond;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.Meta;
 import think.rpgitems.power.PowerResult;
 import think.rpgitems.power.Property;
@@ -46,7 +48,9 @@ public class DurabilityCondition extends BaseCondition<Void> {
 
     @Override
     public PowerResult<Void> check(Player player, ItemStack stack, Map<PropertyHolder, PowerResult<?>> context) {
-        int durability = getItem().getItemStackDurability(stack).orElseThrow(() -> new IllegalStateException("Durability condition is not allowed on item without durability"));
+        RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+        if (item == null) return PowerResult.fail();
+        int durability = item.getItemStackDurability(stack).orElseThrow(() -> new IllegalStateException("Durability condition is not allowed on item without durability"));
         if ((durabilityMax > 0 && durability > durabilityMax) || durability < durabilityMin) return PowerResult.fail();
         return PowerResult.ok();
     }

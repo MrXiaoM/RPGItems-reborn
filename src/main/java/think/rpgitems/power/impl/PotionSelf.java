@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import think.rpgitems.I18n;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.PotionEffectUtils;
 
@@ -49,7 +51,7 @@ public class PotionSelf extends BasePower {
     public boolean requireHurtByEntity = true;
 
     @Override
-    public void init(ConfigurationSection section) {
+    public void init(ConfigurationSection section, String itemName) {
         if (section.isInt("amp")) {
             amplifier = section.getInt("amp");
         }
@@ -57,7 +59,7 @@ public class PotionSelf extends BasePower {
             duration = section.getInt("time");
         }
 
-        super.init(section);
+        super.init(section, itemName);
     }
 
     /**
@@ -127,8 +129,10 @@ public class PotionSelf extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (isClear()) {
                 player.removePotionEffect(getType());
             } else {

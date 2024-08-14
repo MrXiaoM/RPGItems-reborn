@@ -2,6 +2,8 @@ package think.rpgitems.power.cond;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.util.HashSet;
@@ -51,7 +53,9 @@ public class XorCondition extends BaseCondition<Void> {
             }
         }
         if (!isStatic) {
-            List<Condition<?>> powerConditions = getItem().getConditions();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            List<Condition<?>> powerConditions = item.getAllPowersAndConditions(stack).getValue();
             for (Condition<?> condition : powerConditions) {
                 if (!conditions.contains(condition.id())) continue;
                 assert !condition.isStatic();

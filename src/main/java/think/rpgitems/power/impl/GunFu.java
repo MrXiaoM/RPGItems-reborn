@@ -1,6 +1,5 @@
 package think.rpgitems.power.impl;
 
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -13,6 +12,8 @@ import org.bukkit.util.Vector;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.data.Context;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.util.List;
@@ -55,11 +56,6 @@ public class GunFu extends BasePower {
 
     @Property
     public int delay = 0;
-
-    @Override
-    public void init(ConfigurationSection s) {
-        super.init(s);
-    }
 
     /**
      * Cost of this power
@@ -123,10 +119,12 @@ public class GunFu extends BasePower {
 
         @Override
         public PowerResult<Float> bowShoot(Player player, ItemStack stack, EntityShootBowEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             if (event.getProjectile() instanceof Projectile) {
-                return run(player, (Projectile) event.getProjectile(), event.getForce());
+                return run(player, item, (Projectile) event.getProjectile(), event.getForce());
             }
             return noop();
         }
@@ -136,8 +134,8 @@ public class GunFu extends BasePower {
             return GunFu.this;
         }
 
-        public PowerResult<Float> run(Player player, Projectile projectile, float force) {
-            List<LivingEntity> entities = getLivingEntitiesInCone(getNearestLivingEntities(getPower(), player.getEyeLocation(), player, getDistance(), 0), player.getLocation().toVector(), getViewAngle(), player.getLocation().getDirection()).stream()
+        public PowerResult<Float> run(Player player, RPGItem item, Projectile projectile, float force) {
+            List<LivingEntity> entities = getLivingEntitiesInCone(getNearestLivingEntities(item, getPower(), player.getEyeLocation(), player, getDistance(), 0), player.getLocation().toVector(), getViewAngle(), player.getLocation().getDirection()).stream()
                     .filter(player::hasLineOfSight)
                     .collect(Collectors.toList());
             projectile.setVelocity(projectile.getVelocity().multiply(getInitVelFactor()));
@@ -171,10 +169,12 @@ public class GunFu extends BasePower {
 
         @Override
         public PowerResult<Void> projectileLaunch(Player player, ItemStack stack, ProjectileLaunchEvent event) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             Projectile projectile = event.getEntity();
-            return run(player, projectile, 1).with(null);
+            return run(player, item, projectile, 1).with(null);
         }
     }
 }

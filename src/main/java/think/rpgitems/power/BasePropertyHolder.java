@@ -1,13 +1,12 @@
 package think.rpgitems.power;
 
-import think.rpgitems.utils.nyaacore.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
-import think.rpgitems.item.RPGItem;
+import think.rpgitems.utils.nyaacore.Pair;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -15,10 +14,8 @@ import java.util.Map;
 
 public abstract class BasePropertyHolder implements PropertyHolder {
 
-    RPGItem item;
-
     @Override
-    public void init(ConfigurationSection section) {
+    public void init(ConfigurationSection section, String itemName) {
         Meta meta = this.getClass().getAnnotation(Meta.class);
         Map<String, Pair<Method, PropertyInstance>> properties = PowerManager.getProperties(this.getClass());
         for (Map.Entry<String, Pair<Method, PropertyInstance>> entry : properties.entrySet()) {
@@ -50,7 +47,7 @@ public abstract class BasePropertyHolder implements PropertyHolder {
                 value = section.getString("consumption");
             }
             if (value != null) {
-                Utils.setPowerPropertyUnchecked(Bukkit.getConsoleSender(), this, field, value);
+                Utils.setPowerPropertyUnchecked(Bukkit.getConsoleSender(), itemName, this, field, value);
             }
         }
     }
@@ -83,15 +80,5 @@ public abstract class BasePropertyHolder implements PropertyHolder {
     @Override
     public String getLocalizedName(String locale) {
         return I18n.getInstance(locale).format("properties." + getName() + ".main_name");
-    }
-
-    @Override
-    public RPGItem getItem() {
-        return item;
-    }
-
-    @Override
-    public void setItem(RPGItem item) {
-        this.item = item;
     }
 }

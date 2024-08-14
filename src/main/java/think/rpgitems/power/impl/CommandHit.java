@@ -10,6 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.util.logging.Level;
@@ -70,9 +72,11 @@ public class CommandHit extends Command {
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack, LivingEntity entity, Double damage) {
             if (damage == null || damage < getMinDamage()) return PowerResult.noop();
-            if (!checkAndSetCooldown(getPower(), player, getCooldown(), true, false, getItem().getUid() + "." + getCommand()))
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkAndSetCooldown(item, getPower(), player, getCooldown(), true, false, item.getUid() + "." + getCommand()))
                 return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
 
             return executeCommand(player, entity, damage);
         }

@@ -14,6 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 
 import java.util.HashMap;
@@ -72,8 +74,10 @@ public class Ice extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             player.playSound(player.getLocation(), Sound.ENTITY_EGG_THROW, 1.0f, 0.1f);
 
             // launch an ice block
@@ -86,7 +90,7 @@ public class Ice extends BasePower {
                     boolean hit = false;
                     World world = block.getWorld();
 
-                    List<Entity> entities = getNearbyEntities(getPower(), block.getLocation(), player, 1);
+                    List<Entity> entities = getNearbyEntities(item, getPower(), block.getLocation(), player, 1);
                     for (Entity e : entities) {
                         if (e != player && e != block) {
                             hit = true;

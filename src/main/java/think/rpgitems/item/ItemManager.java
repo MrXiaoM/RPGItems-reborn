@@ -53,6 +53,8 @@ public class ItemManager {
     private static final long PRIME = 16777619; // 32位prime
     private static HashMap<Integer, RPGItem> itemById = new HashMap<>();
     private static HashMap<String, RPGItem> itemByName = new HashMap<>();
+    private static HashMap<Integer, RPGStone> stoneById = new HashMap<>();
+    private static HashMap<String, RPGStone> stoneByName = new HashMap<>();
     private static HashMap<Integer, ItemGroup> groupById = new HashMap<>();
     private static HashMap<String, ItemGroup> groupByName = new HashMap<>();
     private static HashMap<String, FileLock> itemFileLocks = new HashMap<>();
@@ -149,6 +151,7 @@ public class ItemManager {
         plugin = pl;
         RPGItem.plugin = pl;
         ItemGroup.plugin = pl;
+        RPGStone.plugin = pl;
 
         try {
             File testFile = new File(plugin.getDataFolder(), "lock_test" + System.currentTimeMillis() + ".tmp");
@@ -201,9 +204,9 @@ public class ItemManager {
                 return false;
             }
             RPGItem item = load(file);
-            if (sender != null) {
+            if (item != null && sender != null) {
                 new Message("")
-                        .append(I18n.formatDefault("message.item.load", Objects.requireNonNull(item).getName()), Collections.singletonMap("{item}", item.getComponent(sender)))
+                        .append(I18n.formatDefault("message.item.load", item.getName()), Collections.singletonMap("{item}", item.getComponent(sender)))
                         .send(sender);
             }
             return true;
@@ -251,6 +254,10 @@ public class ItemManager {
             addGroup(group);
             return null;
         }
+        if (file.getName().endsWith("-stone.yml")) {
+            RPGStone stone = new RPGStone(itemStorage, file);
+            return null;
+        }
         if (itemStorage.getInt("uid", 0) >= 0) {
             itemStorage.set("uid", nextUid());
             itemStorage.save(file);
@@ -264,10 +271,10 @@ public class ItemManager {
 
     public static void addItem(RPGItem item) {
         try {
-            if (groupById.containsKey(item.getUid()) || itemById.putIfAbsent(item.getUid(), item) != null) {
+            if (groupById.containsKey(item.getUid()) || stoneById.containsKey(item.getUid()) || itemById.putIfAbsent(item.getUid(), item) != null) {
                 throw new IllegalArgumentException("Duplicated item uid:" + item.getUid());
             }
-            if (groupByName.containsKey(item.getName()) || itemByName.putIfAbsent(item.getName(), item) != null) {
+            if (groupByName.containsKey(item.getName()) || stoneByName.containsKey(item.getName()) || itemByName.putIfAbsent(item.getName(), item) != null) {
                 throw new IllegalArgumentException("Duplicated item name:" + item.getName());
             }
         } catch (Exception e) {
@@ -277,12 +284,27 @@ public class ItemManager {
         }
     }
 
+    public static void addStone(RPGStone stone) {
+        try {
+            if (groupById.containsKey(stone.getUid()) || itemById.containsKey(stone.getUid()) || stoneById.putIfAbsent(stone.getUid(), stone) != null) {
+                throw new IllegalArgumentException("Duplicated stone uid:" + stone.getUid());
+            }
+            if (groupByName.containsKey(stone.getName()) || itemByName.containsKey(stone.getName()) || stoneByName.putIfAbsent(stone.getName(), stone) != null) {
+                throw new IllegalArgumentException("Duplicated stone name:" + stone.getName());
+            }
+        } catch (Exception e) {
+            stoneById.remove(stone.getUid(), stone);
+            stoneByName.remove(stone.getName(), stone);
+            throw e;
+        }
+    }
+
     public static void addGroup(ItemGroup group) {
         try {
-            if (itemById.containsKey(group.getUid()) || groupById.putIfAbsent(group.getUid(), group) != null) {
+            if (itemById.containsKey(group.getUid()) || stoneById.containsKey(group.getUid()) || groupById.putIfAbsent(group.getUid(), group) != null) {
                 throw new IllegalArgumentException("Duplicated group uid:" + group.getUid());
             }
-            if (itemByName.containsKey(group.getName()) || groupByName.putIfAbsent(group.getName(), group) != null) {
+            if (itemByName.containsKey(group.getName()) || stoneByName.containsKey(group.getName()) || groupByName.putIfAbsent(group.getName(), group) != null) {
                 throw new IllegalArgumentException("Duplicated group name:" + group.getName());
             }
         } catch (Exception e) {

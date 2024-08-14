@@ -16,6 +16,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.MaterialUtils;
 
@@ -50,8 +52,9 @@ public class SkyHook extends BasePower {
     public int hookDistance = 10;
 
     @Override
-    public void init(ConfigurationSection s) {
+    public void init(ConfigurationSection s, String itemName) {
         railMaterial = MaterialUtils.getMaterial(s.getString("railMaterial", "GLASS"), Bukkit.getConsoleSender());
+        super.init(s, itemName);
     }
 
     @Override
@@ -117,8 +120,10 @@ public class SkyHook extends BasePower {
 
         @Override
         public PowerResult<Void> fire(final Player player, ItemStack stack) {
-            if (!checkCooldown(getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
-            if (!getItem().consumeDurability(player, stack, getCost())) return PowerResult.cost();
+            RPGItem item = ItemManager.toRPGItem(stack).orElse(null);
+            if (item == null) return PowerResult.fail();
+            if (!checkCooldown(item, getPower(), player, getCooldown(), true, true)) return PowerResult.cd();
+            if (!item.consumeDurability(player, stack, getCost())) return PowerResult.cost();
             Boolean isHooking = hooking.get(player.getUniqueId());
             if (isHooking == null) {
                 isHooking = false;
@@ -144,7 +149,7 @@ public class SkyHook extends BasePower {
 
                 @Override
                 public void run() {
-                    if (!(player.getAllowFlight() && getItem().consumeDurability(player, stack, getHookingTickCost()))) {
+                    if (!(player.getAllowFlight() && item.consumeDurability(player, stack, getHookingTickCost()))) {
                         cancel();
                         hooking.put(player.getUniqueId(), false);
                         return;

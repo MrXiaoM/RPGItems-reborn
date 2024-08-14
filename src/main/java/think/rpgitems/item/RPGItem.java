@@ -75,6 +75,7 @@ import java.util.stream.Stream;
 
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
+import static think.rpgitems.item.RPGStone.NBT_POWER_STONES;
 //import static think.rpgitems.utils.pdc.ItemPDC.*;
 
 @SuppressWarnings({"deprecation", "rawtypes", "unused"})
@@ -93,7 +94,6 @@ public class RPGItem {
     public static final String NBT_UID = "rpgitem_uid";
     public static final String NBT_ITEM_UUID = "rpgitem_item_uuid";
     public static final String NBT_IS_MODEL = "rpgitem_is_model";
-    public static final String NBT_POWER_STONES = "rpgitem_power_stones";
 
     private static final Cache<UUID, List<Modifier>> modifierCache = CacheBuilder.newBuilder().concurrencyLevel(1).expireAfterAccess(1, TimeUnit.MINUTES).build();
 
@@ -235,15 +235,6 @@ public class RPGItem {
     }
 
     @Deprecated
-    public static void updateItemStack(ItemStack item) {
-        updateItemStack(null, item);
-    }
-    public static void updateItemStack(@Nullable Player player, ItemStack item) {
-        Optional<RPGItem> rItem = ItemManager.toRPGItem(item);
-        rItem.ifPresent(r -> r.updateItem(player, item, false));
-    }
-
-    @Deprecated
     public static List<Modifier> getModifiers(ItemStack stack) {
         return getModifiers(null, stack);
     }
@@ -335,9 +326,7 @@ public class RPGItem {
         setPluginSerial(s.getInt("pluginSerial", 0));
         setMcVersion(s.getString("mcVersion", ""));
 
-        String display = s.getString("display");
-
-        setDisplayName(display);
+        setDisplayName(s.getString("display"));
         setFactor(s.getString("factor", ""));
         factorModifiers.clear();
         ConfigurationSection factorModifierSection = s.getConfigurationSection("factorModifier");

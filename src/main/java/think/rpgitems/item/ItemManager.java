@@ -46,6 +46,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static think.rpgitems.item.RPGItem.*;
+import static think.rpgitems.item.RPGStone.NBT_POWER_STONE_ITEM_UUID;
+import static think.rpgitems.item.RPGStone.NBT_POWER_STONE_UID;
 import static think.rpgitems.power.Utils.rethrow;
 
 public class ItemManager {
@@ -68,12 +70,17 @@ public class ItemManager {
             .initialCapacity(1024)
             .build();
 
+    public static void updateItem(Player player, ItemStack item) {
+        toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(player, item));
+        toRPGStone(item).ifPresent(rpgStone -> rpgStone.updateItem(item));
+    }
+
     public static boolean hasName(String name) {
-        return itemByName.containsKey(name) || groupByName.containsKey(name);
+        return itemByName.containsKey(name) || stoneByName.containsKey(name) || groupByName.containsKey(name);
     }
 
     public static boolean hasId(Integer id) {
-        return itemById.containsKey(id) || groupById.containsKey(id);
+        return itemById.containsKey(id) || stoneById.containsKey(id) || groupById.containsKey(id);
     }
 
     public static boolean isUnlocked(RPGItem item) {
@@ -82,6 +89,10 @@ public class ItemManager {
 
     public static Collection<RPGItem> items() {
         return itemByName.values();
+    }
+
+    public static Collection<RPGStone> stones() {
+        return stoneByName.values();
     }
 
     public static Pair<File, FileLock> getBackup(RPGItem item) {
@@ -98,6 +109,10 @@ public class ItemManager {
 
     public static Set<String> itemNames() {
         return itemByName.keySet();
+    }
+
+    public static Set<String> stoneNames() {
+        return stoneByName.keySet();
     }
 
     public static Set<RPGItem> getUnlockedItem() {
@@ -127,8 +142,11 @@ public class ItemManager {
 
     public static void unload() {
         itemByName.values().forEach(RPGItem::deinit);
+        stoneByName.values().forEach(RPGStone::deinit);
         itemById = new HashMap<>();
         itemByName = new HashMap<>();
+        stoneById = new HashMap<>();
+        stoneByName = new HashMap<>();
         groupById = new HashMap<>();
         groupByName = new HashMap<>();
         resetLock();
@@ -256,6 +274,7 @@ public class ItemManager {
         }
         if (file.getName().endsWith("-stone.yml")) {
             RPGStone stone = new RPGStone(itemStorage, file);
+            addStone(stone);
             return null;
         }
         if (itemStorage.getInt("uid", 0) >= 0) {
@@ -318,6 +337,9 @@ public class ItemManager {
         if (plugin.cfg.readonly) return;
         for (RPGItem item : itemByName.values()) {
             save(item);
+        }
+        for (RPGStone stone : stoneByName.values()) {
+            save(stone);
         }
     }
 
@@ -385,6 +407,57 @@ public class ItemManager {
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Error saving " + itemName + ".", e);
             plugin.getLogger().severe("Dumping current item");
+            plugin.getLogger().severe("===============");
+            plugin.getLogger().severe(cfgStr);
+            plugin.getLogger().severe("===============");
+            if (exist && backup != null && backup.exists()) {
+                try {
+                    plugin.getLogger().severe("Recovering backup: " + backup);
+                    Files.copy(backup.toPath(), itemFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    lock(itemFile);
+                } catch (Exception exRec) {
+                    plugin.getLogger().log(Level.SEVERE, "Error recovering backup: " + backup, exRec);
+                    throw new AdminCommands.CommandException("message.error.recovering", exRec, itemName, backup.getPath(), exRec.getLocalizedMessage());
+                }
+            }
+            rethrow(e);
+        }
+    }
+
+    public static void save(RPGStone stone) {
+        if (plugin.cfg.readonly) return;
+        String itemName = stone.getName();
+        File itemFile = stone.getFile() == null ? createFile(getItemsDir(), stone.getName(), "-stone", true) : stone.getFile();
+        boolean exist = itemFile.exists();
+        String cfgStr = "";
+        File backup = null;
+        try {
+            YamlConfiguration configuration = new YamlConfiguration();
+            stone.save(configuration);
+            cfgStr = configuration.saveToString();
+            if (exist) {
+                backup = unlockAndBackup(stone, false);
+            }
+            configuration.save(itemFile);
+
+            try {
+                String canonicalPath = itemFile.getCanonicalPath();
+                YamlConfiguration test = new YamlConfiguration();
+                test.load(canonicalPath);
+                RPGItem testItem = new RPGItem(test, null);
+                testItem.deinit();
+                if (backup != null && backup.exists()) {
+                    backup.deleteOnExit();
+                }
+                stone.setFile(itemFile);
+                lock(itemFile);
+            } catch (Exception e) {
+                plugin.getLogger().log(Level.SEVERE, "Error verifying integrity for " + itemName + ".", e);
+                throw new AdminCommands.CommandException("message.error.verifying", e, itemName, e.getLocalizedMessage());
+            }
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Error saving " + itemName + ".", e);
+            plugin.getLogger().severe("Dumping current stone");
             plugin.getLogger().severe("===============");
             plugin.getLogger().severe(cfgStr);
             plugin.getLogger().severe("===============");
@@ -525,14 +598,19 @@ public class ItemManager {
     }
 
     public static File unlockAndBackup(RPGItem item, boolean remove) throws IOException {
-        File itemFile = item.getFile();
-        File backup = new File(getBackupsDir(), itemFile.getName().replaceAll("\\.yml$", "") + "." + System.currentTimeMillis() + ".bak");
-        unlock(itemFile, remove);
+        return unlockAndBackup(item.getFile(), item.getName(), remove);
+    }
+    public static File unlockAndBackup(RPGStone stone, boolean remove) throws IOException {
+        return unlockAndBackup(stone.getFile(), stone.getName(), remove);
+    }
+    public static File unlockAndBackup(File file, String name, boolean remove) throws IOException {
+        File backup = new File(getBackupsDir(), file.getName().replaceAll("\\.yml$", "") + "." + System.currentTimeMillis() + ".bak");
+        unlock(file, remove);
         try {
             if (!backup.createNewFile()) throw new IllegalStateException();
-            Files.copy(itemFile.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(file.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Cannot create backup for" + item.getName() + ".", e);
+            plugin.getLogger().log(Level.SEVERE, "Cannot create backup for" + name + ".", e);
         }
         return backup;
     }
@@ -604,6 +682,29 @@ public class ItemManager {
         return Optional.empty();
     }
 
+    public static Optional<RPGStone> toRPGStone(ItemStack item) {
+        return toRPGStone(item, true);
+    }
+
+    public static Optional<RPGStone> toRPGStone(ItemStack item, boolean ignoreModel) {
+        if (item == null || item.getType() == Material.AIR)
+            return Optional.empty();
+        if (!item.hasItemMeta())
+            return Optional.empty();
+
+        Optional<Integer> uid = ItemTagUtils.getInt(item, NBT_POWER_STONE_UID);
+        Optional<Integer> itemUuid = ItemTagUtils.getInt(item, NBT_POWER_STONE_ITEM_UUID);
+        Optional<Boolean> isModel = ItemTagUtils.getBoolean(item, NBT_IS_MODEL);
+
+        if (uid.isEmpty()) {
+            return Optional.empty();
+        }
+        if (ignoreModel && isModel.orElse(false)) {
+            return Optional.empty();
+        }
+        return ItemManager.getStone(uid.get());
+    }
+
     public static long hash(byte[] src) {
         long hash = OFFSET_BASIS;
         for (byte b : src) {
@@ -642,12 +743,19 @@ public class ItemManager {
     }
 
     public static RPGItem newItem(String name, CommandSender sender) {
-        if (itemByName.containsKey(name) || groupByName.containsKey(name))
-            return null;
+        if (hasName(name)) return null;
         int free = nextUid();
         RPGItem item = new RPGItem(name, free, sender);
         addItem(item);
         return item;
+    }
+
+    public static RPGStone newStone(String name, CommandSender sender) {
+        if (hasName(name)) return null;
+        int free = nextUid();
+        RPGStone stone = new RPGStone(name, free, sender);
+        addStone(stone);
+        return stone;
     }
 
     public static ItemGroup newGroup(String name, CommandSender sender) {
@@ -655,8 +763,7 @@ public class ItemManager {
     }
 
     public static ItemGroup newGroup(String name, String regex, CommandSender sender) {
-        if (itemByName.containsKey(name) || groupByName.containsKey(name))
-            return null;
+        if (hasName(name)) return null;
         int free = nextUid();
         ItemGroup group = new ItemGroup(name, free, regex, sender);
         addGroup(group);
@@ -667,15 +774,14 @@ public class ItemManager {
         int free;
         do {
             free = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, 0);
-        } while (itemById.containsKey(free) || groupById.containsKey(free));
+        } while (hasId(free));
         return free;
     }
 
     public static RPGItem cloneItem(RPGItem item, String name) {
         if (plugin.cfg.readonly)
             return null;
-        if (itemByName.containsKey(name))
-            return null;
+        if (hasName(name)) return null;
         int free = nextUid();
         ConfigurationSection section = new MemoryConfiguration();
         item.save(section);
@@ -705,6 +811,22 @@ public class ItemManager {
 
     static RPGItem getItemByName(String name) {
         return itemByName.get(name);
+    }
+
+    public static Optional<RPGStone> getStone(int id) {
+        return Optional.ofNullable(stoneById.get(id));
+    }
+
+    public static Optional<RPGStone> getStone(String name) {
+        return Optional.ofNullable(stoneByName.get(name));
+    }
+
+    static RPGStone getStoneById(int id) {
+        return stoneById.get(id);
+    }
+
+    static RPGStone getStoneByName(String name) {
+        return stoneByName.get(name);
     }
 
     public static Optional<ItemGroup> getGroup(int uid) {
@@ -743,6 +865,22 @@ public class ItemManager {
                 backup.deleteOnExit();
             } catch (IOException e) {
                 plugin.getLogger().log(Level.WARNING, "Error deleting file " + item.getFile() + ".", e);
+            }
+        }
+    }
+
+    public static void remove(RPGStone stone, boolean delete) {
+        stone.deinit();
+        stoneByName.remove(stone.getName());
+        stoneById.remove(stone.getUid());
+        if (delete) {
+            if (plugin.cfg.readonly) return;
+            try {
+                File backup = unlockAndBackup(stone, true);
+                Files.delete(stone.getFile().toPath());
+                backup.deleteOnExit();
+            } catch (IOException e) {
+                plugin.getLogger().log(Level.WARNING, "Error deleting file " + stone.getFile() + ".", e);
             }
         }
     }

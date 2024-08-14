@@ -551,10 +551,10 @@ public class Events implements Listener {
         PlayerInventory in = player.getInventory();
         for (int i = 0; i < in.getSize(); i++) {
             ItemStack item = in.getItem(i);
-            ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(player, item));
+            ItemManager.updateItem(player, item);
         }
         for (ItemStack item : player.getInventory().getArmorContents()) {
-            ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(player, item));
+            ItemManager.updateItem(player, item);
         }
         if (WGSupport.hasSupport() && WGSupport.useWorldGuard) {
             WGHandler.onPlayerJoin(e);
@@ -581,7 +581,7 @@ public class Events implements Listener {
                     e.setCancelled(true);
                     Bukkit.getScheduler().runTaskLater(RPGItems.plugin, () -> e.getArrow().remove(), 100L);
                 } else {
-                    RPGItem.updateItemStack(e.getPlayer(), realItem);
+                    ItemManager.updateItem(e.getPlayer(), realItem);
                     e.getItem().setItemStack(realItem);
                 }
             }
@@ -603,10 +603,10 @@ public class Events implements Listener {
                 PlayerInventory in = p.getInventory();
                 for (int i = 0; i < in.getSize(); i++) {
                     ItemStack item = in.getItem(i);
-                    ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(p, item));
+                    ItemManager.updateItem(p, item);
                 }
                 for (ItemStack item : in.getArmorContents()) {
-                    ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(p, item));
+                    ItemManager.updateItem(p, item);
                 }
             }
         }.runTaskLater(plugin, 1L);
@@ -623,14 +623,14 @@ public class Events implements Listener {
     public void onPlayerChangeItem(PlayerItemHeldEvent ev) {
         Player player = ev.getPlayer();
         ItemStack item = player.getInventory().getItem(ev.getNewSlot());
-        ItemManager.toRPGItem(item).ifPresent(rpgItem -> rpgItem.updateItem(player, item));
+        ItemManager.updateItem(player, item);
         if (switchCooldown.contains(player.getUniqueId())) return;
         ItemStack[] armorContents = player.getInventory().getArmorContents();
         for (ItemStack stack : armorContents) {
-            ItemManager.toRPGItem(stack).ifPresent(rpgItem -> rpgItem.updateItem(player, stack));
+            ItemManager.updateItem(player, stack);
         }
         ItemStack offhandItem = player.getInventory().getItemInOffHand();
-        ItemManager.toRPGItem(offhandItem).ifPresent(rpgItem -> rpgItem.updateItem(player, offhandItem));
+        ItemManager.updateItem(player, offhandItem);
         switchCooldown.add(player.getUniqueId());
         new BukkitRunnable() {
             @Override
@@ -646,13 +646,13 @@ public class Events implements Listener {
         try {
             while (it.hasNext()) {
                 ItemStack item = it.next();
-                ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(p, item));
+                ItemManager.updateItem(p, item);
             }
             PlayerInventory inventory1 = p.getInventory();
             it = inventory1.iterator();
             while (it.hasNext()) {
                 ItemStack item = it.next();
-                ItemManager.toRPGItemByMeta(item).ifPresent(rpgItem -> rpgItem.updateItem(p, item));
+                ItemManager.updateItem(p, item);
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
             logger.log(Level.WARNING, "Exception when InventoryOpenEvent. May be harmless.", ex);

@@ -121,6 +121,26 @@ public class AdminCommands extends RPGCommandReceiver {
         return filtered(arguments, completeStr);
     }
 
+    @Completion("")
+    public List<String> stoneOrItemCompleter(CommandSender sender, Arguments arguments) {
+        List<String> completeStr = new ArrayList<>();
+        switch (arguments.remains()) {
+            case 1: {
+                completeStr.addAll(ItemManager.stoneNames());
+                completeStr.addAll(ItemManager.itemNames());
+                break;
+            }
+            case 2: {
+                String cmd = arguments.getRawArgs()[0];
+                if (subCommandCompletion.containsKey(cmd)) {
+                    String comp = subCommandCompletion.get(cmd);
+                    completeStr.addAll(Arrays.asList(comp.split(":", 2)[1].split(",")));
+                }
+                break;
+            }
+        }
+        return filtered(arguments, completeStr);
+    }
 
     @Completion("")
     public List<String> rpgItemCompleter(CommandSender sender, Arguments arguments) {
@@ -136,6 +156,16 @@ public class AdminCommands extends RPGCommandReceiver {
         List<String> completeStr = new ArrayList<>();
         if (arguments.remains() == 1) {
             completeStr.addAll(ItemManager.stoneNames());
+        }
+        return filtered(arguments, completeStr);
+    }
+
+    @Completion("")
+    public List<String> rpgStoneOrItemCompleter(CommandSender sender, Arguments arguments) {
+        List<String> completeStr = new ArrayList<>();
+        if (arguments.remains() == 1) {
+            completeStr.addAll(ItemManager.stoneNames());
+            completeStr.addAll(ItemManager.itemNames());
         }
         return filtered(arguments, completeStr);
     }
@@ -653,7 +683,7 @@ public class AdminCommands extends RPGCommandReceiver {
         }.runTaskLater(RPGItems.plugin, 1);
     }
 
-    @SubCommand(value = "remove", tabCompleter = "itemCompleter")
+    @SubCommand(value = "remove", tabCompleter = "stoneOrItemCompleter")
     public void removeItem(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
         RPGBaseHolder holder = getStoneOrItem(args.nextString(), sender);
@@ -666,7 +696,7 @@ public class AdminCommands extends RPGCommandReceiver {
         msgs(sender, "message.remove.ok", holder.getName());
     }
 
-    @SubCommand(value = "display", tabCompleter = "itemCompleter")
+    @SubCommand(value = "display", tabCompleter = "stoneOrItemCompleter")
     public void itemDisplay(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
         RPGBaseHolder holder = getStoneOrItem(args.nextString(), sender);
@@ -730,7 +760,7 @@ public class AdminCommands extends RPGCommandReceiver {
         return filtered(arguments, completeStr);
     }
 
-    @SubCommand(value = "customModel", tabCompleter = "itemCompleter")
+    @SubCommand(value = "customModel", tabCompleter = "stoneOrItemCompleter")
     public void itemCustomModel(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
         RPGBaseHolder item = getStoneOrItem(args.nextString(), sender);
@@ -853,7 +883,7 @@ public class AdminCommands extends RPGCommandReceiver {
         }
     }
 
-    @SubCommand(value = "item", tabCompleter = "itemCompleter")
+    @SubCommand(value = "item", tabCompleter = "stoneOrItemCompleter")
     public void itemItem(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
         RPGBaseHolder holder = getStoneOrItem(args.nextString(), sender);
@@ -949,7 +979,7 @@ public class AdminCommands extends RPGCommandReceiver {
         plugin.gui.openGui(new GuiItemEditor(player, item));
     }
 
-    @SubCommand(value = "itemHand", tabCompleter = "rpgItemCompleter")
+    @SubCommand(value = "itemHand", tabCompleter = "rpgStoneOrItemCompleter")
     public void itemHand(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
         if (!(sender instanceof Player)) {
@@ -1096,7 +1126,7 @@ public class AdminCommands extends RPGCommandReceiver {
         ItemManager.save(item);
     }
 
-    @SubCommand(value = "description", tabCompleter = "itemCompleter")
+    @SubCommand(value = "description", tabCompleter = "stoneOrItemCompleter")
     @Completion("item:add,insert,set,remove")
     public void itemAddDescription(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
@@ -1151,6 +1181,65 @@ public class AdminCommands extends RPGCommandReceiver {
                 ItemManager.refreshItem();
                 msgs(sender, "message.description.remove");
                 item.save();
+                break;
+            }
+            default:
+                throw new BadCommandException("message.error.invalid_option", command, "description", "add,set,remove");
+        }
+    }
+
+    @SubCommand(value = "stoneLore", tabCompleter = "stoneCompleter")
+    @Completion("item:add,insert,set,remove")
+    public void stoneDescription(CommandSender sender, Arguments args) {
+        if (readOnly(sender)) return;
+        RPGStone stone = getStone(args.nextString(), sender);
+        String command = args.nextString();
+        switch (command) {
+            case "add": {
+                String line = consumeString(args);
+                stone.addExtraDescription(ChatColor.WHITE + line);
+                msgs(sender, "message.description.ok");
+                ItemManager.refreshItem();
+                stone.save();
+                break;
+            }
+            case "insert": {
+                int lineNo = args.nextInt();
+                String line = consumeString(args);
+                int Length = stone.getExtraDescription().size();
+                if (lineNo < 0 || lineNo >= Length) {
+                    msgs(sender, "message.num_out_of_range", lineNo, 0, stone.getExtraDescription().size());
+                    return;
+                }
+                stone.getExtraDescription().add(lineNo, HexColorUtils.hexColored(ChatColor.WHITE + line));
+                ItemManager.refreshItem();
+                msgs(sender, "message.description.ok");
+                stone.save();
+                break;
+            }
+            case "set": {
+                int lineNo = args.nextInt();
+                String line = consumeString(args);
+                if (lineNo < 0 || lineNo >= stone.getExtraDescription().size()) {
+                    msgs(sender, "message.num_out_of_range", lineNo, 0, stone.getExtraDescription().size());
+                    return;
+                }
+                stone.getExtraDescription().set(lineNo, HexColorUtils.hexColored(ChatColor.WHITE + line));
+                ItemManager.refreshItem();
+                msgs(sender, "message.description.change");
+                stone.save();
+                break;
+            }
+            case "remove": {
+                int lineNo = args.nextInt();
+                if (lineNo < 0 || lineNo >= stone.getExtraDescription().size()) {
+                    msgs(sender, "message.num_out_of_range", lineNo, 0, stone.getExtraDescription().size());
+                    break;
+                }
+                stone.getExtraDescription().remove(lineNo);
+                ItemManager.refreshItem();
+                msgs(sender, "message.description.remove");
+                stone.save();
                 break;
             }
             default:
@@ -1824,6 +1913,28 @@ public class AdminCommands extends RPGCommandReceiver {
             if (ItemManager.isUnlocked(item.get()) && !readOnly) {
                 throw new BadCommandException("message.error.item_unlocked", item.get().getName());
             }
+            return item.get();
+        } else {
+            throw new BadCommandException("message.error.item", str);
+        }
+    }
+
+    public static RPGStone getStone(String str, CommandSender sender) {
+        return getStone(str, sender, false);
+    }
+
+    public static RPGStone getStone(String str, CommandSender sender, boolean readOnly) {
+        Optional<RPGStone> item = ItemManager.getStone(str);
+        if (!item.isPresent()) {
+            try {
+                item = ItemManager.getStone(Integer.parseInt(str));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        if (!item.isPresent() && sender instanceof Player && str.equalsIgnoreCase("hand")) {
+            item = ItemManager.toRPGStone(((Player) sender).getInventory().getItemInMainHand(), false);
+        }
+        if (item.isPresent()) {
             return item.get();
         } else {
             throw new BadCommandException("message.error.item", str);

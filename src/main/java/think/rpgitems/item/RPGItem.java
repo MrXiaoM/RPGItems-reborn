@@ -830,6 +830,12 @@ public class RPGItem implements RPGBaseHolder {
 
         ItemMeta meta = item.getItemMeta();
         List<String> lore = new ArrayList<>(getLore());
+        List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElse(null);
+        if (list != null) for (String id : list) {
+            RPGStone stone = ItemManager.getStone(id).orElse(null);
+            if (stone == null) continue;
+            lore.addAll(stone.getExtraDescription());
+        }
 
         PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
         ISubItemTagContainer rpgitemsTagContainer = ItemPDC.makeTag(itemTagContainer, TAG_META);
@@ -1282,7 +1288,7 @@ public class RPGItem implements RPGBaseHolder {
         return failed.stream().anyMatch(Condition::isCritical) ? PowerResult.abort() : PowerResult.condition();
     }
 
-    private Map<Condition<?>, PowerResult<?>> checkStaticCondition(Player player, ItemStack i, List<Condition<?>> conds) {
+    private Map<Condition<?>, PowerResult<?>> checkStaticCondition(Player player, ItemStack i, List<Power> powers, List<Condition<?>> conds) {
         Set<String> ids = powers.stream()
                 .flatMap(p -> p.getConditions().stream())
                 .collect(Collectors.toSet());
@@ -1302,12 +1308,13 @@ public class RPGItem implements RPGBaseHolder {
         if (rpg == null || !rpg.name.equals(this.name)) return Pair.of(getPowers(), getConditions());
         List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElse(null);
         if (list == null) return Pair.of(getPowers(), getConditions());
-        List<Power> extraPowers = new ArrayList<>();
-        List<Condition<?>> extraConditions = new ArrayList<>();
-        extraPowers.addAll(getPowers());
-        extraConditions.addAll(getConditions());
+        List<Power> extraPowers = new ArrayList<>(getPowers());
+        List<Condition<?>> extraConditions = new ArrayList<>(getConditions());
         for (String id : list) {
-            // TODO: 解析技能石，获取额外技能和条件
+            RPGStone stone = ItemManager.getStone(id).orElse(null);
+            if (stone == null) continue;
+            extraPowers.addAll(stone.getPowers());
+            extraConditions.addAll(stone.getConditions());
         }
         return Pair.of(extraPowers, extraConditions);
     }
@@ -1322,7 +1329,7 @@ public class RPGItem implements RPGBaseHolder {
         if (!triggerPreCheck(player, i, event, trigger, powers)) return ret;
         try {
             List<Condition<?>> conds = pair.getValue();
-            Map<Condition<?>, PowerResult<?>> staticCond = checkStaticCondition(player, i, conds);
+            Map<Condition<?>, PowerResult<?>> staticCond = checkStaticCondition(player, i, pair.getKey(), conds);
             Map<PropertyHolder, PowerResult<?>> resultMap = new LinkedHashMap<>(staticCond);
             int magicFlag = 0;
             for (TPower power : powers) {
@@ -2013,7 +2020,7 @@ public class RPGItem implements RPGBaseHolder {
             pow.init(yamlConfiguration, getName());
             powers.set(i, pow);
             newPh = pow;
-        }else if (oldPh instanceof Condition){
+        } else if (oldPh instanceof Condition) {
             int i = conditions.indexOf(oldPh);
             if (i == -1){
                 throw new IllegalStateException();
@@ -2023,7 +2030,7 @@ public class RPGItem implements RPGBaseHolder {
             pow.init(yamlConfiguration, getName());
             conditions.set(i, pow);
             newPh = pow;
-        }else if (oldPh instanceof Marker){
+        } else if (oldPh instanceof Marker) {
             int i = markers.indexOf(oldPh);
             if (i == -1){
                 throw new IllegalStateException();
@@ -2034,7 +2041,7 @@ public class RPGItem implements RPGBaseHolder {
             markers.set(i, pow);
             newPh = pow;
         }
-        if(newPh == null){
+        if (newPh == null) {
             return null;
         }
 

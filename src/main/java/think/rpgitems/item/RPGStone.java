@@ -49,6 +49,7 @@ public class RPGStone implements RPGBaseHolder {
     private String displayName;
     private String displayNameColored;
     @Setter @Getter private List<String> description;
+    @Setter @Getter private List<String> extraDescription;
     @Getter @Setter private boolean customItemModel;
     @Getter @Setter private int customModelData;
 
@@ -328,6 +329,9 @@ public class RPGStone implements RPGBaseHolder {
     @Override
     public void addDescription(String str) {
         getDescription().add(ColorHelper.parseColor(str));
+    }
+    public void addExtraDescription(String str) {
+        getExtraDescription().add(ColorHelper.parseColor(str));
     }
     @Override
     public NamespacedKey getPropertyHolderKey(PropertyHolder power) {

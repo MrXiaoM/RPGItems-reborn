@@ -1290,6 +1290,9 @@ manual:
   description:
     description: 添加/移除或替换物品或技能石的lore。支持使用 & 符号作为样式代码。行号从 0 开始
     usage: '&f/rpgitem description &a{神器/技能石} &8<&fadd &a<值>&8|&fset &a<行号> <值>&8|&fremove &a<行号>&8>'
+  stoneLore:
+    description: 添加/移除或替换技能石的额外lore。支持使用 & 符号作为样式代码。行号从 0 开始
+    usage: '&f/rpgitem stoneLore &a{技能石} &8<&fadd &a<值>&8|&fset &a<行号> <值>&8|&fremove &a<行号>&8>'
   cost:
     description: "展示/设置耐久消耗。\n可用参数：\n  breaking | breaking [value|integer] - 展示/设置物品破坏方块时的耐久消耗\n\
       \  hit | hit [value|integer] - 展示/设置手持或穿着此物品被伤害时的耐久消耗。\n  toggle - 切换物品是否基于伤害值消耗耐久。\n\

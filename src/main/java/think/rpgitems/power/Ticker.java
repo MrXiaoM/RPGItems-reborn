@@ -13,7 +13,7 @@ import think.rpgitems.power.trigger.BaseTriggers;
 import java.util.Optional;
 
 /**
- * BukkitRunnable that runs {@link PowerTick#tick(Player, ItemStack)}
+ * BukkitRunnable that runs {@link PowerTick#tick(Player, RPGItem, ItemStack)}
  */
 public class Ticker extends BukkitRunnable {
 

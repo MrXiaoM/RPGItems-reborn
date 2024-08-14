@@ -1311,6 +1311,7 @@ public class RPGItem implements RPGBaseHolder {
         List<Power> extraPowers = new ArrayList<>(getPowers());
         List<Condition<?>> extraConditions = new ArrayList<>(getConditions());
         for (String id : list) {
+            if (id.contains("/")) id = id.substring(0, id.indexOf("/"));
             RPGStone stone = ItemManager.getStone(id).orElse(null);
             if (stone == null) continue;
             extraPowers.addAll(stone.getPowers());
@@ -1988,7 +1989,7 @@ public class RPGItem implements RPGBaseHolder {
 
     private <TEvent extends Event, T extends Pimpl, TResult, TReturn> List<T> getPower(List<Power> powers, Trigger<TEvent, T, TResult, TReturn> trigger, Player player, ItemStack stack) {
         return powers.stream()
-                .filter(p -> p.getTriggers().contains(trigger))
+                .filter(p -> p.getTriggers().contains(trigger) || BaseTriggers.CUSTOM_TRIGGER.filter(p, trigger, stack))
                 .map(p -> {
                     Class<? extends Power> cls = p.getClass();
                     Power proxy = Interceptor.create(p, player, stack, trigger);

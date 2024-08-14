@@ -1,5 +1,7 @@
 package think.rpgitems.power;
 
+import lombok.Getter;
+import lombok.Setter;
 import think.rpgitems.power.trigger.Trigger;
 
 import java.io.Serializable;
@@ -28,6 +30,9 @@ public abstract class BasePower extends BasePropertyHolder implements Serializab
     public String powerId = "";
     @Property
     public Set<String> powerTags = new HashSet<>();
+
+    @Getter @Setter
+    private String stoneFlag = "";
 
     @Override
     public String displayName() {

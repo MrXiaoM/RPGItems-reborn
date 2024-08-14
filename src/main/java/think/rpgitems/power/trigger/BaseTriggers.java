@@ -48,6 +48,7 @@ public final class BaseTriggers {
     public static final Trigger<PlayerInteractEvent, PowerLeftClick, Void, Void> CLICK_BLOCK = new ClickBlock();
     public static final Trigger<PlayerDropItemEvent, PowerPlain, Void, Void> DROP = new Drop();
     public static final Trigger<PlayerDropItemEvent, PowerPlain, Void, Void> DROP_SNEAK = new Drop.Sneak();
+    public static final CustomTrigger CUSTOM_TRIGGER = new CustomTrigger();
     public static void load() {
         // do nothing, just let java load static constants.
     }

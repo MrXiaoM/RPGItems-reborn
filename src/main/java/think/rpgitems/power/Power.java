@@ -8,8 +8,6 @@ import think.rpgitems.power.trigger.Trigger;
 import javax.annotation.Nullable;
 import java.lang.invoke.MethodHandles;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Base interface for all powers
@@ -132,6 +130,10 @@ public interface Power extends PropertyHolder, PlaceholderHolder, TagHolder {
     Set<String> getConditions();
 
     String requiredContext();
+
+    String getStoneFlag();
+
+    void setStoneFlag(String flag);
 
     default void deinit() {
     }

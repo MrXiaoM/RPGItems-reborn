@@ -27,6 +27,7 @@ import think.rpgitems.event.BeamHitEntityEvent;
 import think.rpgitems.event.LoreUpdateEvent;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
+import think.rpgitems.item.RPGStone;
 import think.rpgitems.power.Pimpl;
 import think.rpgitems.power.PowerSneak;
 import think.rpgitems.power.PowerSprint;
@@ -41,6 +42,7 @@ import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.LightContext;
 import think.rpgitems.utils.events.EventsPaper;
 import think.rpgitems.utils.nyaacore.Pair;
+import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import think.rpgitems.utils.nyaacore.utils.RayTraceUtils;
 
 import java.util.*;
@@ -52,6 +54,7 @@ import java.util.stream.Stream;
 import static think.rpgitems.RPGItems.logger;
 import static think.rpgitems.RPGItems.plugin;
 import static think.rpgitems.item.RPGItem.DAMAGE_TYPE;
+import static think.rpgitems.item.RPGStone.NBT_POWER_STONES;
 
 public class Events implements Listener {
 
@@ -1149,5 +1152,39 @@ public class Events implements Listener {
         if (rpg == null) return;
         if (!player.hasPermission("rpgitems.drop")) event.setCancelled(true);
         rpg.power(player, item, event, player.isSneaking() ? BaseTriggers.DROP_SNEAK : BaseTriggers.DROP);
+    }
+
+    @EventHandler
+    public void onStoneApply(InventoryClickEvent e) {
+        if (!(e.getWhoClicked() instanceof Player)) return;
+        Player player = (Player) e.getWhoClicked();
+        // 生存模式物品栏 非Shift点击
+        if (e.isShiftClick()) return;
+        ItemStack item = e.getCurrentItem();
+        ItemStack cursor = e.getCursor();
+        if (item == null) return;
+        if (!e.getView().getType().equals(InventoryType.CRAFTING)) return;
+        if (e.isLeftClick() && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR) && cursor != null) {
+            RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
+            RPGStone stone = ItemManager.toRPGStone(e.getCursor()).orElse(null);
+            if (rpg != null && stone == null && item.getAmount() == 1 && cursor.getAmount() == 1) {
+                e.setCancelled(true);
+                e.setCursor(null);
+                List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElseGet(ArrayList::new);
+
+                // TODO: 添加技能石
+
+                ItemTagUtils.setStringList(item, NBT_POWER_STONES, list);
+            }
+        }
+        if (e.isRightClick() && e.getAction().equals(InventoryAction.PICKUP_HALF) && cursor == null) {
+            RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
+            if (rpg != null) {
+                List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElse(null);
+                if (list != null && !list.isEmpty()) {
+                    e.setCancelled(true);
+                }
+            }
+        }
     }
 }

@@ -158,7 +158,7 @@ public class RPGStone implements RPGBaseHolder {
         }
         Power pow = PowerManager.instantiate(power);
         pow.init(section, getName());
-        addPower(key, pow, false);
+        addPower(key, pow);
     }
 
     private void loadCondition(ConfigurationSection section, String powerName) throws UnknownPowerException {
@@ -170,7 +170,7 @@ public class RPGStone implements RPGBaseHolder {
         }
         Condition<?> cond = PowerManager.instantiate(condition);
         cond.init(section, getName());
-        addCondition(key, cond, false);
+        addCondition(key, cond);
     }
 
     @Override
@@ -205,16 +205,14 @@ public class RPGStone implements RPGBaseHolder {
 
     @Override
     public void addPower(NamespacedKey key, Power power) {
-        addPower(key, power, true);
-    }
-
-    private void addPower(NamespacedKey key, Power power, boolean update) {
+        power.setStoneFlag(getName());
         powers.add(power);
         keys.put(power, key);
     }
 
     @Override
     public void removePower(Power power) {
+        power.setStoneFlag("");
         powers.remove(power);
         keys.remove(power);
         power.deinit();
@@ -222,10 +220,6 @@ public class RPGStone implements RPGBaseHolder {
 
     @Override
     public void addCondition(NamespacedKey key, Condition<?> condition) {
-        addCondition(key, condition, true);
-    }
-
-    private void addCondition(NamespacedKey key, Condition<?> condition, boolean update) {
         conditions.add(condition);
         keys.put(condition, key);
     }

@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.item.ItemManager;
+import think.rpgitems.item.RPGBaseHolder;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.Trigger;
@@ -65,12 +66,12 @@ public class PowerCommands extends RPGCommandReceiver {
                 break;
             }
             default: {
-                RPGItem item = getItem(arguments.nextString(), sender);
+                RPGBaseHolder holder = getStoneOrItem(arguments.nextString(), sender);
                 String last = arguments.getRawArgs()[arguments.getRawArgs().length - 1];
                 String powerKey = arguments.nextString();
                 Pair<NamespacedKey, Class<? extends Power>> powerClass = getPowerClass(sender, powerKey);
                 if (powerClass != null) {
-                    return resolveProperties(sender, item, powerClass.getValue(), powerClass.getKey(), last, arguments, true);
+                    return resolveProperties(sender, holder, powerClass.getValue(), powerClass.getKey(), last, arguments, true);
                 }
                 break;
             }
@@ -88,23 +89,23 @@ public class PowerCommands extends RPGCommandReceiver {
             msgs(sender, "manual.power.add.usage");
             return;
         }
-        RPGItem item = getItem(itemStr, sender);
+        RPGBaseHolder holder = getStoneOrItem(itemStr, sender);
         Pair<NamespacedKey, Class<? extends Power>> keyClass = getPowerClass(sender, powerStr);
         if (keyClass == null || keyClass.getValue() == null) return;
         Power power;
         Class<? extends Power> cls = keyClass.getValue();
         NamespacedKey key = keyClass.getKey();
         try {
-            power = initPropertyHolder(sender, args, item, cls);
-            item.addPower(key, power);
+            power = initPropertyHolder(sender, args, holder, cls);
+            holder.addPower(key, power);
             ItemManager.refreshItem();
-            ItemManager.save(item);
-            msg(sender, "message.power.ok", powerStr, item.getPowers().size() - 1);
+            holder.save();
+            msg(sender, "message.power.ok", powerStr, holder.getPowers().size() - 1);
         } catch (Exception e) {
             if (e instanceof BadCommandException) {
                 throw (BadCommandException) e;
             }
-            plugin.getLogger().log(Level.WARNING, "Error adding power " + powerStr + " to item " + itemStr + " " + item, e);
+            plugin.getLogger().log(Level.WARNING, "Error adding power " + powerStr + " to item " + itemStr + " " + holder, e);
             msgs(sender, "internal.error.command_exception");
         }
     }
@@ -118,22 +119,22 @@ public class PowerCommands extends RPGCommandReceiver {
                 break;
             }
             case 2: {
-                RPGItem item = getItem(arguments.nextString(), sender);
-                for (int i = 0; i < item.getPowers().size(); i++) {
-                    completeStr.add(i + "-" + item.getPowers().get(i).getNamespacedKey());
+                RPGBaseHolder holder = getStoneOrItem(arguments.nextString(), sender);
+                for (int i = 0; i < holder.getPowers().size(); i++) {
+                    completeStr.add(i + "-" + holder.getPowers().get(i).getNamespacedKey());
                 }
                 break;
             }
             default: {
-                RPGItem item = getItem(arguments.nextString(), sender);
-                Power nextPower = nextPower(item, sender, arguments);
-                return resolveProperties(sender, item, nextPower.getClass(), nextPower.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
+                RPGBaseHolder holder = getStoneOrItem(arguments.nextString(), sender);
+                Power nextPower = nextPower(holder, sender, arguments);
+                return resolveProperties(sender, holder, nextPower.getClass(), nextPower.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
             }
         }
         return filtered(arguments, completeStr);
     }
 
-    private static Power nextPower(RPGItem item, CommandSender sender, Arguments args) {
+    private static Power nextPower(RPGBaseHolder holder, CommandSender sender, Arguments args) {
         String next = args.top();
         if (next.contains("-")) {
             next = args.nextString();
@@ -141,7 +142,7 @@ public class PowerCommands extends RPGCommandReceiver {
             String p2 = next.split("-", 2)[1];
             try {
                 int nth = Integer.parseInt(p1);
-                Power power = item.getPowers().get(nth);
+                Power power = holder.getPowers().get(nth);
                 if (power == null) {
                     throw new BadCommandException("message.power.unknown", nth);
                 }
@@ -157,7 +158,7 @@ public class PowerCommands extends RPGCommandReceiver {
                 }
                 try {
                     int nth = Integer.parseInt(p2);
-                    Power power = item.getPower(keyClass.getKey(), keyClass.getValue()).get(nth);
+                    Power power = holder.getPower(keyClass.getKey(), keyClass.getValue()).get(nth);
                     if (power == null) {
                         throw new BadCommandException("message.power.unknown", nth);
                     }
@@ -168,7 +169,7 @@ public class PowerCommands extends RPGCommandReceiver {
             }
         } else {
             int nth = args.nextInt();
-            Power power = item.getPowers().get(nth);
+            Power power = holder.getPowers().get(nth);
             if (power == null) {
                 throw new BadCommandException("message.power.unknown", nth);
             }
@@ -179,33 +180,33 @@ public class PowerCommands extends RPGCommandReceiver {
     @SubCommand(value = "prop", tabCompleter = "propCompleter")
     public void prop(CommandSender sender, Arguments args) throws IllegalAccessException {
         if (readOnly(sender)) return;
-        RPGItem item = getItem(args.nextString(), sender);
+        RPGBaseHolder holder = getStoneOrItem(args.nextString(), sender);
         if (args.top() == null) {
-            for (int i = 0; i < item.getPowers().size(); i++) {
-                Power power = item.getPowers().get(i);
-                showPower(sender, i, item, power);
+            for (int i = 0; i < holder.getPowers().size(); i++) {
+                Power power = holder.getPowers().get(i);
+                showPower(sender, i, holder, power);
             }
             return;
         }
         try {
-            Power power = nextPower(item, sender, args);
+            Power power = nextPower(holder, sender, args);
             if (args.top() == null) {
-                showPower(sender, item.getPowers().indexOf(power), item, power);
+                showPower(sender, holder.getPowers().indexOf(power), holder, power);
                 return;
             }
-            setPropertyHolder(sender, args, item, power.getClass(), power, false);
-            item.rebuild();
+            setPropertyHolder(sender, args, holder, power.getClass(), power, false);
+            if (holder instanceof RPGItem) ((RPGItem) holder).rebuild();
             ItemManager.refreshItem();
-            ItemManager.save(item);
+            holder.save();
             msgs(sender, "message.power.change");
         } catch (UnknownExtensionException e) {
             msgs(sender, "message.error.unknown.extension", e.getName());
         }
     }
 
-    public static void showPower(CommandSender sender, int nth, RPGItem item, Power power) {
+    public static void showPower(CommandSender sender, int nth, RPGBaseHolder holder, Power power) {
         msgs(sender, "message.power.show", nth, power.getLocalizedName(sender), power.getNamespacedKey().toString(), power.displayText() == null ? I18n.getInstance(sender).format("message.power.no_display") : power.displayText(), power.getTriggers().stream().map(Trigger::name).collect(Collectors.joining(",")));
-        NamespacedKey powerKey = item.getPropertyHolderKey(power);
+        NamespacedKey powerKey = holder.getPropertyHolderKey(power);
         PowerManager.getProperties(powerKey).forEach(
                 (name, prop) -> showProp(sender, powerKey, prop.getValue(), power)
         );
@@ -220,9 +221,9 @@ public class PowerCommands extends RPGCommandReceiver {
                 break;
             }
             case 2: {
-                RPGItem item = getItem(arguments.nextString(), sender);
-                for (int i = 0; i < item.getPowers().size(); i++) {
-                    completeStr.add(i + "-" + item.getPowers().get(i).getNamespacedKey());
+                RPGBaseHolder holder = getStoneOrItem(arguments.nextString(), sender);
+                for (int i = 0; i < holder.getPowers().size(); i++) {
+                    completeStr.add(i + "-" + holder.getPowers().get(i).getNamespacedKey());
                 }
             }
         }
@@ -238,14 +239,14 @@ public class PowerCommands extends RPGCommandReceiver {
                 break;
             }
             case 2: {
-                RPGItem item = getItem(arguments.nextString(), sender);
-                for (int i = 0; i < item.getPowers().size(); i++) {
-                    completeStr.add(i + "-" + item.getPowers().get(i).getNamespacedKey());
+                RPGBaseHolder holder = getStoneOrItem(arguments.nextString(), sender);
+                for (int i = 0; i < holder.getPowers().size(); i++) {
+                    completeStr.add(i + "-" + holder.getPowers().get(i).getNamespacedKey());
                 }
                 break;
             }
             case 3: {
-                RPGItem item1 = getItem(arguments.nextString(), sender);
+                RPGBaseHolder holder = getStoneOrItem(arguments.nextString(), sender);
                 String next = arguments.top();
                 int nth;
                 if (next.contains("-")) {
@@ -269,9 +270,9 @@ public class PowerCommands extends RPGCommandReceiver {
                     nth = Integer.parseInt(arguments.top());
                 }
                 int finalNth = nth;
-                for (int i = 0; i < item1.getPowers().size(); i++) {
+                for (int i = 0; i < holder.getPowers().size(); i++) {
                     if (i == finalNth) continue;
-                    completeStr.add(i + "-" + item1.getPowers().get(i).getNamespacedKey());
+                    completeStr.add(i + "-" + holder.getPowers().get(i).getNamespacedKey());
                 }
                 break;
             }
@@ -282,11 +283,11 @@ public class PowerCommands extends RPGCommandReceiver {
     @SubCommand(value = "remove", tabCompleter = "removeCompleter")
     public void remove(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
-        RPGItem item = getItem(args.nextString(), sender);
+        RPGBaseHolder holder = getStoneOrItem(args.nextString(), sender);
         int nth = -1;
-        Power power = nextPower(item, sender, args);
+        Power power = nextPower(holder, sender, args);
         try {
-            List<Power> powers = item.getPowers();
+            List<Power> powers = holder.getPowers();
             for (int i = 0; i < powers.size(); i++) {
                 Power pi = powers.get(i);
                 if (power.equals(pi)) {
@@ -298,16 +299,16 @@ public class PowerCommands extends RPGCommandReceiver {
                 msg(sender, "message.num_out_of_range", nth, 0, powers.size());
                 return;
             }
-            Power power1 = item.getPowers().get(nth);
+            Power power1 = holder.getPowers().get(nth);
             if (power1 == null) {
                 msgs(sender, "message.power.unknown", nth);
                 return;
             }
             power.deinit();
-            item.getPowers().remove(nth);
-            NamespacedKey key = item.removePropertyHolderKey(power);
-            item.rebuild();
-            ItemManager.save(item);
+            holder.getPowers().remove(nth);
+            NamespacedKey key = holder.removePropertyHolderKey(power);
+            if (holder instanceof RPGItem) ((RPGItem) holder).rebuild();
+            holder.save();
             msgs(sender, "message.power.removed", key.toString(), nth);
         } catch (UnknownExtensionException e) {
             msgs(sender, "message.error.unknown.extension", e.getName());
@@ -317,13 +318,13 @@ public class PowerCommands extends RPGCommandReceiver {
     @SubCommand(value = "reorder", tabCompleter = "reorderCompleter")
     public void reorder(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
-        RPGItem item = getItem(args.nextString(), sender);
+        RPGBaseHolder holder = getStoneOrItem(args.nextString(), sender);
         int origin = -1;
         int next = -1;
-        int size = item.getPowers().size();
-        Power originPower = nextPower(item, sender, args);
-        Power nextPower = nextPower(item, sender, args);
-        List<Power> powers = item.getPowers();
+        int size = holder.getPowers().size();
+        Power originPower = nextPower(holder, sender, args);
+        Power nextPower = nextPower(holder, sender, args);
+        List<Power> powers = holder.getPowers();
         for (int i = 0; i < powers.size(); i++) {
             Power pi = powers.get(i);
             if (origin == -1 && originPower.equals(pi)) {
@@ -343,10 +344,10 @@ public class PowerCommands extends RPGCommandReceiver {
             msg(sender, "message.num_out_of_range", origin, 0, size);
             return;
         }
-        Power remove = item.getPowers().remove(origin);
-        item.getPowers().add(next, remove);
+        Power remove = holder.getPowers().remove(origin);
+        holder.getPowers().add(next, remove);
         ItemManager.refreshItem();
-        ItemManager.save(item);
+        holder.save();
         msg(sender, "message.power.reorder", remove.getName(), next);
     }
 

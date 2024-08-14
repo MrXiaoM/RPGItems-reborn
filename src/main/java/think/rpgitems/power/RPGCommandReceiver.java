@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.item.RPGBaseHolder;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.marker.Selector;
 import think.rpgitems.power.trigger.Trigger;
@@ -29,16 +30,16 @@ public abstract class RPGCommandReceiver extends CommandReceiver {
         super(plugin);
     }
 
-    public static List<String> resolvePropertyValueSuggestion(RPGItem item, Class<? extends Power> power, String propertyName, String last, boolean hasNamePrefix) {
+    public static List<String> resolvePropertyValueSuggestion(RPGBaseHolder holder, Class<? extends Power> power, String propertyName, String last, boolean hasNamePrefix) {
         try {
-            return resolvePropertyValueSuggestion(item, power, power.getField(propertyName), last, hasNamePrefix);
+            return resolvePropertyValueSuggestion(holder, power, power.getField(propertyName), last, hasNamePrefix);
         } catch (NoSuchFieldException e) {
             return Collections.emptyList();
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static List<String> resolvePropertyValueSuggestion(RPGItem item, Class<? extends Power> power, Field propertyField, String last, boolean hasNamePrefix) {
+    public static List<String> resolvePropertyValueSuggestion(RPGBaseHolder holder, Class<? extends Power> power, Field propertyField, String last, boolean hasNamePrefix) {
         BooleanChoice bc = propertyField.getAnnotation(BooleanChoice.class);
         if (bc != null) {
             return Stream.of(bc.trueChoice(), bc.falseChoice()).map(s -> (hasNamePrefix ? propertyField.getName() + ":" : "") + s).filter(s -> s.startsWith(last)).collect(Collectors.toList());
@@ -51,18 +52,18 @@ public abstract class RPGCommandReceiver extends CommandReceiver {
             }
             if (!listArg.isEnum()) {
                 if (propertyField.getName().equalsIgnoreCase("conditions")) {
-                    List<Condition<?>> conditions = item.getConditions();
+                    List<Condition<?>> conditions = holder.getConditions();
                     List<String> conditionIds = conditions.stream().map(Condition::id).collect(Collectors.toList());
                     return resolveEnumListValue(power, propertyField, conditionIds, last, hasNamePrefix);
                 }
-                if (propertyField.getName().equalsIgnoreCase("selectors")) {
-                    List<Selector> selectors = item.getMarker(Selector.class);
+                if (holder instanceof RPGItem && propertyField.getName().equalsIgnoreCase("selectors")) {
+                    List<Selector> selectors = ((RPGItem) holder).getMarker(Selector.class);
                     List<String> selectorIds = selectors.stream().map(Selector::id).collect(Collectors.toList());
                     return resolveEnumListValue(power, propertyField, selectorIds, last, hasNamePrefix);
                 }
                 return Collections.emptyList();
             }
-            List<String> enumValues = Stream.of(((Class<? extends Enum>) listArg).getEnumConstants()).map(Enum::name).collect(Collectors.toList());
+            List<String> enumValues = Stream.of(((Class<? extends Enum<?>>) listArg).getEnumConstants()).map(Enum::name).collect(Collectors.toList());
             return resolveEnumListValue(power, propertyField, enumValues, last, hasNamePrefix);
         }
         AcceptedValue as = propertyField.getAnnotation(AcceptedValue.class);
@@ -114,7 +115,7 @@ public abstract class RPGCommandReceiver extends CommandReceiver {
         return enumValues.stream().filter(n -> n.startsWith(incompleteValue)).map(n -> base + (next ? "" : ",") + n).collect(Collectors.toList());
     }
 
-    public static List<String> resolveProperties(CommandSender sender, RPGItem item, Class<? extends PropertyHolder> power, NamespacedKey powerKey, String last, Arguments cmd, boolean newPower) {
+    public static List<String> resolveProperties(CommandSender sender, RPGBaseHolder holder, Class<? extends PropertyHolder> power, NamespacedKey powerKey, String last, Arguments cmd, boolean newPower) {
         if (power == null) return Collections.emptyList();
         Map<String, Pair<Method, PropertyInstance>> argMap = PowerManager.getProperties(power);
         Set<Field> settled = new HashSet<>();
@@ -144,7 +145,7 @@ public abstract class RPGCommandReceiver extends CommandReceiver {
         if (settled.isEmpty()) {
             actionBarTip(sender, powerKey, null);
         }
-        return resolvePropertiesSuggestions(sender, item, last, powerKey, argMap, settled, required);
+        return resolvePropertiesSuggestions(sender, holder, last, powerKey, argMap, settled, required);
     }
 
     protected static boolean isTrivialProperty(Meta meta, String name) {
@@ -156,11 +157,11 @@ public abstract class RPGCommandReceiver extends CommandReceiver {
                        || name.equals("displayName");
     }
 
-    public static List<String> resolvePropertiesSuggestions(CommandSender sender, RPGItem item, String last, NamespacedKey powerKey, Map<String, Pair<Method, PropertyInstance>> argMap, Set<Field> settled, List<Field> required) {
+    public static List<String> resolvePropertiesSuggestions(CommandSender sender, RPGBaseHolder holder, String last, NamespacedKey powerKey, Map<String, Pair<Method, PropertyInstance>> argMap, Set<Field> settled, List<Field> required) {
         if (argMap.keySet().stream().anyMatch(f -> last.startsWith(f + ":"))) {//we are suggesting a value as we have the complete property name
             String currentPropertyName = last.split(":")[0];
             actionBarTip(sender, powerKey, currentPropertyName);
-            return resolvePropertyValueSuggestion(item, PowerManager.getPower(powerKey), currentPropertyName, last, true);
+            return resolvePropertyValueSuggestion(holder, PowerManager.getPower(powerKey), currentPropertyName, last, true);
         }
         List<String> suggestions;
         suggestions = required.stream().map(s -> s.getName() + ":").filter(s -> s.startsWith(last)).collect(Collectors.toList());

@@ -26,9 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.gui.GuiItemEditor;
-import think.rpgitems.item.ItemGroup;
-import think.rpgitems.item.ItemManager;
-import think.rpgitems.item.RPGItem;
+import think.rpgitems.item.*;
 import think.rpgitems.power.*;
 import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.*;
@@ -104,10 +102,40 @@ public class AdminCommands extends RPGCommandReceiver {
     }
 
     @Completion("")
+    public List<String> stoneCompleter(CommandSender sender, Arguments arguments) {
+        List<String> completeStr = new ArrayList<>();
+        switch (arguments.remains()) {
+            case 1: {
+                completeStr.addAll(ItemManager.stoneNames());
+                break;
+            }
+            case 2: {
+                String cmd = arguments.getRawArgs()[0];
+                if (subCommandCompletion.containsKey(cmd)) {
+                    String comp = subCommandCompletion.get(cmd);
+                    completeStr.addAll(Arrays.asList(comp.split(":", 2)[1].split(",")));
+                }
+                break;
+            }
+        }
+        return filtered(arguments, completeStr);
+    }
+
+
+    @Completion("")
     public List<String> rpgItemCompleter(CommandSender sender, Arguments arguments) {
         List<String> completeStr = new ArrayList<>();
         if (arguments.remains() == 1) {
             completeStr.addAll(ItemManager.itemNames());
+        }
+        return filtered(arguments, completeStr);
+    }
+
+    @Completion("")
+    public List<String> rpgStoneCompleter(CommandSender sender, Arguments arguments) {
+        List<String> completeStr = new ArrayList<>();
+        if (arguments.remains() == 1) {
+            completeStr.addAll(ItemManager.stoneNames());
         }
         return filtered(arguments, completeStr);
     }
@@ -547,6 +575,58 @@ public class AdminCommands extends RPGCommandReceiver {
             }
         }
 
+    }
+
+    @SubCommand(value = "giveStone", tabCompleter = "stoneCompleter")
+    public void giveStone(CommandSender sender, Arguments args) {
+        String str = args.nextString();
+        Optional<RPGStone> optStone = ItemManager.getStone(str);
+        if (optStone.isPresent()) {
+            RPGStone stone = optStone.get();
+            if ((plugin.cfg.givePerms || !sender.hasPermission("rpgitem")) && (!plugin.cfg.givePerms || !sender.hasPermission("rpgitem.give." + stone.getName()))) {
+                msgs(sender, "message.error.permission", str);
+                return;
+            }
+            if (args.length() == 2) {
+                if (sender instanceof Player) {
+                    stone.give((Player) sender, 1);
+                    msgs(sender, "message.give.ok", stone.getDisplayName());
+                    refreshPlayer((Player) sender);
+                } else {
+                    msgs(sender, "message.give.console");
+                }
+            } else {
+                Player player = args.nextPlayer();
+                int count;
+                try {
+                    count = args.nextInt();
+                } catch (BadCommandException e) {
+                    count = 1;
+                }
+                stone.give(player, count);
+                refreshPlayer(player);
+                msgs(sender, "message.give.to", stone.getDisplayName() + ChatColor.AQUA, player.getName());
+                msgs(player, "message.give.ok", stone.getDisplayName());
+            }
+        } else {
+            Optional<ItemGroup> optGroup = ItemManager.getGroup(str);
+            if (!optGroup.isPresent()) {
+                throw new BadCommandException("message.error.item", str);
+            }
+            ItemGroup group = optGroup.get();
+            if ((plugin.cfg.givePerms || !sender.hasPermission("rpgitem")) && (!plugin.cfg.givePerms || !sender.hasPermission("rpgitem.give.group." + group.getName()))) {
+                msgs(sender, "message.error.permission", str);
+                return;
+            }
+            if (sender instanceof Player) {
+                Player player = args.nextPlayerOrSender();
+                group.give(player, 1, true);
+                refreshPlayer(player);
+                msgs(sender, "message.give.ok", group.getName());
+            } else {
+                msgs(sender, "message.give.console");
+            }
+        }
     }
 
     private void refreshPlayer(Player player) {
@@ -1285,13 +1365,13 @@ public class AdminCommands extends RPGCommandReceiver {
         msgs(sender, "message.damagemode." + item.getDamageMode().name(), item.getName());
     }
 
-    public static <T extends PropertyHolder> T initPropertyHolder(CommandSender sender, Arguments args, RPGItem item, Class<? extends T> cls) throws IllegalAccessException {
+    public static <T extends PropertyHolder> T initPropertyHolder(CommandSender sender, Arguments args, RPGBaseHolder item, Class<? extends T> cls) throws IllegalAccessException {
         T power = PowerManager.instantiate(cls);
         power.init(new YamlConfiguration(), item.getName());
         return setPropertyHolder(sender, args, item, cls, power, true);
     }
 
-    public static <T extends PropertyHolder> T setPropertyHolder(CommandSender sender, Arguments args, RPGItem item, Class<? extends T> cls, T power, boolean checkRequired) throws IllegalAccessException {
+    public static <T extends PropertyHolder> T setPropertyHolder(CommandSender sender, Arguments args, RPGBaseHolder holder, Class<? extends T> cls, T power, boolean checkRequired) throws IllegalAccessException {
         Map<String, Pair<Method, PropertyInstance>> argMap = PowerManager.getProperties(cls);
 
         List<Field> required = argMap.values().stream()
@@ -1306,7 +1386,7 @@ public class AdminCommands extends RPGCommandReceiver {
             String name = prop.getKey();
             String value = args.argString(name, null);
             if (value != null) {
-                Utils.setPowerProperty(sender, item.getName(), power, field, value);
+                Utils.setPowerProperty(sender, holder.getName(), power, field, value);
                 required.remove(field);
             }
         }
@@ -1685,6 +1765,24 @@ public class AdminCommands extends RPGCommandReceiver {
             }
         }
         return filtered(arguments, completeStr);
+    }
+
+    public static RPGBaseHolder getStoneOrItem(String str, CommandSender sender) {
+        return getStoneOrItem(str, sender, false);
+    }
+    public static RPGBaseHolder getStoneOrItem(String str, CommandSender sender, boolean readOnly) {
+        Optional<RPGStone> stone = ItemManager.getStone(str);
+        if (stone.isPresent()) return stone.get();
+        try {
+            stone = ItemManager.getStone(Integer.parseInt(str));
+            if (stone.isPresent()) return stone.get();
+        } catch (NumberFormatException ignored) {
+        }
+        if (sender instanceof Player && str.equalsIgnoreCase("hand")) {
+            stone = ItemManager.toRPGStone(((Player) sender).getInventory().getItemInMainHand(), false);
+            if (stone.isPresent()) return stone.get();
+        }
+        return getItem(str, sender, readOnly);
     }
 
     public static RPGItem getItem(String str, CommandSender sender) {

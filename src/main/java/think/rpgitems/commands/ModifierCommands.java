@@ -16,7 +16,7 @@ import think.rpgitems.power.RPGCommandReceiver;
 import think.rpgitems.power.UnknownExtensionException;
 import think.rpgitems.power.propertymodifier.Modifier;
 import think.rpgitems.utils.ISubItemTagContainer;
-import think.rpgitems.utils.ItemPDC;
+import think.rpgitems.utils.pdc.ItemPDC;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;

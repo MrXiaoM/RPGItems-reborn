@@ -7,7 +7,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import think.rpgitems.power.*;
-import think.rpgitems.utils.ItemPDC;
+import think.rpgitems.utils.pdc.ItemPDC;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

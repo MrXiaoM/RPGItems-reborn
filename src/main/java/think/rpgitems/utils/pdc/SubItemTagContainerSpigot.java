@@ -1,4 +1,4 @@
-package think.rpgitems.utils;
+package think.rpgitems.utils.pdc;
 
 import com.google.common.base.FinalizablePhantomReference;
 import org.bukkit.NamespacedKey;
@@ -6,20 +6,21 @@ import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
+import think.rpgitems.RPGItems;
+import think.rpgitems.utils.ISubItemTagContainer;
 
-import java.io.IOException;
 import java.lang.ref.PhantomReference;
 import java.util.Collections;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class SubItemTagContainerPaper implements PersistentDataContainer, ISubItemTagContainer {
+public class SubItemTagContainerSpigot implements PersistentDataContainer, ISubItemTagContainer {
     private final PersistentDataContainer parent;
     private PersistentDataContainer self;
     private final NamespacedKey key;
     private PhantomReference<ISubItemTagContainer> reference;
-    protected SubItemTagContainerPaper(PersistentDataContainer parent, NamespacedKey key, PersistentDataContainer self) {
+
+    protected SubItemTagContainerSpigot(PersistentDataContainer parent, NamespacedKey key, PersistentDataContainer self) {
         this.parent = parent;
         this.self = self;
         this.key = key;
@@ -67,21 +68,6 @@ public class SubItemTagContainerPaper implements PersistentDataContainer, ISubIt
     }
 
     @Override
-    public boolean has(@NotNull NamespacedKey key) {
-        return self.has(key);
-    }
-
-    @Override
-    public byte @NotNull [] serializeToBytes() throws IOException {
-        return self.serializeToBytes();
-    }
-
-    @Override
-    public void readFromBytes(byte @NotNull [] bytes, boolean clear) throws IOException {
-        self.readFromBytes(bytes, clear);
-    }
-
-    @Override
     public void commit() {
         parent.set(key, PersistentDataType.TAG_CONTAINER, self);
         if (parent instanceof ISubItemTagContainer) {
@@ -93,11 +79,8 @@ public class SubItemTagContainerPaper implements PersistentDataContainer, ISubIt
     @Override
     public void dispose() {
         self = null;
-        if (!references.remove(reference)) {
-            Logger.getLogger("RPGItems").log(Level.SEVERE,
-                    "Double handled SubItemTagContainer found: " + this + ": " + key + "@" + parent,
-                    new Exception()
-            );
+        if (!ISubItemTagContainer.references.remove(reference)) {
+            RPGItems.logger.log(Level.SEVERE, "Double handled SubItemTagContainer found: " + this + ": " + key + "@" + parent, new Exception());
         }
     }
 

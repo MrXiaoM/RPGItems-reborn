@@ -1,4 +1,4 @@
-package think.rpgitems.utils;
+package think.rpgitems.utils.pdc;
 
 import com.google.common.base.FinalizablePhantomReference;
 import com.google.common.io.BaseEncoding;
@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import think.rpgitems.RPGItems;
 import think.rpgitems.power.PowerManager;
 import think.rpgitems.power.Utils;
+import think.rpgitems.utils.ISubItemTagContainer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

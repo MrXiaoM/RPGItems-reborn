@@ -55,6 +55,7 @@ import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
+import think.rpgitems.utils.pdc.ItemPDC;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -74,7 +75,7 @@ import java.util.stream.Stream;
 
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
-//import static think.rpgitems.utils.ItemPDC.*;
+//import static think.rpgitems.utils.pdc.ItemPDC.*;
 
 @SuppressWarnings({"deprecation", "rawtypes", "unused"})
 public class RPGItem {

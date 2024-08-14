@@ -40,6 +40,7 @@ import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 import think.rpgitems.utils.nyaacore.utils.HexColorUtils;
 import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import think.rpgitems.utils.nyaacore.utils.OfflinePlayerUtils;
+import think.rpgitems.utils.pdc.ItemPDC;
 
 import java.io.*;
 import java.lang.reflect.Field;

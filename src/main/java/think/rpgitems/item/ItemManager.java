@@ -3,7 +3,7 @@ package think.rpgitems.item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
-import think.rpgitems.utils.ItemPDC;
+import think.rpgitems.utils.pdc.ItemPDC;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import com.google.common.cache.Cache;

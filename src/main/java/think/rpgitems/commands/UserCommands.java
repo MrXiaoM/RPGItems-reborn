@@ -9,7 +9,7 @@ import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.Completion;
 import think.rpgitems.power.RPGCommandReceiver;
-import think.rpgitems.utils.ItemPDC;
+import think.rpgitems.utils.pdc.ItemPDC;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.BadCommandException;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;

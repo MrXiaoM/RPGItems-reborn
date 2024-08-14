@@ -2291,10 +2291,11 @@ public class RPGItem implements RPGBaseHolder {
     public String getDisplayNameRaw() {
         return displayName;
     }
+    @Override
     public String getDisplayName() {
         return displayNameColored;
     }
-
+    @Override
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
         this.displayNameColored = ColorHelper.parseColor(displayName);

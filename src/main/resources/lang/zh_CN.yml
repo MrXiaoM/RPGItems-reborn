@@ -1102,6 +1102,9 @@ manual:
   give:
     description: 将物品给与施令者或特定玩家
     usage: '&f/rpgitem give &a{神器} [玩家]'
+  giveStone:
+    description: 将技能石给与施令者或特定玩家
+    usage: '&f/rpgitem giveStone &a{神器} [玩家]'
   worldguard:
     description: 切换 WorldGuard 支持
     usage: '&f/rpgitem worldguard'
@@ -1113,22 +1116,22 @@ manual:
     usage: '&f/rpgitem giveperms'
   power:
     add:
-      description: 给物品添加技能
-      usage: '&f/rpgitem power add &a{神器} <配置> [可选配置]'
+      description: 给物品或技能石添加技能
+      usage: '&f/rpgitem power add &a{神器/技能石} <配置> [可选配置]'
     remove:
-      description: 从物品上移除技能
-      usage: '&f/rpgitem power remove &a{神器} <配置>'
+      description: 从物品或技能石上移除技能
+      usage: '&f/rpgitem power remove &a{神器/技能石} <配置>'
     prop:
-      description: 展示/修改物品的技能
-      usage: '&f/rpgitem power prop &a{神器} <配置> [可选配置]'
+      description: 展示/修改物品或技能石的技能
+      usage: '&f/rpgitem power prop &a{神器/技能石} <配置> [可选配置]'
     list:
       description: 列出所有的技能
       usage: '&f/rpgitem power list'
     help:
       description: 查看power命令的帮助
       usage: '&f/rpgitem power &a[help]'
-    description: 设置物品的技能
-    usage: '&f/rpgitem power &a[操作] {神器} <技能> <配置> [可选配置]'
+    description: 设置物品或技能石的技能
+    usage: '&f/rpgitem power &a[操作] {神器/技能石} <技能> <配置> [可选配置]'
   list:
     description: 列出所有的物品
     usage: '&f/rpgitem list &a[页数]'
@@ -1144,12 +1147,15 @@ manual:
   create:
     description: 创建特定名称的物品
     usage: '&f/rpgitem create &a<名称>'
+  createStone:
+    description: 创建特定名称的技能石
+    usage: '&f/rpgitem createStone &a<名称>'
   remove:
     description: 移除此物品
     usage: '&f/rpgitem remove &a{神器}'
   display:
-    description: 设置物品名称
-    usage: '&f/rpgitem display &a{神器} <名称>'
+    description: 设置物品或技能石名称
+    usage: '&f/rpgitem display &a{神器/技能石} <名称>'
   meta:
     quality:
       description: 设置物品品质 (仅展示)
@@ -1259,9 +1265,9 @@ manual:
       [min] [max] - 设置物品伤害值为一个范围随机值。/rpgitem test_item damage 10 20'
     usage: '&f/rpgitem damage &a{神器} [伤害值]'
   item:
-    description: "设置物品的材质和其他参数\n可选参数\n  [物品id] - 设置物品为特定材质\n  [物品id] hex [16进制颜色]\
+    description: "设置物品或技能石的材质和其他参数\n可选参数\n  [物品id] - 设置物品为特定材质\n  [物品id] hex [16进制颜色]\
       \ - 设置物品的材质并设置颜色。\n  [物品id] [子id(1.12及以下)] - 设置物品的材质和伤害值/损耗值。"
-    usage: '&f/rpgitem item &a{神器} [选项|值]'
+    usage: '&f/rpgitem item &a{神器/技能石} [选项|值]'
   fakeitem:
     description: "设置物品的伪装材质和其他参数\n可选参数\n  [物品id] - 设置物品伪装为特定材质(设为 AIR 取消伪装)\n  [物品id] hex [16进制颜色]\
       \ - 设置物品的伪装材质并设置颜色。\n  [物品id] [子id(1.12及以下)] - 设置物品的伪装材质和伤害值/损耗值。"
@@ -1282,8 +1288,8 @@ manual:
     description: 以手中物品的附魔数据为模板，展示(不填参数)/复制(clone)或清除(clear)神器自带的附魔
     usage: '&f/rpgitem enchantment &a{神器} [clone|clear]'
   description:
-    description: 添加/移除或替换物品lore。支持使用 & 符号作为样式代码。行号从 0 开始
-    usage: '&f/rpgitem description &a{神器} &8<&fadd &a<值>&8|&fset &a<行号> <值>&8|&fremove &a<行号>&8>'
+    description: 添加/移除或替换物品或技能石的lore。支持使用 & 符号作为样式代码。行号从 0 开始
+    usage: '&f/rpgitem description &a{神器/技能石} &8<&fadd &a<值>&8|&fset &a<行号> <值>&8|&fremove &a<行号>&8>'
   cost:
     description: "展示/设置耐久消耗。\n可用参数：\n  breaking | breaking [value|integer] - 展示/设置物品破坏方块时的耐久消耗\n\
       \  hit | hit [value|integer] - 展示/设置手持或穿着此物品被伤害时的耐久消耗。\n  toggle - 切换物品是否基于伤害值消耗耐久。\n\
@@ -1309,8 +1315,8 @@ manual:
     description: 移除物品 flag
     usage: '&f/rpgitem removeitemflag &a{神器} <物品flag>'
   customitemmodel:
-    description: 切换物品自定义模型支持
-    usage: '&f/rpgitem customitemmodel &a{神器}'
+    description: 切换物品或技能石的自定义模型支持
+    usage: '&f/rpgitem customitemmodel &a{神器/技能石}'
   version:
     description: 展示 RPGItem 的版本信息
     usage: '&f/rpgitem version'
@@ -1348,8 +1354,8 @@ manual:
     description: 设置物品激活技能时需要的条件
     usage: '&f/rpgitem condition &a[选项] {神器} <条件> <配置> [可选配置]'
   customModel:
-    description: 设置物品的自定义模型ID
-    usage: '&f/rpgitem customModel &a{神器} <值>'
+    description: 设置物品或技能石的自定义模型ID
+    usage: '&f/rpgitem customModel &a{神器/技能石} <值>'
   damageType:
     description: 设置物品伤害类型
     usage: '&f/rpgitem damageType &a{神器} <值>'

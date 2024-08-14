@@ -398,7 +398,7 @@ public class AdminCommands extends RPGCommandReceiver {
         if (!ItemManager.hasBackup()) {
             throw new BadCommandException("message.error.item_unlocked", ItemManager.getUnlockedItem().stream().findFirst().orElseThrow(IllegalStateException::new).getName());
         }
-        Files.walkFileTree(ItemManager.getBackupsDir().toPath(), new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(ItemManager.getBackupsDir().toPath(), new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 if (file.toFile().isFile() && file.getFileName().toString().endsWith(".bak")) {
@@ -508,6 +508,19 @@ public class AdminCommands extends RPGCommandReceiver {
         if (newItem != null) {
             msgs(sender, "message.create.ok", itemName);
             ItemManager.save(newItem);
+        } else {
+            msgs(sender, "message.create.fail");
+        }
+    }
+
+    @SubCommand("createStone")
+    public void createStone(CommandSender sender, Arguments args) {
+        if (readOnly(sender)) return;
+        String stoneName = args.nextString();
+        RPGStone newStone = ItemManager.newStone(stoneName.toLowerCase(), sender);
+        if (newStone != null) {
+            msgs(sender, "message.create.ok", stoneName);
+            ItemManager.save(newStone);
         } else {
             msgs(sender, "message.create.fail");
         }
@@ -643,23 +656,28 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "remove", tabCompleter = "itemCompleter")
     public void removeItem(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
-        RPGItem item = getItem(args.nextString(), sender);
-        ItemManager.remove(item, true);
-        msgs(sender, "message.remove.ok", item.getName());
+        RPGBaseHolder holder = getStoneOrItem(args.nextString(), sender);
+        if (holder instanceof RPGItem) {
+            ItemManager.remove((RPGItem) holder, true);
+        }
+        if (holder instanceof RPGStone) {
+            ItemManager.remove((RPGStone) holder, true);
+        }
+        msgs(sender, "message.remove.ok", holder.getName());
     }
 
     @SubCommand(value = "display", tabCompleter = "itemCompleter")
     public void itemDisplay(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
-        RPGItem item = getItem(args.nextString(), sender);
+        RPGBaseHolder holder = getStoneOrItem(args.nextString(), sender);
         String value = consume(args);
         if (value != null) {
-            item.setDisplayName(value);
-            msgs(sender, "message.display.set", item.getName(), item.getDisplayName());
+            holder.setDisplayName(value);
+            msgs(sender, "message.display.set", holder.getName(), holder.getDisplayName());
             ItemManager.refreshItem();
-            ItemManager.save(item);
+            holder.save();
         } else {
-            msgs(sender, "message.display.get", item.getName(), item.getDisplayName());
+            msgs(sender, "message.display.get", holder.getName(), holder.getDisplayName());
         }
     }
 
@@ -715,11 +733,11 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "customModel", tabCompleter = "itemCompleter")
     public void itemCustomModel(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
-        RPGItem item = getItem(args.nextString(), sender);
+        RPGBaseHolder item = getStoneOrItem(args.nextString(), sender);
         int customModelData = args.nextInt();
         item.setCustomModelData(customModelData);
         ItemManager.refreshItem();
-        ItemManager.save(item);
+        item.save();
         msgs(sender, "message.custom_model_data.set", customModelData);
     }
 
@@ -838,10 +856,10 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "item", tabCompleter = "itemCompleter")
     public void itemItem(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
-        RPGItem item = getItem(args.nextString(), sender);
+        RPGBaseHolder holder = getStoneOrItem(args.nextString(), sender);
         if (args.length() == 2) {
             new Message("")
-                    .append(I18n.getInstance(sender).format("message.item.get", item.getName(), item.getItem().name(), item.getDataValue()), new ItemStack(item.getItem()))
+                    .append(I18n.getInstance(sender).format("message.item.get", holder.getName(), holder.getItem().name(), holder.getDataValue()), new ItemStack(holder.getItem()))
                     .send(sender);
         } else if (args.length() >= 3) {
             String materialName = args.nextString();
@@ -850,7 +868,7 @@ public class AdminCommands extends RPGCommandReceiver {
                 msgs(sender, "message.error.material", materialName);
                 return;
             }
-            item.setItem(material);
+            holder.setItem(material);
             if (args.length() == 4) {
                 int dataValue;
                 try {
@@ -865,15 +883,15 @@ public class AdminCommands extends RPGCommandReceiver {
                         return;
                     }
                 }
-                item.setDataValue(dataValue);
+                holder.setDataValue(dataValue);
             }
-            item.rebuild();
+            if (holder instanceof RPGItem) ((RPGItem) holder).rebuild();
             ItemManager.refreshItem();
 
             new Message("")
-                    .append(I18n.getInstance(sender).format("message.item.set", item.getName(), item.getItem().name(), item.getDataValue()), new ItemStack(item.getItem()))
+                    .append(I18n.getInstance(sender).format("message.item.set", holder.getName(), holder.getItem().name(), holder.getDataValue()), new ItemStack(holder.getItem()))
                     .send(sender);
-            ItemManager.save(item);
+            holder.save();
         }
     }
 
@@ -939,7 +957,7 @@ public class AdminCommands extends RPGCommandReceiver {
             return;
         }
         Player player = (Player) sender;
-        RPGItem item = getItem(args.nextString(), sender);
+        RPGBaseHolder item = getStoneOrItem(args.nextString(), sender);
         ItemStack inHand = player.getInventory().getItemInMainHand();
         if (inHand.getType().isAir()) {
             sender.sendMessage(I18n.getInstance(sender).format("message.error.iteminhand"));
@@ -947,17 +965,19 @@ public class AdminCommands extends RPGCommandReceiver {
         }
         item.setItem(inHand.getType());
         ItemMeta meta = inHand.getItemMeta();
-        if (meta.hasCustomModelData()) {
+        if (meta != null && meta.hasCustomModelData()) {
             item.setCustomItemModel(true);
             item.setCustomModelData(meta.getCustomModelData());
+        } else {
+            item.setCustomItemModel(false);
         }
-        item.rebuild();
+        if (item instanceof RPGItem) ((RPGItem) item).rebuild();
         ItemManager.refreshItem();
 
         new Message("")
                 .append(I18n.getInstance(sender).format("message.item.set-inHand", item.getName(), item.getItem().name(), item.getCustomModelData()), new ItemStack(item.getItem()))
                 .send(sender);
-        ItemManager.save(item);
+        item.save();
     }
 
     @SubCommand(value = "ia", tabCompleter = "itemsAdderCompleter")
@@ -1080,7 +1100,7 @@ public class AdminCommands extends RPGCommandReceiver {
     @Completion("item:add,insert,set,remove")
     public void itemAddDescription(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
-        RPGItem item = getItem(args.nextString(), sender);
+        RPGBaseHolder item = getStoneOrItem(args.nextString(), sender);
         String command = args.nextString();
         switch (command) {
             case "add": {
@@ -1088,7 +1108,7 @@ public class AdminCommands extends RPGCommandReceiver {
                 item.addDescription(ChatColor.WHITE + line);
                 msgs(sender, "message.description.ok");
                 ItemManager.refreshItem();
-                ItemManager.save(item);
+                item.save();
                 break;
             }
             case "insert": {
@@ -1100,10 +1120,10 @@ public class AdminCommands extends RPGCommandReceiver {
                     return;
                 }
                 item.getDescription().add(lineNo, HexColorUtils.hexColored(ChatColor.WHITE + line));
-                item.rebuild();
+                if (item instanceof RPGItem) ((RPGItem) item).rebuild();
                 ItemManager.refreshItem();
                 msgs(sender, "message.description.ok");
-                ItemManager.save(item);
+                item.save();
                 break;
             }
             case "set": {
@@ -1114,10 +1134,10 @@ public class AdminCommands extends RPGCommandReceiver {
                     return;
                 }
                 item.getDescription().set(lineNo, HexColorUtils.hexColored(ChatColor.WHITE + line));
-                item.rebuild();
+                if (item instanceof RPGItem) ((RPGItem) item).rebuild();
                 ItemManager.refreshItem();
                 msgs(sender, "message.description.change");
-                ItemManager.save(item);
+                item.save();
                 break;
             }
             case "remove": {
@@ -1127,10 +1147,10 @@ public class AdminCommands extends RPGCommandReceiver {
                     break;
                 }
                 item.getDescription().remove(lineNo);
-                item.rebuild();
+                if (item instanceof RPGItem) ((RPGItem) item).rebuild();
                 ItemManager.refreshItem();
                 msgs(sender, "message.description.remove");
-                ItemManager.save(item);
+                item.save();
                 break;
             }
             default:

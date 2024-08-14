@@ -49,6 +49,7 @@ public class RPGStone implements RPGBaseHolder {
     private String displayName;
     private String displayNameColored;
     @Setter @Getter private List<String> description;
+    @Getter @Setter private boolean customItemModel;
     @Getter @Setter private int customModelData;
 
     @Getter @Setter private String author = plugin.cfg.defaultAuthor;
@@ -315,19 +316,24 @@ public class RPGStone implements RPGBaseHolder {
     public String getDisplayNameRaw() {
         return displayName;
     }
+    @Override
     public String getDisplayName() {
         return displayNameColored;
     }
-
+    @Override
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
         this.displayNameColored = ColorHelper.parseColor(displayName);
     }
-
+    @Override
+    public void addDescription(String str) {
+        getDescription().add(ColorHelper.parseColor(str));
+    }
+    @Override
     public NamespacedKey getPropertyHolderKey(PropertyHolder power) {
         return Objects.requireNonNull(keys.get(power));
     }
-
+    @Override
     public NamespacedKey removePropertyHolderKey(PropertyHolder power) {
         return Objects.requireNonNull(keys.remove(power));
     }

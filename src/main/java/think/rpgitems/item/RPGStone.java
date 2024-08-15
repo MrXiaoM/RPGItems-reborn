@@ -28,6 +28,7 @@ import think.rpgitems.utils.pdc.ItemPDC;
 import java.io.File;
 import java.util.*;
 
+import static org.bukkit.Material.BRICK;
 import static think.rpgitems.item.RPGItem.TAG_META;
 
 public class RPGStone implements RPGBaseHolder {
@@ -50,16 +51,16 @@ public class RPGStone implements RPGBaseHolder {
 
     private String displayName;
     private String displayNameColored;
-    @Setter @Getter private List<String> description;
-    @Setter @Getter private List<String> extraDescription;
+    @Setter @Getter private List<String> description = new ArrayList<>();
+    @Setter @Getter private List<String> extraDescription = new ArrayList<>();
     @Getter @Setter private boolean customItemModel;
     @Getter @Setter private int customModelData;
 
-    @Getter @Setter private List<String> allowTriggers;
-    @Getter @Setter private List<String> allowTriggersArmour;
+    @Getter @Setter private List<String> allowTriggers = new ArrayList<>();
+    @Getter @Setter private List<String> allowTriggersArmour = new ArrayList<>();
 
     @Getter @Setter private double successRate = 1;
-    @Getter @Setter private List<String> failCommands; // TODO: Allow users to edit them in StoneCommands
+    @Getter @Setter private List<String> failCommands = new ArrayList<>(); // TODO: Allow users to edit them in StoneCommands
 
     @Getter @Setter private String author = plugin.cfg.defaultAuthor;
     @Getter @Setter private String note = plugin.cfg.defaultNote;
@@ -71,6 +72,8 @@ public class RPGStone implements RPGBaseHolder {
         this.name = name;
         this.uid = uid;
         this.setAuthor(author instanceof Player ? ((Player) author).getUniqueId().toString() : plugin.cfg.defaultAuthor);
+        setItem(BRICK);
+        setDisplayName(getItem().toString());
     }
 
     public RPGStone(ConfigurationSection s, File f) throws UnknownPowerException {

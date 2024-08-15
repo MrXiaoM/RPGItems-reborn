@@ -105,6 +105,9 @@ public class Configuration extends PluginConfigure {
     @Serializable(name = "item.defaults.author")
     public String defaultAuthor;
 
+    @Serializable(name = "stone.max_count")
+    public int stoneMaxCount = 3;
+
     @Serializable(name = "general.item.fs_lock")
     public boolean itemFsLock = false;
 

@@ -16,6 +16,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import think.rpgitems.RPGItems;
 import think.rpgitems.power.*;
+import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.utils.ColorHelper;
 import think.rpgitems.utils.ISubItemTagContainer;
 import think.rpgitems.utils.MaterialUtils;
@@ -56,6 +57,8 @@ public class RPGStone implements RPGBaseHolder {
     @Getter @Setter private String author = plugin.cfg.defaultAuthor;
     @Getter @Setter private String note = plugin.cfg.defaultNote;
     @Getter @Setter private String license = plugin.cfg.defaultLicense;
+
+    private boolean customTrigger;
 
     public RPGStone(String name, int uid, CommandSender author) {
         this.name = name;
@@ -208,6 +211,7 @@ public class RPGStone implements RPGBaseHolder {
         power.setStoneFlag(getName());
         powers.add(power);
         keys.put(power, key);
+        refreshCustomTriggerState();
     }
 
     @Override
@@ -216,6 +220,7 @@ public class RPGStone implements RPGBaseHolder {
         powers.remove(power);
         keys.remove(power);
         power.deinit();
+        refreshCustomTriggerState();
     }
 
     @Override
@@ -233,6 +238,7 @@ public class RPGStone implements RPGBaseHolder {
     @Override
     public void deinit() {
         powers.forEach(Power::deinit);
+        refreshCustomTriggerState();
     }
 
     void setFile(File itemFile) {
@@ -327,6 +333,34 @@ public class RPGStone implements RPGBaseHolder {
     public void addExtraDescription(String str) {
         getExtraDescription().add(ColorHelper.parseColor(str));
     }
+
+    private void refreshCustomTriggerState() {
+        for (Power power : getPowers()) {
+            if (power.getTriggers().contains(BaseTriggers.CUSTOM_TRIGGER)) {
+                customTrigger = true;
+                return;
+            }
+        }
+        customTrigger = false;
+    }
+
+    public boolean useCustomTrigger() {
+        return this.customTrigger;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RPGStone)) return false;
+        RPGStone rpgStone = (RPGStone) o;
+        return Objects.equals(name, rpgStone.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
+    }
+
     @Override
     public NamespacedKey getPropertyHolderKey(PropertyHolder power) {
         return Objects.requireNonNull(keys.get(power));

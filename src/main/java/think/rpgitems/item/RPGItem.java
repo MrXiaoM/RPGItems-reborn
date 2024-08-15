@@ -50,7 +50,10 @@ import think.rpgitems.power.proxy.Interceptor;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.support.MythicSupport;
-import think.rpgitems.utils.*;
+import think.rpgitems.utils.ColorHelper;
+import think.rpgitems.utils.ISubItemTagContainer;
+import think.rpgitems.utils.MaterialUtils;
+import think.rpgitems.utils.MessageType;
 import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
@@ -75,7 +78,6 @@ import java.util.stream.Stream;
 
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
-import static think.rpgitems.item.RPGStone.NBT_POWER_STONES;
 
 @SuppressWarnings({"deprecation", "rawtypes", "unused"})
 public class RPGItem implements RPGBaseHolder {
@@ -830,11 +832,23 @@ public class RPGItem implements RPGBaseHolder {
 
         ItemMeta meta = item.getItemMeta();
         List<String> lore = new ArrayList<>(getLore());
-        List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElse(null);
-        if (list != null) for (String id : list) {
-            RPGStone stone = ItemManager.getStone(id).orElse(null);
-            if (stone == null) continue;
-            lore.addAll(stone.getExtraDescription());
+        Map<RPGStone, String> map = ItemManager.toRPGStoneList(item);
+        if (!map.isEmpty()) {
+            lore.add("");
+            for (Map.Entry<RPGStone, String> entry : map.entrySet()) {
+                RPGStone stone = entry.getKey();
+                String trigger = entry.getValue();
+                if (trigger != null && stone.useCustomTrigger()) {
+                    String triggerDisplay = I18n.getFormatted(player, "properties.triggers." + trigger + ".display");
+                    List<String> extra = new ArrayList<>();
+                    for (String line : stone.getExtraDescription()) {
+                        extra.add(line.replace("%trigger%", triggerDisplay));
+                    }
+                    lore.addAll(extra);
+                } else {
+                    lore.addAll(stone.getExtraDescription());
+                }
+            }
         }
 
         PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
@@ -1306,14 +1320,11 @@ public class RPGItem implements RPGBaseHolder {
     public Pair<List<Power>, List<Condition<?>>> getAllPowersAndConditions(ItemStack item) {
         RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
         if (rpg == null || !rpg.name.equals(this.name)) return Pair.of(getPowers(), getConditions());
-        List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElse(null);
-        if (list == null) return Pair.of(getPowers(), getConditions());
+        Map<RPGStone, String> map = ItemManager.toRPGStoneList(item);
+        if (map.isEmpty()) return Pair.of(getPowers(), getConditions());
         List<Power> extraPowers = new ArrayList<>(getPowers());
         List<Condition<?>> extraConditions = new ArrayList<>(getConditions());
-        for (String id : list) {
-            if (id.contains("/")) id = id.substring(0, id.indexOf("/"));
-            RPGStone stone = ItemManager.getStone(id).orElse(null);
-            if (stone == null) continue;
+        for (RPGStone stone : map.keySet()) {
             extraPowers.addAll(stone.getPowers());
             extraConditions.addAll(stone.getConditions());
         }

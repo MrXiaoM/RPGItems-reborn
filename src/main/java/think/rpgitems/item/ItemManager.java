@@ -46,8 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static think.rpgitems.item.RPGItem.*;
-import static think.rpgitems.item.RPGStone.NBT_POWER_STONE_ITEM_UUID;
-import static think.rpgitems.item.RPGStone.NBT_POWER_STONE_UID;
+import static think.rpgitems.item.RPGStone.*;
 import static think.rpgitems.power.Utils.rethrow;
 
 public class ItemManager {
@@ -825,6 +824,34 @@ public class ItemManager {
 
     static RPGStone getStoneByName(String name) {
         return stoneByName.get(name);
+    }
+
+    public static Map<RPGStone, String> toRPGStoneList(ItemStack item) {
+        List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElse(null);
+        Map<RPGStone, String> stones = new HashMap<>();
+        if (list == null || list.isEmpty()) return stones;
+        for (String str : list) {
+            String[] split = str.split("/", 2);
+            RPGStone stone = getStoneByName(split[0]);
+            if (stone == null) continue;
+            String trigger = split.length == 2 ? split[1] : null;
+            stones.put(stone, trigger);
+        }
+        return stones;
+    }
+
+    public static void fromRPGStoneList(ItemStack item, Map<RPGStone, String> map) {
+        List<String> list = new ArrayList<>();
+        for (Map.Entry<RPGStone, String> entry : map.entrySet()) {
+            RPGStone stone = entry.getKey();
+            String trigger = entry.getValue();
+            if (trigger == null) {
+                list.add(stone.getName());
+            } else {
+                list.add(stone.getName() + "/" + trigger);
+            }
+        }
+        ItemTagUtils.setStringList(item, NBT_POWER_STONES, list);
     }
 
     public static Optional<ItemGroup> getGroup(int uid) {

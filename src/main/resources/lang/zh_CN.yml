@@ -456,6 +456,8 @@ message:
     disable-title:
       title: '&e请等等'
       subtitle: '&f管理员正在更新插件'
+  stone:
+    apply-limited: '&e该物品无法再安装更多的技能石 &7(&f%d&7)&e，请卸下一部分技能石或安装扩展槽位'
 power:
   airborne: '&a攻击在滑翔时增加 %d%%'
   charge: '&a攻击随速度增加，并在疾跑时增加 %d%%'
@@ -1075,6 +1077,69 @@ properties:
     main_name: 在击中实体时触发且仅触发主手中的道具
   HIT_GLOBAL:
     main_name: 在击中实体时触发，会触发除主手外所有在背包中的道具
+  triggers:
+    ANTI_CRITICAL:
+      display: '抗暴时'
+    ARMOR:
+      display: '穿上时'
+    ATTACHMENT:
+      display: '配件技能时'
+    BEAM_HIT:
+      display: '粒子束击中时'
+    BOW_SHOOT:
+      display: '箭矢出弦时'
+    CLICK_BLOCK:
+      display: '点击方块时'
+    CRITICAL:
+      display: '暴击时'
+    CRITICAL_FORCE_FAIL:
+      display: '暴击失败(被抗暴)时'
+    CUSTOM_TRIGGER:
+      display: '未设置触发方式'
+    DODGE:
+      display: '闪避时'
+    DROP:
+      display: '丢弃时'
+    DYING:
+      display: '濒死时'
+    HIT:
+      display: '击中目标时'
+    HIT_GLOBAL:
+      display: '击中目标时(背包生效)'
+    HIT_TAKEN:
+      display: '受击时'
+    HURT:
+      display: '受击后'
+    LEFT_CLICK:
+      display: '左键点击时'
+    RIGHT_CLICK:
+      display: '右键点击时'
+    OFFHAND_CLICK:
+      display: '副手点击时'
+    PICKUP_OFFHAND:
+      display: '拾起到副手时'
+    PLACE_OFF_HAND:
+      display: '放置到副手时'
+    PROJECTILE_HIT:
+      display: '弹射物击中时'
+    PROJECTILE_LAUNCH:
+      display: '弹射物发射时'
+    SNEAK:
+      display: '潜行时'
+    DOUBLE_SNEAK:
+      display: '双击潜行时'
+    SNEAKING:
+      display: '潜行移动时'
+    SPRINT:
+      display: '疾跑时'
+    SWAP_TO_MAINHAND:
+      display: '切换至主手时'
+    SWAP_TO_OFFHAND:
+      display: '切换至副手时'
+    TICK:
+      display: '手持或穿戴时'
+    TICK_OFFHAND:
+      display: '副手持有时'
 manual:
   format:
     - '  &2<description> &8&l:'

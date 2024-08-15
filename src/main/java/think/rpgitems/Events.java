@@ -1169,12 +1169,16 @@ public class Events implements Listener {
             RPGStone stone = ItemManager.toRPGStone(e.getCursor()).orElse(null);
             if (rpg != null && stone == null && item.getAmount() == 1 && cursor.getAmount() == 1) {
                 e.setCancelled(true);
+                int limited = plugin.cfg.stoneMaxCount;
+                Map<RPGStone, String> map = ItemManager.toRPGStoneList(item);
+                if (map.size() >= limited) {
+                    I18n.getFormatted(player, "message.stone.apply-limited", limited);
+                    return;
+                }
                 e.setCursor(null);
-                List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElseGet(ArrayList::new);
-
                 // TODO: 添加技能石
 
-                ItemTagUtils.setStringList(item, NBT_POWER_STONES, list);
+                ItemManager.fromRPGStoneList(item, map);
             }
         }
         if (e.isRightClick() && e.getAction().equals(InventoryAction.PICKUP_HALF) && cursor == null) {

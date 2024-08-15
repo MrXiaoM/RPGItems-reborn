@@ -2375,15 +2375,19 @@ public class RPGItem implements RPGBaseHolder {
 
     public boolean isStoneConflict(ItemStack item, RPGStone stone, @Nullable String trigger) {
         List<Power> allPowers = getAllPowersAndConditions(item).getKey();
-        Collection<String> triggers = ItemManager.toRPGStoneList(item).values();
-        triggers.removeIf(Objects::isNull);
+        Map<RPGStone, String> map = ItemManager.toRPGStoneList(item);
+        if (map.containsKey(stone)) return true;
+        Collection<String> triggers = map.values();
+        triggers.removeIf(it -> it == null || it.equals("CUSTOM_TRIGGER"));
         boolean customTrigger = stone.useCustomTrigger();
         if (customTrigger) {
-            if (trigger == null || triggers.contains(trigger)) return false;
+            if (trigger == null || triggers.contains(trigger)) {
+                return true;
+            }
             for (Power power : allPowers) {
                 for (Trigger t : power.getTriggers()) {
                     if (t.name().equals(trigger)) {
-                        return false;
+                        return true;
                     }
                 }
             }
@@ -2392,7 +2396,7 @@ public class RPGItem implements RPGBaseHolder {
             for (Power power : stone.getPowers()) {
                 for (Trigger t : power.getTriggers()) {
                     if (triggers.contains(t.name())) {
-                        return false;
+                        return true;
                     }
                     stoneTriggers.add(t);
                 }
@@ -2400,12 +2404,12 @@ public class RPGItem implements RPGBaseHolder {
             for (Power power : allPowers) {
                 for (Trigger t : stoneTriggers) {
                     if (power.getTriggers().contains(t)) {
-                        return false;
+                        return true;
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 
     public enum DamageMode {

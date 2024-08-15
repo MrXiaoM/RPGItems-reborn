@@ -23,7 +23,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<String> setString(ItemStack item, String key, String value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<String> setString(ItemStack item, String key, String value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setString(key, value);
@@ -57,7 +57,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<Integer> setInt(ItemStack item, String key, int value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<Integer> setInt(ItemStack item, String key, int value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setInteger(key, value);
@@ -73,7 +73,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<Double> setDouble(ItemStack item, String key, double value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<Double> setDouble(ItemStack item, String key, double value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setDouble(key, value);
@@ -89,7 +89,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<Short> setShort(ItemStack item, String key, short value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<Short> setShort(ItemStack item, String key, short value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setShort(key, value);
@@ -105,7 +105,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<Byte> setByte(ItemStack item, String key, byte value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<Byte> setByte(ItemStack item, String key, byte value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setByte(key, value);
@@ -121,7 +121,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<Long> setLong(ItemStack item, String key, long value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<Long> setLong(ItemStack item, String key, long value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setLong(key, value);
@@ -137,7 +137,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<long[]> setLongArray(ItemStack item, String key, long[] value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<long[]> setLongArray(ItemStack item, String key, long[] value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setLongArray(key, value);
@@ -153,7 +153,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<int[]> setIntArray(ItemStack item, String key, int[] value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<int[]> setIntArray(ItemStack item, String key, int[] value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setIntArray(key, value);
@@ -169,7 +169,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<byte[]> setByteArray(ItemStack item, String key, byte[] value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<byte[]> setByteArray(ItemStack item, String key, byte[] value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setByteArray(key, value);
@@ -185,7 +185,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<Boolean> setBoolean(ItemStack item, String key, boolean value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<Boolean> setBoolean(ItemStack item, String key, boolean value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setBoolean(key, value);
@@ -201,7 +201,7 @@ public class ItemTagUtils {
         }));
     }
 
-    public static Optional<Float> setFloat(ItemStack item, String key, float value) throws NoSuchFieldException, IllegalAccessException {
+    public static Optional<Float> setFloat(ItemStack item, String key, float value) {
         if (checkItem(item)) return Optional.empty();
         return Optional.ofNullable(NBT.modify(item, it -> {
             it.setFloat(key, value);
@@ -209,10 +209,10 @@ public class ItemTagUtils {
         }));
     }
 
-    public static void remove(ItemStack item, String key) throws NoSuchFieldException, IllegalAccessException {
+    public static void remove(ItemStack item, String key) {
         if (checkItem(item)) return;
         NBT.modify(item, it -> {
-            it.removeKey(key);
+            if (it.hasTag(key)) it.removeKey(key);
         });
     }
 }

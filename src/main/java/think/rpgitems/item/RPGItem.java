@@ -885,8 +885,8 @@ public class RPGItem implements RPGBaseHolder {
 
         //quality prefix
         String qualityPrefix = plugin.cfg.qualityPrefixes.get(getQuality());
-        if (qualityPrefix != null){
-            if (meta.hasDisplayName() && !meta.getDisplayName().startsWith(qualityPrefix)){
+        if (qualityPrefix != null) {
+            if (meta.hasDisplayName() && !meta.getDisplayName().startsWith(qualityPrefix)) {
                 String displayName = meta.getDisplayName();
                 meta.setDisplayName(qualityPrefix + displayName);
             }
@@ -943,23 +943,16 @@ public class RPGItem implements RPGBaseHolder {
         checkAndMakeUnique(rpgitemsTagContainer);
         rpgitemsTagContainer.commit();
         item.setItemMeta(refreshAttributeModifiers(meta));
-        try {
-            ItemTagUtils.setInt(item, NBT_UID, uid);
-            if (RPGItems.plugin.cfg.itemStackUuid) {
-                if (ItemTagUtils.getString(item, NBT_ITEM_UUID).isEmpty()) {
-                    UUID uuid = UUID.randomUUID();
-                    ItemTagUtils.setString(item, NBT_ITEM_UUID, uuid.toString());
-                }
+
+        ItemTagUtils.setInt(item, NBT_UID, uid);
+        if (RPGItems.plugin.cfg.itemStackUuid) {
+            if (ItemTagUtils.getString(item, NBT_ITEM_UUID).isEmpty()) {
+                UUID uuid = UUID.randomUUID();
+                ItemTagUtils.setString(item, NBT_ITEM_UUID, uuid.toString());
             }
-            LoreUpdateEvent.Post post = new LoreUpdateEvent.Post(loreUpdateEvent, this, item);
-            Bukkit.getPluginManager().callEvent(post);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            StringWriter sw = new StringWriter();
-            try (PrintWriter pw = new PrintWriter(sw)) {
-                e.printStackTrace(pw);
-            }
-            plugin.getLogger().warning(sw.toString());
         }
+        LoreUpdateEvent.Post post = new LoreUpdateEvent.Post(loreUpdateEvent, this, item);
+        Bukkit.getPluginManager().callEvent(post);
     }
 
     private void checkAndMakeUnique(ISubItemTagContainer meta) {
@@ -1569,15 +1562,9 @@ public class RPGItem implements RPGBaseHolder {
         meta.remove(TAG_OWNER);
         meta.remove(TAG_STACK_ID);
         ItemPDC.set(meta, TAG_IS_MODEL, true);
-        try {
-            ItemTagUtils.setBoolean(itemStack, NBT_IS_MODEL, true);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            StringWriter sw = new StringWriter();
-            try (PrintWriter pw = new PrintWriter(sw)) {
-                e.printStackTrace(pw);
-            }
-            plugin.getLogger().warning(sw.toString());
-        }
+
+        ItemTagUtils.setBoolean(itemStack, NBT_IS_MODEL, true);
+
         meta.commit();
         itemMeta.setDisplayName(getDisplayName());
         itemStack.setItemMeta(itemMeta);

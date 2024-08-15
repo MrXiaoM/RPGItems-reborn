@@ -274,20 +274,13 @@ public class RPGStone implements RPGBaseHolder {
         meta.setCustomModelData(getCustomModelData());
         rpgitemsTagContainer.commit();
         item.setItemMeta(meta);
-        try {
-            ItemTagUtils.setInt(item, NBT_POWER_STONE_UID, uid);
-            if (RPGItems.plugin.cfg.itemStackUuid) {
-                if (ItemTagUtils.getString(item, NBT_POWER_STONE_ITEM_UUID).isEmpty()) {
-                    UUID uuid = UUID.randomUUID();
-                    ItemTagUtils.setString(item, NBT_POWER_STONE_ITEM_UUID, uuid.toString());
-                }
+
+        ItemTagUtils.setInt(item, NBT_POWER_STONE_UID, uid);
+        if (RPGItems.plugin.cfg.itemStackUuid) {
+            if (ItemTagUtils.getString(item, NBT_POWER_STONE_ITEM_UUID).isEmpty()) {
+                UUID uuid = UUID.randomUUID();
+                ItemTagUtils.setString(item, NBT_POWER_STONE_ITEM_UUID, uuid.toString());
             }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            StringWriter sw = new StringWriter();
-            try (PrintWriter pw = new PrintWriter(sw)) {
-                e.printStackTrace(pw);
-            }
-            plugin.getLogger().warning(sw.toString());
         }
     }
 

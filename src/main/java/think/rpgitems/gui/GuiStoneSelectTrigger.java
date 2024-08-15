@@ -3,6 +3,7 @@ package think.rpgitems.gui;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -10,6 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import think.rpgitems.I18n;
@@ -64,6 +66,8 @@ public class GuiStoneSelectTrigger implements IGui {
                 meta.setDisplayName(display);
                 if (trigger.equals(currentTrigger)) {
                     meta.setLore(Lists.newArrayList(I18n.getFormatted(player, "message.gui.stone-select-trigger.lore-selected")));
+                    meta.addEnchant(Enchantment.DURABILITY, 1, true);
+                    meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
                 item.setItemMeta(meta);
             }

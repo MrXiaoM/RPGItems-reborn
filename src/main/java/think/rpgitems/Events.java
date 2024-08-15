@@ -1175,6 +1175,10 @@ public class Events implements Listener {
                     player.sendMessage(I18n.getFormatted(player, "message.stone.apply-limited", limited));
                     return;
                 }
+                if (map.containsKey(stone)) {
+                    player.sendMessage(I18n.getFormatted(player, "message.stone.apply-exist"));
+                    return;
+                }
                 String trigger = stone.getTrigger(cursor);
                 if (trigger != null) {
                     boolean isArmour = rpg.getArmour() > 0;

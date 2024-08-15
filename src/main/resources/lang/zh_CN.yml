@@ -465,6 +465,7 @@ message:
 
   stone:
     apply-limited: '&e该物品无法再安装更多的技能石 &7(&f%d&7)&e，请卸下一部分技能石或安装扩展槽位'
+    apply-exist: '&e该物品已经安装过这个技能石了'
     not-allow-trigger: '&e该技能石设定的触发器无法在该物品使用'
     trigger-used: '&e该技能石设定的触发器已被该物品的其他技能使用'
     trigger-unset: '&e该技能石还没有设定触发器'

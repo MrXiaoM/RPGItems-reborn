@@ -28,6 +28,8 @@ import think.rpgitems.data.Font;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.marker.Selector;
 import think.rpgitems.power.trigger.Trigger;
+import think.rpgitems.support.PlaceholderSupport;
+import think.rpgitems.utils.ColorHelper;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.Weightable;
 import think.rpgitems.utils.nyaacore.Message;
@@ -54,6 +56,38 @@ public class Utils {
             .concurrencyLevel(1)
             .maximumSize(1000)
             .build(CacheLoader.from(Utils::parsePermission));
+
+    public static void runCommands(Player player, List<String> commands) {
+        if (commands.isEmpty()) return;
+        runCommands(player, commands, 0);
+    }
+
+    private static void runCommands(Player player, List<String> commands, int startIndex) {
+        for (int i = startIndex; i < commands.size(); i++) {
+            String str = PlaceholderSupport.setPlaceholders(player, commands.get(i));
+            if (str.startsWith("[console]")) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), ColorHelper.parseColor(str.substring(9).trim()));
+                continue;
+            }
+            if (str.startsWith("[player]")) {
+                Bukkit.dispatchCommand(player, ColorHelper.parseColor(str.substring(8).trim()));
+                continue;
+            }
+            if (str.startsWith("[message]")) {
+                player.sendMessage(ColorHelper.parseColor(str.substring(9).trim()));
+                continue;
+            }
+            if (str.startsWith("[delay]")) {
+                try {
+                    int targetIndex = i + 1;
+                    long delay = Long.parseLong(str.substring(7).trim());
+                    Bukkit.getScheduler().runTaskLater(RPGItems.plugin, () -> runCommands(player, commands, targetIndex), delay);
+                    break;
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+    }
 
     private static List<String> parsePermission(String str) {
         return Arrays.asList(str.split(";"));

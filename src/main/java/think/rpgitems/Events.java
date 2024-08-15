@@ -1186,6 +1186,14 @@ public class Events implements Listener {
                     player.sendMessage(I18n.getFormatted(player, "message.stone.trigger-used"));
                 }
                 e.setCursor(null);
+                double rate = stone.getSuccessRate();
+                // 概率判定失败
+                if (rate <= 0 || (rate < 1 && ThreadLocalRandom.current().nextDouble() > rate)) {
+                    player.sendMessage(I18n.getFormatted(player, "message.stone.rate.fail"));
+                    Utils.runCommands(player, stone.getFailCommands());
+                    return;
+                }
+                player.sendMessage(I18n.getFormatted(player, "message.stone.rate.success"));
                 map.put(stone, trigger);
                 ItemManager.fromRPGStoneList(item, map);
                 rpg.updateItem(player, item);

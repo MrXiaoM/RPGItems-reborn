@@ -461,6 +461,11 @@ message:
     not-allow-trigger: '&e该技能石设定的触发器无法在该物品使用'
     trigger-used: '&e该技能石设定的触发器已被该物品的其他技能使用'
     trigger-unset: '&e该技能石还没有设定触发器'
+    rate:
+      get: '技能石 %s 的成功率为 %.2f'
+      set: '技能石 %s 的成功率已设置为 %.2f'
+      success: '&a你成功将技能石安装到了神器上！'
+      fail: '&e兄弟，你踏马失败了！祝下次好运.'
 power:
   airborne: '&a攻击在滑翔时增加 %d%%'
   charge: '&a攻击随速度增加，并在疾跑时增加 %d%%'
@@ -1316,6 +1321,16 @@ manual:
       critical damage - 装备物品时，技能暴击伤害增幅
       critical multiple - 装备物品时，技能暴击伤害倍率'
       usage: '&f/rpgitem mythic skillDamageAdd &a{神器} <选项...> [数值]'
+  stone:
+    description: '展示/设置技能石选项
+    部分选项与神器共用，如 item, display, description 等…
+    可用的参数:
+    
+    rate - 使用成功几率设置'
+    usage: '&f/rpgitem stone &a<选项> {技能石} <选项...>'
+    rate:
+      description: '展示/设置技能石的使用成功率，0.5 为 50%，1 为 100%'
+      usage: '&f/rpgitem stone rate &a{技能石} <概率>'
   dodge:
     description: '展示/设置物品的闪避选项
     可用的参数：

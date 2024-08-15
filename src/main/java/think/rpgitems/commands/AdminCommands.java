@@ -237,6 +237,9 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand("mythic")
     public MythicCommands mythic;
 
+    @SubCommand("stone")
+    public StoneCommands stone;
+
     @SubCommand("trigger")
     public MarkerCommands trigger;
 

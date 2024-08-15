@@ -58,6 +58,9 @@ public class RPGStone implements RPGBaseHolder {
     @Getter @Setter private List<String> allowTriggers;
     @Getter @Setter private List<String> allowTriggersArmour;
 
+    @Getter @Setter private double successRate = 1;
+    @Getter @Setter private List<String> failCommands; // TODO: Allow users to edit them in StoneCommands
+
     @Getter @Setter private String author = plugin.cfg.defaultAuthor;
     @Getter @Setter private String note = plugin.cfg.defaultNote;
     @Getter @Setter private String license = plugin.cfg.defaultLicense;
@@ -135,6 +138,9 @@ public class RPGStone implements RPGBaseHolder {
         setAllowTriggers(s.getStringList("allowTriggers"));
         setAllowTriggersArmour(s.getStringList("allowTriggersArmour"));
 
+        setSuccessRate(s.getDouble("successRate"));
+        setFailCommands(s.getStringList("failCommands"));
+
         // Powers
         ConfigurationSection powerList = s.getConfigurationSection("powers");
         if (powerList != null) {
@@ -178,6 +184,9 @@ public class RPGStone implements RPGBaseHolder {
 
         s.set("allowTriggers", getAllowTriggers());
         s.set("allowTriggersArmour", getAllowTriggersArmour());
+
+        s.set("successRate", getSuccessRate());
+        s.set("failCommands", getFailCommands());
 
         ConfigurationSection powerConfigs = s.createSection("powers");
         int i = 0;

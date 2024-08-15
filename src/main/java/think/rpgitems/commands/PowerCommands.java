@@ -55,6 +55,7 @@ public class PowerCommands extends RPGCommandReceiver {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
             case 1: {
+                completeStr.addAll(ItemManager.stoneNames());
                 completeStr.addAll(ItemManager.itemNames());
                 break;
             }
@@ -115,6 +116,7 @@ public class PowerCommands extends RPGCommandReceiver {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
             case 1: {
+                completeStr.addAll(ItemManager.stoneNames());
                 completeStr.addAll(ItemManager.itemNames());
                 break;
             }
@@ -217,6 +219,7 @@ public class PowerCommands extends RPGCommandReceiver {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
             case 1: {
+                completeStr.addAll(ItemManager.stoneNames());
                 completeStr.addAll(ItemManager.itemNames());
                 break;
             }
@@ -235,6 +238,7 @@ public class PowerCommands extends RPGCommandReceiver {
         List<String> completeStr = new ArrayList<>();
         switch (arguments.remains()) {
             case 1: {
+                completeStr.addAll(ItemManager.stoneNames());
                 completeStr.addAll(ItemManager.itemNames());
                 break;
             }

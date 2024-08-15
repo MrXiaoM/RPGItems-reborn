@@ -1158,13 +1158,12 @@ public class Events implements Listener {
     public void onStoneApply(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
         Player player = (Player) e.getWhoClicked();
-        // 生存模式物品栏 非Shift点击
-        if (e.isShiftClick()) return;
         ItemStack item = e.getCurrentItem();
         ItemStack cursor = e.getCursor();
         if (item == null) return;
         if (!e.getView().getType().equals(InventoryType.CRAFTING)) return;
-        if (e.isLeftClick() && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR) && cursor != null) {
+        // 生存模式物品栏 非Shift点击
+        if (!e.isShiftClick() && e.isLeftClick() && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR) && cursor != null && !cursor.getType().equals(Material.AIR)) {
             RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
             RPGStone stone = ItemManager.toRPGStone(cursor).orElse(null);
             if (rpg != null && stone != null && item.getAmount() == 1 && cursor.getAmount() == 1) {
@@ -1208,7 +1207,7 @@ public class Events implements Listener {
         }
 
         if (e.isShiftClick() && e.isRightClick() && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)
-                && plugin.cfg.stoneShiftRightClickRemoveLast && cursor == null) {
+                && plugin.cfg.stoneShiftRightClickRemoveLast && (cursor == null || cursor.getType().equals(Material.AIR))) {
             RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
             if (rpg != null) {
                 Map<RPGStone, String> map = ItemManager.toRPGStoneList(item);

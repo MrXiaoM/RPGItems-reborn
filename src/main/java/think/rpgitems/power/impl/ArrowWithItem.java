@@ -1,5 +1,6 @@
 package think.rpgitems.power.impl;
 
+import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
@@ -26,48 +27,25 @@ import java.util.function.Supplier;
 public class ArrowWithItem extends BasePower {
     @Property(
             order = 0
-    )
+    ) @Getter
     public int cooldown = 0;
-    @Property
+    @Property @Getter
     public int cost = 0;
-    @Property
+    @Property @Getter
     public String item = "";
-    @Property
+    @Property @Getter
     public Sound sound = Sound.ENTITY_ARROW_SHOOT;
-    @Property
+    @Property @Getter
     public boolean fire = false;
-    @Property
+    @Property @Getter
     public boolean noGravity = false;
-    @Property
+    @Property @Getter
     public boolean explode = false;
-    @Property
+    @Property @Getter
     public boolean explodeFire = false;
-
-    public Sound getSound() {
-        return sound;
-    }
-
-    public boolean isFire() {
-        return this.fire;
-    }
-    public boolean isNoGravity() {
-        return noGravity;
-    }
-    public boolean isExplode() {
-        return explode;
-    }
-
-    public boolean isExplodeFire() {
-        return explodeFire;
-    }
 
     Function<ItemStack, Boolean> check = null;
     Supplier<String> checkName = null;
-
-    public int getCost() {
-        return this.cost;
-    }
-
 
 
     public String getName() {
@@ -91,8 +69,8 @@ public class ArrowWithItem extends BasePower {
 
     public void load() {
         if (check != null && checkName != null) return;
-        if (item.startsWith("rpgitem:")) {
-            String rpgName = item.substring(8);
+        if (getItem().startsWith("rpgitem:")) {
+            String rpgName = getItem().substring(8);
             RPGItem rpgItem = ItemManager.getItem(rpgName).orElse(null);
             if (rpgItem != null) {
                 String name = rpgItem.getDisplayName();
@@ -100,17 +78,13 @@ public class ArrowWithItem extends BasePower {
                 check = it -> ItemManager.toRPGItem(it).map(rpg -> rpg.getName().equals(rpgName)).orElse(false);
             } else checkName = () -> rpgName;
         } else {
-            Material m = Material.matchMaterial(item);
+            Material m = Material.matchMaterial(getItem());
             if (m != null) {
                 String name = "<translate:" + new ItemStack(m).getTranslationKey() + ">";
                 checkName = () -> name;
                 check = it -> it.getType().equals(m);
             }
         }
-    }
-
-    public int getCooldown() {
-        return this.cooldown;
     }
 
     public Material consumeArrow(Player p) {

@@ -139,6 +139,10 @@ public class RPGStone implements RPGBaseHolder {
         desc.replaceAll(ColorHelper::parseColor);
         setDescription(desc);
 
+        desc = s.getStringList("extraDescription");
+        desc.replaceAll(ColorHelper::parseColor);
+        setExtraDescription(desc);
+
         setAllowTriggers(s.getStringList("allowTriggers"));
         setAllowTriggersArmour(s.getStringList("allowTriggersArmour"));
 
@@ -180,9 +184,15 @@ public class RPGStone implements RPGBaseHolder {
         s.set("uid", getUid());
 
         s.set("display", getDisplayNameRaw().replaceAll("§", "&"));
+
         ArrayList<String> descriptionConv = new ArrayList<>(getDescription());
         descriptionConv.replaceAll(s1 -> s1.replaceAll("§", "&"));
         s.set("description", descriptionConv);
+
+        descriptionConv = new ArrayList<>(getExtraDescription());
+        descriptionConv.replaceAll(s1 -> s1.replaceAll("§", "&"));
+        s.set("extraDescription", descriptionConv);
+
         s.set("item", getItem().toString());
         s.set("customModelData", getCustomModelData());
 

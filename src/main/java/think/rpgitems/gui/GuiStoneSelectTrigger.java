@@ -65,6 +65,7 @@ public class GuiStoneSelectTrigger implements IGui {
                 if (trigger.equals(currentTrigger)) {
                     meta.setLore(Lists.newArrayList(I18n.getFormatted(player, "message.gui.stone-select-trigger.lore-selected")));
                 }
+                item.setItemMeta(meta);
             }
             triggerMap.put(i, trigger);
             inv.setItem(i, item);

@@ -1226,13 +1226,13 @@ public class Events implements Listener {
 
     @EventHandler
     public void onStoneSelectTrigger(PlayerInteractEvent e) {
-        if (e.useInteractedBlock().equals(Event.Result.DENY)) return;
-        if (e.useItemInHand().equals(Event.Result.DENY)) return;
-        Player player = e.getPlayer();
-        RPGStone stone = ItemManager.toRPGStone(e.getItem()).orElse(null);
-        if (stone == null || !stone.useCustomTrigger()) return;
-        if (plugin.gui.getOpeningGui(player) == null) {
-            new GuiStoneSelectTrigger(player, stone).open();
+        if (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            Player player = e.getPlayer();
+            RPGStone stone = ItemManager.toRPGStone(e.getItem()).orElse(null);
+            if (stone == null || !stone.useCustomTrigger()) return;
+            if (plugin.gui.getOpeningGui(player) == null) {
+                new GuiStoneSelectTrigger(player, stone).open();
+            }
         }
     }
 }

@@ -26,6 +26,7 @@ import think.rpgitems.event.BeamEndEvent;
 import think.rpgitems.event.BeamHitBlockEvent;
 import think.rpgitems.event.BeamHitEntityEvent;
 import think.rpgitems.event.LoreUpdateEvent;
+import think.rpgitems.gui.GuiStoneSelectTrigger;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.item.RPGStone;
@@ -1220,6 +1221,18 @@ public class Events implements Listener {
                     e.setCancelled(true);
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onStoneSelectTrigger(PlayerInteractEvent e) {
+        if (e.useInteractedBlock().equals(Event.Result.DENY)) return;
+        if (e.useItemInHand().equals(Event.Result.DENY)) return;
+        Player player = e.getPlayer();
+        RPGStone stone = ItemManager.toRPGStone(e.getItem()).orElse(null);
+        if (stone == null || !stone.useCustomTrigger()) return;
+        if (plugin.gui.getOpeningGui(player) == null) {
+            new GuiStoneSelectTrigger(player, stone).open();
         }
     }
 }

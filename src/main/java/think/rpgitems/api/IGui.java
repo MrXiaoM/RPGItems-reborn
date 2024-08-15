@@ -17,9 +17,11 @@ public interface IGui {
         event.setCancelled(true);
     }
 
-    void onClose(InventoryView view);
+    default void onClose(InventoryView view) {
 
-    default void refresh() {
+    }
+
+    default void open() {
         RPGItems.openGui(this);
     }
 }

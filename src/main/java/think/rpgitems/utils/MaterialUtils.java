@@ -29,4 +29,13 @@ public class MaterialUtils implements Setter<Material> {
         if (material == null) throw new IllegalArgumentException();
         return Optional.of(material);
     }
+
+    public static Material parse(String name, Material def) {
+        for (Material value : Material.values()) {
+            if (value.name().equalsIgnoreCase(name)) {
+                return value;
+            }
+        }
+        return def;
+    }
 }

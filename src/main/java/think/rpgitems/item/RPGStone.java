@@ -93,14 +93,15 @@ public class RPGStone implements RPGBaseHolder {
         return ItemTagUtils.getString(item, NBT_POWER_STONE_TRIGGER).orElse(null);
     }
 
-    public void setTrigger(ItemStack item, @Nullable String trigger) {
+    public boolean setTrigger(ItemStack item, @Nullable String trigger) {
         RPGStone stone = ItemManager.toRPGStone(item).orElse(null);
-        if (stone == null || !stone.equals(this)) return;
+        if (stone == null || !stone.equals(this)) return false;
         if (trigger == null || trigger.trim().isEmpty() || !useCustomTrigger()) {
             ItemTagUtils.remove(item, NBT_POWER_STONE_TRIGGER);
         } else {
             ItemTagUtils.setString(item, NBT_POWER_STONE_TRIGGER, trigger);
         }
+        return true;
     }
 
     public boolean checkTriggerCanUse(String trigger, boolean isArmour, @Nullable Player player) {
@@ -321,7 +322,7 @@ public class RPGStone implements RPGBaseHolder {
         if (meta instanceof LeatherArmorMeta) {
             ((LeatherArmorMeta) meta).setColor(Color.fromRGB(getDataValue()));
         }
-        
+
         meta.setDisplayName(getDisplayName());
         meta.setLore(new ArrayList<>(getDescription()));
 

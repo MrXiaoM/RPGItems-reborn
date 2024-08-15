@@ -456,6 +456,13 @@ message:
     disable-title:
       title: '&e请等等'
       subtitle: '&f管理员正在更新插件'
+    stone-select-trigger:
+      title: '选择触发器'
+      display: '&e%s'
+      lore-selected: '&a&l已选中'
+      set: '&a成功设置技能石的自定义触发器为 &e%s'
+      set-fail: '&e主手没有手持指定的技能石，无法设置自定义触发器'
+
   stone:
     apply-limited: '&e该物品无法再安装更多的技能石 &7(&f%d&7)&e，请卸下一部分技能石或安装扩展槽位'
     not-allow-trigger: '&e该技能石设定的触发器无法在该物品使用'
@@ -1087,66 +1094,97 @@ properties:
     main_name: 在击中实体时触发，会触发除主手外所有在背包中的道具
   triggers:
     ANTI_CRITICAL:
+      item: IRON_SWORD
       display: '抗暴时'
     ARMOR:
+      item: IRON_CHESTPLATE
       display: '穿上时'
     ATTACHMENT:
+      item: REDSTONE
       display: '配件技能时'
     BEAM_HIT:
+      item: END_ROD
       display: '粒子束击中时'
     BOW_SHOOT:
+      item: ARROW
       display: '箭矢出弦时'
     CLICK_BLOCK:
+      item: GRASS_BLOCK
       display: '点击方块时'
     CRITICAL:
+      item: DIAMOND_SWORD
       display: '暴击时'
     CRITICAL_FORCE_FAIL:
+      item: GOLDEN_SWORD
       display: '暴击失败(被抗暴)时'
     CUSTOM_TRIGGER:
+      item: SNOWBALL
       display: '未设置触发方式'
     DODGE:
+      item: CHAINMAIL_BOOTS
       display: '闪避时'
     DROP:
+      item: WHEAT_SEEDS
       display: '丢弃时'
     DYING:
+      item: NETHERRACK
       display: '濒死时'
     HIT:
+      item: STONE_SWORD
       display: '击中目标时'
     HIT_GLOBAL:
+      item: STONE_SWORD
       display: '击中目标时(背包生效)'
     HIT_TAKEN:
+      item: IRON_AXE
       display: '受击时'
     HURT:
+      item: GOLDEN_AXE
       display: '受击后'
     LEFT_CLICK:
+      item: DIRT
       display: '左键点击时'
     RIGHT_CLICK:
+      item: STONE
       display: '右键点击时'
     OFFHAND_CLICK:
+      item: TORCH
       display: '副手点击时'
     PICKUP_OFFHAND:
+      item: SOUL_TORCH
       display: '拾起到副手时'
     PLACE_OFF_HAND:
+      item: SHIELD
       display: '放置到副手时'
     PROJECTILE_HIT:
+      item: ARROW
       display: '弹射物击中时'
     PROJECTILE_LAUNCH:
+      item: BOW
       display: '弹射物发射时'
     SNEAK:
+      item: SMOOTH_STONE_SLAB
       display: '潜行时'
     DOUBLE_SNEAK:
+      item: SMOOTH_STONE
       display: '双击潜行时'
     SNEAKING:
+      item: LEATHER_BOOTS
       display: '潜行移动时'
     SPRINT:
+      item: GOLDEN_BOOTS
       display: '疾跑时'
     SWAP_TO_MAINHAND:
+      item: IRON_SHOVEL
       display: '切换至主手时'
     SWAP_TO_OFFHAND:
+      item: GOLDEN_SHOVEL
       display: '切换至副手时'
     TICK:
+      item: APPLE
       display: '手持或穿戴时'
     TICK_OFFHAND:
+      item: GOLDEN_APPLE
       display: '副手持有时'
 manual:
   format:

@@ -321,7 +321,8 @@ public class RPGStone implements RPGBaseHolder {
         if (meta instanceof LeatherArmorMeta) {
             ((LeatherArmorMeta) meta).setColor(Color.fromRGB(getDataValue()));
         }
-
+        
+        meta.setDisplayName(getDisplayName());
         meta.setLore(new ArrayList<>(getDescription()));
 
         if (loreOnly) {

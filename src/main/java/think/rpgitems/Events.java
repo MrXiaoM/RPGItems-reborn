@@ -1185,6 +1185,7 @@ public class Events implements Listener {
                 }
                 if (rpg.isStoneConflict(item, stone, trigger)) {
                     player.sendMessage(I18n.getFormatted(player, "message.stone.trigger-used"));
+                    return;
                 }
                 e.setCursor(null);
                 double rate = stone.getSuccessRate();

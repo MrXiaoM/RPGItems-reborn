@@ -9,10 +9,7 @@ import think.rpgitems.utils.nyaacore.configuration.PluginConfigure;
 import org.bukkit.plugin.java.JavaPlugin;
 import think.rpgitems.item.RPGItem;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -107,6 +104,33 @@ public class Configuration extends PluginConfigure {
 
     @Serializable(name = "stone.max_count")
     public int stoneMaxCount = 3;
+
+    @Serializable(name = "stone.right-click-remove-last")
+    public boolean stoneRightClickRemoveLast = false;
+
+    @Serializable(name = "stone.allow_triggers")
+    public List<String> stoneTriggers = new ArrayList<>();
+    {
+        stoneTriggers.add("SNEAK");
+        stoneTriggers.add("LEFT_CLICK");
+        stoneTriggers.add("RIGHT_CLICK");
+        stoneTriggers.add("SPRINT");
+        stoneTriggers.add("SWAP_TO_MAINHAND");
+        stoneTriggers.add("SWAP_TO_OFFHAND");
+        stoneTriggers.add("DROP");
+        stoneTriggers.add("CLICK_BLOCK");
+        stoneTriggers.add("HIT");
+    }
+
+    @Serializable(name = "stone.allow_triggers_armour")
+    public List<String> stoneTriggersArmour = new ArrayList<>();
+    {
+        stoneTriggersArmour.add("ANTI_CRITICAL");
+        stoneTriggersArmour.add("DODGE");
+        stoneTriggersArmour.add("SNEAK");
+        stoneTriggersArmour.add("DOUBLE_SNEAK");
+        stoneTriggersArmour.add("SNEAKING");
+    }
 
     @Serializable(name = "general.item.fs_lock")
     public boolean itemFsLock = false;

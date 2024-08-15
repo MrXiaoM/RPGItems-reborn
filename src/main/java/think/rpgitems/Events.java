@@ -1,5 +1,6 @@
 package think.rpgitems;
 
+import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,7 +43,6 @@ import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.LightContext;
 import think.rpgitems.utils.events.EventsPaper;
 import think.rpgitems.utils.nyaacore.Pair;
-import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import think.rpgitems.utils.nyaacore.utils.RayTraceUtils;
 
 import java.util.*;
@@ -54,7 +54,6 @@ import java.util.stream.Stream;
 import static think.rpgitems.RPGItems.logger;
 import static think.rpgitems.RPGItems.plugin;
 import static think.rpgitems.item.RPGItem.DAMAGE_TYPE;
-import static think.rpgitems.item.RPGStone.NBT_POWER_STONES;
 
 public class Events implements Listener {
 
@@ -1166,26 +1165,50 @@ public class Events implements Listener {
         if (!e.getView().getType().equals(InventoryType.CRAFTING)) return;
         if (e.isLeftClick() && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR) && cursor != null) {
             RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
-            RPGStone stone = ItemManager.toRPGStone(e.getCursor()).orElse(null);
-            if (rpg != null && stone == null && item.getAmount() == 1 && cursor.getAmount() == 1) {
+            RPGStone stone = ItemManager.toRPGStone(cursor).orElse(null);
+            if (rpg != null && stone != null && item.getAmount() == 1 && cursor.getAmount() == 1) {
                 e.setCancelled(true);
                 int limited = plugin.cfg.stoneMaxCount;
                 Map<RPGStone, String> map = ItemManager.toRPGStoneList(item);
                 if (map.size() >= limited) {
-                    I18n.getFormatted(player, "message.stone.apply-limited", limited);
+                    player.sendMessage(I18n.getFormatted(player, "message.stone.apply-limited", limited));
                     return;
                 }
+                String trigger = stone.getTrigger(cursor);
+                if (trigger != null) {
+                    boolean isArmour = rpg.getArmour() > 0;
+                    if (!stone.checkTriggerCanUse(trigger, isArmour, player)) return;
+                } else if (stone.useCustomTrigger()) {
+                    player.sendMessage(I18n.getFormatted(player, "message.stone.trigger-unset"));
+                    return;
+                }
+                if (rpg.isStoneConflict(item, stone, trigger)) {
+                    player.sendMessage(I18n.getFormatted(player, "message.stone.trigger-used"));
+                }
                 e.setCursor(null);
-                // TODO: 添加技能石
-
+                map.put(stone, trigger);
                 ItemManager.fromRPGStoneList(item, map);
+                rpg.updateItem(player, item);
+                e.setCurrentItem(item);
             }
         }
-        if (e.isRightClick() && e.getAction().equals(InventoryAction.PICKUP_HALF) && cursor == null) {
+
+        if (e.isRightClick() && e.getAction().equals(InventoryAction.PICKUP_HALF) && cursor == null
+                && plugin.cfg.stoneRightClickRemoveLast) {
             RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
             if (rpg != null) {
-                List<String> list = ItemTagUtils.getStringList(item, NBT_POWER_STONES).orElse(null);
-                if (list != null && !list.isEmpty()) {
+                Map<RPGStone, String> map = ItemManager.toRPGStoneList(item);
+                if (!map.isEmpty()) {
+                    List<RPGStone> stones = Lists.newArrayList(map.keySet());
+                    RPGStone last = stones.get(stones.size() - 1);
+                    String trigger = map.remove(last);
+                    ItemManager.fromRPGStoneList(item, map);
+                    ItemStack stone = last.toItemStack();
+                    if (last.useCustomTrigger() && trigger != null) {
+                        last.setTrigger(stone, trigger);
+                    }
+                    e.setCursor(stone);
+                    e.setCurrentItem(item);
                     e.setCancelled(true);
                 }
             }

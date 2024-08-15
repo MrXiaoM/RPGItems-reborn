@@ -2373,6 +2373,41 @@ public class RPGItem implements RPGBaseHolder {
         return templatePlaceholders;
     }
 
+    public boolean isStoneConflict(ItemStack item, RPGStone stone, @Nullable String trigger) {
+        List<Power> allPowers = getAllPowersAndConditions(item).getKey();
+        Collection<String> triggers = ItemManager.toRPGStoneList(item).values();
+        triggers.removeIf(Objects::isNull);
+        boolean customTrigger = stone.useCustomTrigger();
+        if (customTrigger) {
+            if (trigger == null || triggers.contains(trigger)) return false;
+            for (Power power : allPowers) {
+                for (Trigger t : power.getTriggers()) {
+                    if (t.name().equals(trigger)) {
+                        return false;
+                    }
+                }
+            }
+        } else {
+            Set<Trigger> stoneTriggers = new HashSet<>();
+            for (Power power : stone.getPowers()) {
+                for (Trigger t : power.getTriggers()) {
+                    if (triggers.contains(t.name())) {
+                        return false;
+                    }
+                    stoneTriggers.add(t);
+                }
+            }
+            for (Power power : allPowers) {
+                for (Trigger t : stoneTriggers) {
+                    if (power.getTriggers().contains(t)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public enum DamageMode {
         FIXED,
         VANILLA,

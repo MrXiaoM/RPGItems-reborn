@@ -14,6 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.jetbrains.annotations.Nullable;
+import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
@@ -24,8 +26,6 @@ import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import think.rpgitems.utils.pdc.ItemPDC;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 
 import static think.rpgitems.item.RPGItem.TAG_META;
@@ -36,6 +36,7 @@ public class RPGStone implements RPGBaseHolder {
     public static final String NBT_POWER_STONES = "rpgitem_power_stones";
     public static final String NBT_POWER_STONE_UID = "rpgitem_power_stone_uid";
     public static final String NBT_POWER_STONE_ITEM_UUID = "rpgitem_power_stone_item_uuid";
+    public static final String NBT_POWER_STONE_TRIGGER = "rpgitem_power_stone_trigger";
 
     @Getter private final List<Power> powers = new ArrayList<>();
     @Getter private final List<Condition<?>> conditions = new ArrayList<>();
@@ -53,6 +54,9 @@ public class RPGStone implements RPGBaseHolder {
     @Setter @Getter private List<String> extraDescription;
     @Getter @Setter private boolean customItemModel;
     @Getter @Setter private int customModelData;
+
+    @Getter @Setter private List<String> allowTriggers;
+    @Getter @Setter private List<String> allowTriggersArmour;
 
     @Getter @Setter private String author = plugin.cfg.defaultAuthor;
     @Getter @Setter private String note = plugin.cfg.defaultNote;
@@ -76,6 +80,43 @@ public class RPGStone implements RPGBaseHolder {
         restore(s);
     }
 
+    @Nullable
+    public String getTrigger(ItemStack item) {
+        RPGStone stone = ItemManager.toRPGStone(item).orElse(null);
+        if (stone == null || !stone.equals(this) || !useCustomTrigger()) return null;
+        return ItemTagUtils.getString(item, NBT_POWER_STONE_TRIGGER).orElse(null);
+    }
+
+    public void setTrigger(ItemStack item, @Nullable String trigger) {
+        RPGStone stone = ItemManager.toRPGStone(item).orElse(null);
+        if (stone == null || !stone.equals(this)) return;
+        if (trigger == null || trigger.trim().isEmpty() || !useCustomTrigger()) {
+            ItemTagUtils.remove(item, NBT_POWER_STONE_TRIGGER);
+        } else {
+            ItemTagUtils.setString(item, NBT_POWER_STONE_TRIGGER, trigger);
+        }
+    }
+
+    public boolean checkTriggerCanUse(String trigger, boolean isArmour, @Nullable Player player) {
+        List<String> allowTriggers = isArmour ? plugin.cfg.stoneTriggersArmour : plugin.cfg.stoneTriggers;
+        if (!allowTriggers.contains(trigger)) {
+            if (player != null) {
+                String triggerDisplay = I18n.getFormatted(player, "properties.triggers." + trigger + ".display");
+                player.sendMessage(I18n.getFormatted(player, "message.stone.not-allow-trigger", triggerDisplay));
+            }
+            return false;
+        }
+        allowTriggers = isArmour ? getAllowTriggersArmour() : getAllowTriggers();
+        if (!allowTriggers.isEmpty() && !allowTriggers.contains(trigger)) {
+            if (player != null) {
+                String triggerDisplay = I18n.getFormatted(player, "properties.triggers." + trigger + ".display");
+                player.sendMessage(I18n.getFormatted(player, "message.stone.not-allow-trigger", triggerDisplay));
+            }
+            return false;
+        }
+        return true;
+    }
+
     private void restore(ConfigurationSection s) throws UnknownPowerException {
         setAuthor(s.getString("author", ""));
         setNote(s.getString("note", ""));
@@ -90,6 +131,9 @@ public class RPGStone implements RPGBaseHolder {
         List<String> desc = s.getStringList("description");
         desc.replaceAll(ColorHelper::parseColor);
         setDescription(desc);
+
+        setAllowTriggers(s.getStringList("allowTriggers"));
+        setAllowTriggersArmour(s.getStringList("allowTriggersArmour"));
 
         // Powers
         ConfigurationSection powerList = s.getConfigurationSection("powers");
@@ -131,6 +175,9 @@ public class RPGStone implements RPGBaseHolder {
         s.set("description", descriptionConv);
         s.set("item", getItem().toString());
         s.set("customModelData", getCustomModelData());
+
+        s.set("allowTriggers", getAllowTriggers());
+        s.set("allowTriggersArmour", getAllowTriggersArmour());
 
         ConfigurationSection powerConfigs = s.createSection("powers");
         int i = 0;
@@ -268,6 +315,7 @@ public class RPGStone implements RPGBaseHolder {
         if (loreOnly) {
             rpgitemsTagContainer.commit();
             item.setItemMeta(meta);
+            if (!useCustomTrigger()) ItemTagUtils.remove(item, NBT_POWER_STONE_TRIGGER);
             return;
         }
 

@@ -1203,8 +1203,8 @@ public class Events implements Listener {
             }
         }
 
-        if (e.isRightClick() && e.getAction().equals(InventoryAction.PICKUP_HALF) && cursor == null
-                && plugin.cfg.stoneRightClickRemoveLast) {
+        if (e.isShiftClick() && e.isRightClick() && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)
+                && plugin.cfg.stoneShiftRightClickRemoveLast && cursor == null) {
             RPGItem rpg = ItemManager.toRPGItem(item).orElse(null);
             if (rpg != null) {
                 Map<RPGStone, String> map = ItemManager.toRPGStoneList(item);
@@ -1218,6 +1218,7 @@ public class Events implements Listener {
                         last.setTrigger(stone, trigger);
                     }
                     e.setCursor(stone);
+                    rpg.updateItem(player, item);
                     e.setCurrentItem(item);
                     e.setCancelled(true);
                 }

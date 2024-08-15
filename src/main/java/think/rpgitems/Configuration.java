@@ -105,8 +105,8 @@ public class Configuration extends PluginConfigure {
     @Serializable(name = "stone.max_count")
     public int stoneMaxCount = 3;
 
-    @Serializable(name = "stone.right-click-remove-last")
-    public boolean stoneRightClickRemoveLast = false;
+    @Serializable(name = "stone.shift-right-click-remove-last")
+    public boolean stoneShiftRightClickRemoveLast = false;
 
     @Serializable(name = "stone.allow_triggers")
     public List<String> stoneTriggers = new ArrayList<>();

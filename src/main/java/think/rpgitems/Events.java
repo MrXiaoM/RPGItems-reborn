@@ -1198,6 +1198,7 @@ public class Events implements Listener {
                     Utils.runCommands(player, stone.getFailCommands());
                     return;
                 }
+                Utils.runCommands(player, stone.getSuccessCommands());
                 player.sendMessage(I18n.getFormatted(player, "message.stone.rate.success"));
                 map.put(stone, trigger);
                 ItemManager.fromRPGStoneList(item, map);

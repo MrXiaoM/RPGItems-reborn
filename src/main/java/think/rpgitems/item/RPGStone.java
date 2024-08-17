@@ -60,6 +60,7 @@ public class RPGStone implements RPGBaseHolder {
     @Getter @Setter private List<String> allowTriggersArmour = new ArrayList<>();
 
     @Getter @Setter private double successRate = 1;
+    @Getter @Setter private List<String> successCommands = new ArrayList<>();
     @Getter @Setter private List<String> failCommands = new ArrayList<>(); // TODO: Allow users to edit them in StoneCommands
 
     @Getter @Setter private String author = plugin.cfg.defaultAuthor;
@@ -131,6 +132,7 @@ public class RPGStone implements RPGBaseHolder {
 
         String display = s.getString("display");
         setDisplayName(display);
+        setCustomItemModel(s.getBoolean("customItemModel", false));
         setCustomModelData(s.getInt("customModelData",  -1));
         String materialName = s.getString("item");
         setItem(MaterialUtils.getMaterial(materialName, Bukkit.getConsoleSender()));
@@ -147,6 +149,7 @@ public class RPGStone implements RPGBaseHolder {
         setAllowTriggersArmour(s.getStringList("allowTriggersArmour"));
 
         setSuccessRate(s.getDouble("successRate"));
+        setSuccessCommands(s.getStringList("successCommands"));
         setFailCommands(s.getStringList("failCommands"));
 
         // Powers
@@ -194,12 +197,14 @@ public class RPGStone implements RPGBaseHolder {
         s.set("extraDescription", descriptionConv);
 
         s.set("item", getItem().toString());
+        s.set("customItemModel", isCustomItemModel());
         s.set("customModelData", getCustomModelData());
 
         s.set("allowTriggers", getAllowTriggers());
         s.set("allowTriggersArmour", getAllowTriggersArmour());
 
         s.set("successRate", getSuccessRate());
+        s.set("successCommands", getSuccessCommands());
         s.set("failCommands", getFailCommands());
 
         ConfigurationSection powerConfigs = s.createSection("powers");
@@ -343,7 +348,9 @@ public class RPGStone implements RPGBaseHolder {
             return;
         }
 
-        meta.setCustomModelData(getCustomModelData());
+        if (isCustomItemModel()) {
+            meta.setCustomModelData(getCustomModelData());
+        }
         rpgitemsTagContainer.commit();
         item.setItemMeta(meta);
 

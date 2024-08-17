@@ -6,8 +6,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
+import think.rpgitems.utils.pdc.DataContainer;
+import think.rpgitems.utils.pdc.DataType;
 import think.rpgitems.RPGItems;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.Completion;
@@ -15,7 +15,7 @@ import think.rpgitems.power.PowerManager;
 import think.rpgitems.power.RPGCommandReceiver;
 import think.rpgitems.power.UnknownExtensionException;
 import think.rpgitems.power.propertymodifier.Modifier;
-import think.rpgitems.utils.ISubItemTagContainer;
+import think.rpgitems.utils.pdc.ISubItemTagContainer;
 import think.rpgitems.utils.pdc.ItemPDC;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
@@ -96,8 +96,8 @@ public class ModifierCommands extends RPGCommandReceiver {
             msgs(sender, "manual.modifier.add.usage");
             return;
         }
-        Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, args, baseStr);
-        PersistentDataContainer container = rootContainer.getValue();
+        Pair<Pair<ItemStack, ItemMeta>, DataContainer> rootContainer = getRootContainer(sender, args, baseStr);
+        DataContainer container = rootContainer.getValue();
         String modifierStr = args.nextString();
 
         Pair<NamespacedKey, Class<? extends Modifier>> keyClass = getModifierClass(sender, modifierStr);
@@ -131,16 +131,16 @@ public class ModifierCommands extends RPGCommandReceiver {
         key.setItemMeta(value);
     }
 
-    private NamespacedKey nextAvailable(PersistentDataContainer modifierContainer) {
+    private NamespacedKey nextAvailable(DataContainer modifierContainer) {
         int i = 0;
-        for (NamespacedKey key = PowerManager.parseKey(String.valueOf(i)); modifierContainer.has(key, PersistentDataType.TAG_CONTAINER); key = PowerManager.parseKey(String.valueOf(i))) {
+        for (NamespacedKey key = PowerManager.parseKey(String.valueOf(i)); modifierContainer.has(key, DataType.TAG_CONTAINER); key = PowerManager.parseKey(String.valueOf(i))) {
             ++i;
         }
         return PowerManager.parseKey(String.valueOf(i));
     }
 
-    private Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> getRootContainer(CommandSender sender, Arguments arguments, String baseStr) {
-        PersistentDataContainer container;
+    private Pair<Pair<ItemStack, ItemMeta>, DataContainer> getRootContainer(CommandSender sender, Arguments arguments, String baseStr) {
+        DataContainer container;
         ItemStack item = null;
         ItemMeta meta = null;
         Pair<ItemStack, ItemMeta> metaPair = null;
@@ -148,10 +148,10 @@ public class ModifierCommands extends RPGCommandReceiver {
             arguments.next();
             item = ((Player) sender).getInventory().getItemInMainHand();
             meta = item.getItemMeta();
-            container = meta.getPersistentDataContainer();
+            container = ItemPDC.getTag(item);
         } else {
             Player player = arguments.nextPlayer();
-            container = player.getPersistentDataContainer();
+            container = ItemPDC.getTag(player);
         }
 
         if (item != null){
@@ -174,8 +174,8 @@ public class ModifierCommands extends RPGCommandReceiver {
             }
             case 2: {
                 String baseStr = arguments.top();
-                Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, arguments, baseStr);
-                PersistentDataContainer container = rootContainer.getValue();
+                Pair<Pair<ItemStack, ItemMeta>, DataContainer> rootContainer = getRootContainer(sender, arguments, baseStr);
+                DataContainer container = rootContainer.getValue();
                 ISubItemTagContainer modifierContainer = ItemPDC.makeTag(container, TAG_MODIFIER);
                 List<Modifier> modifiers = RPGItem.getModifiers(modifierContainer);
                 for (Modifier modifier : modifiers) {
@@ -185,8 +185,8 @@ public class ModifierCommands extends RPGCommandReceiver {
             }
             default: {
                 String baseStr = arguments.top();
-                Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, arguments, baseStr);
-                PersistentDataContainer container = rootContainer.getValue();
+                Pair<Pair<ItemStack, ItemMeta>, DataContainer> rootContainer = getRootContainer(sender, arguments, baseStr);
+                DataContainer container = rootContainer.getValue();
                 Pair<Integer, Modifier> nextModifier = nextModifier(container, arguments);
                 Modifier modifier = nextModifier.getValue();
                 return resolveProperties(sender, null, modifier.getClass(), modifier.getNamespacedKey(), arguments.getRawArgs()[arguments.getRawArgs().length - 1], arguments, false);
@@ -199,8 +199,8 @@ public class ModifierCommands extends RPGCommandReceiver {
     public void prop(CommandSender sender, Arguments args) throws IllegalAccessException {
         if (readOnly(sender)) return;
         String baseStr = args.top();
-        Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, args, baseStr);
-        PersistentDataContainer container = rootContainer.getValue();
+        Pair<Pair<ItemStack, ItemMeta>, DataContainer> rootContainer = getRootContainer(sender, args, baseStr);
+        DataContainer container = rootContainer.getValue();
         try {
             Pair<Integer, Modifier> modifierPair = nextModifier(container, args);
             Modifier modifier = modifierPair.getValue();
@@ -234,7 +234,7 @@ public class ModifierCommands extends RPGCommandReceiver {
         );
     }
 
-    public Pair<Integer, Modifier> nextModifier(PersistentDataContainer container, Arguments args) {
+    public Pair<Integer, Modifier> nextModifier(DataContainer container, Arguments args) {
         ISubItemTagContainer modifierContainer = ItemPDC.makeTag(container, TAG_MODIFIER);
         List<Modifier> modifiers = RPGItem.getModifiers(modifierContainer);
         String next = args.nextString();
@@ -249,21 +249,21 @@ public class ModifierCommands extends RPGCommandReceiver {
     public void remove(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
         String baseStr = args.top();
-        Pair<Pair<ItemStack, ItemMeta>, PersistentDataContainer> rootContainer = getRootContainer(sender, args, baseStr);
-        PersistentDataContainer container = rootContainer.getValue();
+        Pair<Pair<ItemStack, ItemMeta>, DataContainer> rootContainer = getRootContainer(sender, args, baseStr);
+        DataContainer container = rootContainer.getValue();
         try {
             Pair<Integer, Modifier> modifierPair = nextModifier(container, args);
             ISubItemTagContainer modifierContainer = ItemPDC.makeTag(container, TAG_MODIFIER);
             ItemPDC.set(modifierContainer, TAG_VERSION, UUID.randomUUID());
             NamespacedKey currentKey = PowerManager.parseKey(String.valueOf(modifierPair.getKey()));
             int i = 0;
-            for (NamespacedKey key = PowerManager.parseKey(String.valueOf(i)); modifierContainer.has(key, PersistentDataType.TAG_CONTAINER); key = PowerManager.parseKey(String.valueOf(i))) {
+            for (NamespacedKey key = PowerManager.parseKey(String.valueOf(i)); modifierContainer.has(key, DataType.TAG_CONTAINER); key = PowerManager.parseKey(String.valueOf(i))) {
                 ++i;
             }
             --i;
             modifierContainer.remove(currentKey);
             NamespacedKey lastKey = PowerManager.parseKey(String.valueOf(i));
-            PersistentDataContainer lastContainer = ItemPDC.getTag(modifierContainer, lastKey);
+            DataContainer lastContainer = ItemPDC.getTag(modifierContainer, lastKey);
             if (lastContainer != null){
                 ItemPDC.set(modifierContainer, currentKey, lastContainer);
             }

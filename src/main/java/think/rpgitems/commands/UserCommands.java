@@ -3,7 +3,7 @@ package think.rpgitems.commands;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
+import think.rpgitems.utils.pdc.DataContainer;
 import think.rpgitems.RPGItems;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
@@ -38,8 +38,8 @@ public class UserCommands extends RPGCommandReceiver {
         RPGItem item = getItem(sender, false);
         ItemStack itemStack = p.getInventory().getItemInMainHand();
         print(sender, item, false);
-        PersistentDataContainer tagContainer = itemStack.getItemMeta().getPersistentDataContainer();
-        PersistentDataContainer metaTag = ItemPDC.getTag(tagContainer, TAG_META);
+        DataContainer tagContainer = ItemPDC.getTag(itemStack);
+        DataContainer metaTag = ItemPDC.getTag(tagContainer, TAG_META);
         Optional<Boolean> optIsModel = ItemPDC.optBoolean(metaTag, TAG_IS_MODEL);
         if (optIsModel.orElse(false)) {
             msg(p, "message.model.is");

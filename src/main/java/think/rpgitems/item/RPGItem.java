@@ -31,8 +31,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
+import think.rpgitems.utils.pdc.DataContainer;
+import think.rpgitems.utils.pdc.DataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +50,7 @@ import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.support.MythicSupport;
 import think.rpgitems.utils.ColorHelper;
-import think.rpgitems.utils.ISubItemTagContainer;
+import think.rpgitems.utils.pdc.ISubItemTagContainer;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.MessageType;
 import think.rpgitems.utils.nyaacore.Pair;
@@ -257,9 +257,7 @@ public class RPGItem implements RPGBaseHolder {
         UUID key = UUID.fromString(opt.get());
         List<Modifier> modifiers = modifierCache.getIfPresent(key);
         if (modifiers == null) {
-            ItemMeta itemMeta = stack.getItemMeta();
-            if (itemMeta == null) return new ArrayList<>();
-            ISubItemTagContainer tag = ItemPDC.makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_MODIFIER);
+            ISubItemTagContainer tag = ItemPDC.makeTag(stack, TAG_MODIFIER);
             modifiers = getModifiers(tag, key);
         }
         return modifiers;
@@ -269,7 +267,7 @@ public class RPGItem implements RPGBaseHolder {
         UUID key = player.getUniqueId();
         List<Modifier> modifiers = modifierCache.getIfPresent(key);
         if (modifiers == null) {
-            ISubItemTagContainer tag = ItemPDC.makeTag(player.getPersistentDataContainer(), TAG_MODIFIER);
+            ISubItemTagContainer tag = ItemPDC.makeTag(player, TAG_MODIFIER);
             modifiers = getModifiers(tag, key);
         }
         return modifiers;
@@ -302,8 +300,8 @@ public class RPGItem implements RPGBaseHolder {
         List<Modifier> ret = new ArrayList<>();
         int i = 0;
         try {
-            for (NamespacedKey key = PowerManager.parseKey(String.valueOf(i)); tag.has(key, PersistentDataType.TAG_CONTAINER); key = PowerManager.parseKey(String.valueOf(++i))) {
-                PersistentDataContainer container = ItemPDC.getTag(tag, key);
+            for (NamespacedKey key = PowerManager.parseKey(String.valueOf(i)); tag.has(key, DataType.TAG_CONTAINER); key = PowerManager.parseKey(String.valueOf(++i))) {
+                DataContainer container = ItemPDC.getTag(tag, key);
                 String modifierName = ItemPDC.getString(container, "modifier_name");
                 Class<? extends Modifier> modifierClass = PowerManager.getModifier(PowerManager.parseKey(modifierName));
                 if (modifierClass != null) {
@@ -850,7 +848,7 @@ public class RPGItem implements RPGBaseHolder {
             }
         }
 
-        PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
+        DataContainer itemTagContainer = ItemPDC.getTag(item);
         ISubItemTagContainer rpgitemsTagContainer = ItemPDC.makeTag(itemTagContainer, TAG_META);
         ItemPDC.set(rpgitemsTagContainer, TAG_ITEM_UID, getUid());
         addDurabilityBar(rpgitemsTagContainer, lore);
@@ -859,7 +857,7 @@ public class RPGItem implements RPGBaseHolder {
         }
         Damageable damageable = (Damageable) meta;
         if (getMaxDurability() > 0) {
-            int durability = ItemPDC.computeIfAbsent(rpgitemsTagContainer, TAG_DURABILITY, PersistentDataType.INTEGER, this::getDefaultDurability);
+            int durability = ItemPDC.computeIfAbsent(rpgitemsTagContainer, TAG_DURABILITY, DataType.INTEGER, this::getDefaultDurability);
             if (isCustomItemModel()) {
                 damageable.setDamage(getDataValue());
             } else {
@@ -961,27 +959,27 @@ public class RPGItem implements RPGBaseHolder {
         if (!markers.isEmpty() ) {
             Unique unique = markers.get(0);
             if(unique.enabled){
-                if (!meta.has(RGI_UNIQUE_MARK, PersistentDataType.BYTE)) {
-                    meta.set(RGI_UNIQUE_MARK, PersistentDataType.BYTE, (byte) 0);
+                if (!meta.has(RGI_UNIQUE_MARK, DataType.BYTE)) {
+                    meta.set(RGI_UNIQUE_MARK, DataType.BYTE, (byte) 0);
                 }
-                meta.set(RGI_UNIQUE_ID, PersistentDataType.STRING, UUID.randomUUID().toString());
+                meta.set(RGI_UNIQUE_ID, DataType.STRING, UUID.randomUUID().toString());
             }else {
                 meta.remove(RGI_UNIQUE_MARK);
                 meta.remove(RGI_UNIQUE_ID);
             }
         }
         if(!conditions.isEmpty()){
-            if (!meta.has(RGI_UNIQUE_MARK, PersistentDataType.BYTE)) {
-                meta.set(RGI_UNIQUE_MARK, PersistentDataType.BYTE, (byte) 0);
+            if (!meta.has(RGI_UNIQUE_MARK, DataType.BYTE)) {
+                meta.set(RGI_UNIQUE_MARK, DataType.BYTE, (byte) 0);
             }
-            meta.set(RGI_UNIQUE_ID, PersistentDataType.STRING, UUID.randomUUID().toString());
+            meta.set(RGI_UNIQUE_ID, DataType.STRING, UUID.randomUUID().toString());
         }
     }
 
-    private void addDurabilityBar(PersistentDataContainer meta, List<String> lore) {
+    private void addDurabilityBar(DataContainer meta, List<String> lore) {
         int maxDurability = getMaxDurability();
         if (maxDurability > 0) {
-            int durability = ItemPDC.computeIfAbsent(meta, TAG_DURABILITY, PersistentDataType.INTEGER, this::getDefaultDurability);
+            int durability = ItemPDC.computeIfAbsent(meta, TAG_DURABILITY, DataType.INTEGER, this::getDefaultDurability);
             if (isHasDurabilityBar()) {
                 StringBuilder out = new StringBuilder();
                 char boxChar = '■';
@@ -1553,14 +1551,14 @@ public class RPGItem implements RPGBaseHolder {
     }
     public ItemStack toItemStack(Player player) {
         ItemStack rStack = new ItemStack(getItem());
-        ItemMeta meta = rStack.getItemMeta();
-        PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
+        DataContainer itemTagContainer = ItemPDC.getTag(rStack);
         ISubItemTagContainer rpgitemsTagContainer = ItemPDC.makeTag(itemTagContainer, TAG_META);
         ItemPDC.set(rpgitemsTagContainer, TAG_ITEM_UID, getUid());
         if (isHasStackId()) {
             ItemPDC.set(rpgitemsTagContainer, TAG_STACK_ID, UUID.randomUUID());
         }
         rpgitemsTagContainer.commit();
+        ItemMeta meta = rStack.getItemMeta();
         meta.setDisplayName(getDisplayName());
         rStack.setItemMeta(meta);
 
@@ -1574,8 +1572,7 @@ public class RPGItem implements RPGBaseHolder {
     }
     public void toModel(@Nullable Player player, ItemStack itemStack) {
         updateItem(player, itemStack);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        ISubItemTagContainer meta = ItemPDC.makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_META);
+        ISubItemTagContainer meta = ItemPDC.makeTag(itemStack, TAG_META);
         meta.remove(TAG_OWNER);
         meta.remove(TAG_STACK_ID);
         ItemPDC.set(meta, TAG_IS_MODEL, true);
@@ -1583,14 +1580,16 @@ public class RPGItem implements RPGBaseHolder {
         ItemTagUtils.setBoolean(itemStack, NBT_IS_MODEL, true);
 
         meta.commit();
-        itemMeta.setDisplayName(getDisplayName());
-        itemStack.setItemMeta(itemMeta);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta != null) {
+            itemMeta.setDisplayName(getDisplayName());
+            itemStack.setItemMeta(itemMeta);
+        }
     }
 
     public void unModel(ItemStack itemStack, Player owner) {
         updateItem(owner, itemStack);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        ISubItemTagContainer meta = ItemPDC.makeTag(Objects.requireNonNull(itemMeta).getPersistentDataContainer(), TAG_META);
+        ISubItemTagContainer meta = ItemPDC.makeTag(itemStack, TAG_META);
         if (isCanBeOwned()) {
             ItemPDC.set(meta, TAG_OWNER, owner);
         }
@@ -1599,8 +1598,11 @@ public class RPGItem implements RPGBaseHolder {
         }
         meta.remove(TAG_IS_MODEL);
         meta.commit();
-        itemMeta.setDisplayName(getDisplayName());
-        itemStack.setItemMeta(itemMeta);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta != null) {
+            itemMeta.setDisplayName(getDisplayName());
+            itemStack.setItemMeta(itemMeta);
+        }
     }
 
     public Event.Result checkPermission(Player p, boolean showWarn) {
@@ -1619,7 +1621,7 @@ public class RPGItem implements RPGBaseHolder {
 
     public void setItemStackDurability(Player player, ItemStack item, int val) {
         ItemMeta itemMeta = item.getItemMeta();
-        ISubItemTagContainer tagContainer = ItemPDC.makeTag(Objects.requireNonNull(itemMeta), TAG_META);
+        ISubItemTagContainer tagContainer = ItemPDC.makeTag(item, TAG_META);
         if (getMaxDurability() != -1) {
             ItemPDC.set(tagContainer, TAG_DURABILITY, val);
         }
@@ -1637,8 +1639,8 @@ public class RPGItem implements RPGBaseHolder {
         if(itemMeta == null){
             return Optional.empty();
         }
-        ISubItemTagContainer tagContainer = ItemPDC.makeTag(itemMeta, TAG_META);
-        int durability = ItemPDC.computeIfAbsent(tagContainer, TAG_DURABILITY, PersistentDataType.INTEGER, this::getDefaultDurability);
+        ISubItemTagContainer tagContainer = ItemPDC.makeTag(item, TAG_META);
+        int durability = ItemPDC.computeIfAbsent(tagContainer, TAG_DURABILITY, DataType.INTEGER, this::getDefaultDurability);
         tagContainer.commit();
         item.setItemMeta(itemMeta);
         return Optional.of(durability);
@@ -1663,8 +1665,8 @@ public class RPGItem implements RPGBaseHolder {
         int durability;
         ItemMeta itemMeta = item.getItemMeta();
         if (getMaxDurability() != -1) {
-            ISubItemTagContainer tagContainer = ItemPDC.makeTag(Objects.requireNonNull(itemMeta), TAG_META);
-            durability = ItemPDC.computeIfAbsent(tagContainer, TAG_DURABILITY, PersistentDataType.INTEGER, this::getDefaultDurability);
+            ISubItemTagContainer tagContainer = ItemPDC.makeTag(item, TAG_META);
+            durability = ItemPDC.computeIfAbsent(tagContainer, TAG_DURABILITY, DataType.INTEGER, this::getDefaultDurability);
             if (checkbound && (
                     (val > 0 && durability < getDurabilityLowerBound()) ||
                             (val < 0 && durability > getDurabilityUpperBound())

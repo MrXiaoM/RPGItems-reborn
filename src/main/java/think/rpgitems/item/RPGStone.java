@@ -13,14 +13,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.persistence.PersistentDataContainer;
+import think.rpgitems.utils.pdc.DataContainer;
 import org.jetbrains.annotations.Nullable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.utils.ColorHelper;
-import think.rpgitems.utils.ISubItemTagContainer;
+import think.rpgitems.utils.pdc.ISubItemTagContainer;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import think.rpgitems.utils.pdc.ItemPDC;
@@ -331,7 +331,7 @@ public class RPGStone implements RPGBaseHolder {
 
         ItemMeta meta = item.getItemMeta();
 
-        PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
+        DataContainer itemTagContainer = ItemPDC.getTag(item);
         ISubItemTagContainer rpgitemsTagContainer = ItemPDC.makeTag(itemTagContainer, TAG_META);
         ItemPDC.set(rpgitemsTagContainer, TAG_POWER_STONE_ITEM_UID, getUid());
         if (meta instanceof LeatherArmorMeta) {
@@ -365,11 +365,11 @@ public class RPGStone implements RPGBaseHolder {
 
     public ItemStack toItemStack() {
         ItemStack rStack = new ItemStack(getItem());
-        ItemMeta meta = rStack.getItemMeta();
-        PersistentDataContainer itemTagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
+        DataContainer itemTagContainer = ItemPDC.getTag(rStack);
         ISubItemTagContainer rpgitemsTagContainer = ItemPDC.makeTag(itemTagContainer, TAG_META);
         ItemPDC.set(rpgitemsTagContainer, TAG_POWER_STONE_ITEM_UID, getUid());
         rpgitemsTagContainer.commit();
+        ItemMeta meta = rStack.getItemMeta();
         meta.setDisplayName(getDisplayName());
         rStack.setItemMeta(meta);
 

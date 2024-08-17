@@ -20,8 +20,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
+import think.rpgitems.utils.pdc.DataContainer;
+import think.rpgitems.utils.pdc.DataType;
 import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
@@ -665,9 +665,9 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return Optional.empty();
 
-        PersistentDataContainer tagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
-        if (tagContainer.has(TAG_META, PersistentDataType.TAG_CONTAINER)) {
-            PersistentDataContainer metaTag = ItemPDC.getTag(tagContainer, TAG_META);
+        DataContainer tagContainer = ItemPDC.getTag(item);
+        if (tagContainer.has(TAG_META, DataType.TAG_CONTAINER)) {
+            DataContainer metaTag = ItemPDC.getTag(tagContainer, TAG_META);
             Integer uid = ItemPDC.getInt(metaTag, TAG_ITEM_UID);
             if (uid == null)return Optional.empty();
             Optional<Boolean> optIsModel = ItemPDC.optBoolean(metaTag, TAG_IS_MODEL);
@@ -718,10 +718,9 @@ public class ItemManager {
         if (!item.hasItemMeta()) {
             return null;
         }
-        ItemMeta meta = item.getItemMeta();
-        PersistentDataContainer tagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
-        if (tagContainer.has(TAG_META, PersistentDataType.TAG_CONTAINER)) {
-            PersistentDataContainer itemMeta = ItemPDC.getTag(tagContainer, TAG_META);
+        DataContainer tagContainer = ItemPDC.getTag(item);
+        if (tagContainer.has(TAG_META, DataType.TAG_CONTAINER)) {
+            DataContainer itemMeta = ItemPDC.getTag(tagContainer, TAG_META);
             int uid = ItemPDC.getInt(itemMeta, TAG_ITEM_UID);
             Optional<RPGItem> opt = ItemManager.getItem(uid);
             if (opt.isEmpty()) return null;

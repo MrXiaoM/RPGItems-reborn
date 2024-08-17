@@ -2,47 +2,42 @@ package think.rpgitems.utils.pdc;
 
 import com.google.common.base.FinalizablePhantomReference;
 import org.bukkit.NamespacedKey;
-import org.bukkit.persistence.PersistentDataAdapterContext;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
-import think.rpgitems.utils.ISubItemTagContainer;
 
-import java.io.IOException;
 import java.lang.ref.PhantomReference;
 import java.util.Collections;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SubItemTagContainerPaper implements PersistentDataContainer, ISubItemTagContainer {
-    private final PersistentDataContainer parent;
-    private PersistentDataContainer self;
+public class NBTTagContainer implements ISubItemTagContainer {
+    private final DataContainer parent;
+    private DataContainer self;
     private final NamespacedKey key;
     private PhantomReference<ISubItemTagContainer> reference;
-    protected SubItemTagContainerPaper(PersistentDataContainer parent, NamespacedKey key, PersistentDataContainer self) {
+    public NBTTagContainer(DataContainer parent, NamespacedKey key, DataContainer self) {
         this.parent = parent;
         this.self = self;
         this.key = key;
     }
 
     @Override
-    public <T, Z> void set(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<T, Z> persistentDataType, @NotNull Z z) {
-        self.set(namespacedKey, persistentDataType, z);
+    public <T, Z> void set(@NotNull NamespacedKey namespacedKey, @NotNull DataType<T, Z> DataType, @NotNull Z z) {
+        self.set(namespacedKey, DataType, z);
     }
 
     @Override
-    public <T, Z> boolean has(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<T, Z> persistentDataType) {
-        return self.has(namespacedKey, persistentDataType);
+    public <T, Z> boolean has(@NotNull NamespacedKey namespacedKey, @NotNull DataType<T, Z> DataType) {
+        return self.has(namespacedKey, DataType);
     }
 
     @Override
-    public <T, Z> Z get(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<T, Z> persistentDataType) {
-        return self.get(namespacedKey, persistentDataType);
+    public <T, Z> Z get(@NotNull NamespacedKey namespacedKey, @NotNull DataType<T, Z> DataType) {
+        return self.get(namespacedKey, DataType);
     }
 
     @Override
-    public <T, Z> @NotNull Z getOrDefault(@NotNull NamespacedKey key, @NotNull PersistentDataType<T, Z> type, @NotNull Z defaultValue) {
+    public <T, Z> @NotNull Z getOrDefault(@NotNull NamespacedKey key, @NotNull DataType<T, Z> type, @NotNull Z defaultValue) {
         return self.getOrDefault(key, type, defaultValue);
     }
 
@@ -63,28 +58,13 @@ public class SubItemTagContainerPaper implements PersistentDataContainer, ISubIt
     }
 
     @Override
-    public @NotNull PersistentDataAdapterContext getAdapterContext() {
+    public @NotNull DataAdapterContext getAdapterContext() {
         return self.getAdapterContext();
     }
 
     @Override
-    public boolean has(@NotNull NamespacedKey key) {
-        return self.has(key);
-    }
-
-    @Override
-    public byte @NotNull [] serializeToBytes() throws IOException {
-        return self.serializeToBytes();
-    }
-
-    @Override
-    public void readFromBytes(byte @NotNull [] bytes, boolean clear) throws IOException {
-        self.readFromBytes(bytes, clear);
-    }
-
-    @Override
     public void commit() {
-        parent.set(key, PersistentDataType.TAG_CONTAINER, self);
+        parent.set(key, DataType.TAG_CONTAINER, self);
         if (parent instanceof ISubItemTagContainer) {
             ((ISubItemTagContainer) parent).commit();
         }

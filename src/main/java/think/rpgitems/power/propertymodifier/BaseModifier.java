@@ -6,7 +6,7 @@ import com.google.common.base.Strings;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
+import think.rpgitems.utils.pdc.DataContainer;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.pdc.ItemPDC;
 
@@ -46,7 +46,7 @@ public abstract class BaseModifier<T> extends BasePropertyHolder implements Modi
         return priority;
     }
 
-    public void init(PersistentDataContainer section) {
+    public void init(DataContainer section) {
         Meta meta = this.getClass().getAnnotation(Meta.class);
         Map<String, Pair<Method, PropertyInstance>> properties = PowerManager.getProperties(this.getClass());
         for (Map.Entry<String, Pair<Method, PropertyInstance>> entry : properties.entrySet()) {
@@ -82,7 +82,7 @@ public abstract class BaseModifier<T> extends BasePropertyHolder implements Modi
 
     // TODO
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void save(PersistentDataContainer section) {
+    public void save(DataContainer section) {
         Map<String, Pair<Method, PropertyInstance>> properties = PowerManager.getProperties(this.getClass());
         ItemPDC.set(section, PowerManager.parseKey("modifier_name"), getNamespacedKey().toString());
         for (Map.Entry<String, Pair<Method, PropertyInstance>> entry : properties.entrySet()) {

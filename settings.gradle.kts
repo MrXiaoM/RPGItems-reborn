@@ -8,7 +8,6 @@ pluginManagement {
 rootProject.name = "RPGItems-reborn"
 listOf(
     ":paper",
-    ":paper:bukkit",
     ":nms",
     ":nms:shared",
     ":nms:1_8_R1",

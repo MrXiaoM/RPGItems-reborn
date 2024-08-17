@@ -1,3 +1,8 @@
+# Watch out! 当心！
+
+## THIS BRANCH IS STILL WORKING IN PROGRESS. PLEASE DO NOT INSTALL IT IN YOUR PRODUCTION ENVIRONMENTS!
+## 这个分支仍在施工中，请务必不要安装到你的生产环境中！
+
 # RPGItems-reborn
 
 [![Paper 1.8-1.21](https://img.shields.io/badge/Paper-1.8--1.21-blue)](https://img.shields.io/badge/Paper-1.8--1.21-blue)

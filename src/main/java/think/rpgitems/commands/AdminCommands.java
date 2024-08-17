@@ -20,8 +20,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
+import think.rpgitems.utils.pdc.DataContainer;
+import think.rpgitems.utils.pdc.DataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
@@ -281,9 +281,8 @@ public class AdminCommands extends RPGCommandReceiver {
             player.sendMessage("empty meta");
             return;
         }
-        ItemMeta meta = item.getItemMeta();
-        PersistentDataContainer tagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
-        if (tagContainer.has(TAG_META, PersistentDataType.TAG_CONTAINER)) {
+        DataContainer tagContainer = ItemPDC.getTag(item);
+        if (tagContainer.has(TAG_META, DataType.TAG_CONTAINER)) {
             int uid = ItemPDC.getInt(ItemPDC.getTag(tagContainer, TAG_META), TAG_ITEM_UID);
             player.sendMessage("new item: " + uid);
             Optional<RPGItem> rpgItem = ItemManager.getItem(uid);

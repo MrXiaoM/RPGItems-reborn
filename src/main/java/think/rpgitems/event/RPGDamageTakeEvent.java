@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import think.rpgitems.item.RPGItem;
 
-@Getter
+@Getter @Setter
 public class RPGDamageTakeEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     @Override @NotNull
@@ -23,7 +23,6 @@ public class RPGDamageTakeEvent extends Event implements Cancellable {
         return handlers;
     }
 
-    @Setter
     private boolean cancelled = false;
     private final RPGItem rpg;
     private final ItemStack item;
@@ -32,10 +31,9 @@ public class RPGDamageTakeEvent extends Event implements Cancellable {
     private final Entity damager;
     private final double originalDamage;
     private final boolean projectile;
-    @Setter
     private double armour;
 
-    public RPGDamageTakeEvent(@NotNull Player entity, RPGItem rpg, ItemStack item, @Nullable Entity damager, double originalDamage, boolean projectile, double armour) {
+    public RPGDamageTakeEvent(Player entity, RPGItem rpg, ItemStack item, @Nullable Entity damager, double originalDamage, boolean projectile, double armour) {
         this.entity = entity;
         this.rpg = rpg;
         this.item = item;

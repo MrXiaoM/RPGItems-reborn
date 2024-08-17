@@ -1,5 +1,7 @@
 package think.rpgitems.event;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -11,26 +13,23 @@ import think.rpgitems.item.RPGItem;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter @Setter
 public class LoreUpdateEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-
+    @Override @NotNull
     public HandlerList getHandlers() {
         return handlers;
     }
     public static HandlerList getHandlerList() {
         return handlers;
     }
+
     @Nullable
     public final Player player;
-    @NotNull
     public List<String> oldLore;
-    @NotNull
     public List<String> newLore;
-    @NotNull
     public final List<String> meta = new ArrayList<>();
-    @NotNull
     public final RPGItem rpg;
-    @NotNull
     public final ItemStack item;
     public LoreUpdateEvent(@NotNull RPGItem rpg, @Nullable Player player, @NotNull ItemStack item, @NotNull List<String> oldLore, @NotNull List<String> newLore) {
         this.rpg = rpg;
@@ -39,8 +38,10 @@ public class LoreUpdateEvent extends Event {
         this.oldLore = oldLore;
         this.newLore = newLore;
     }
+    @Getter
     public static class Post extends Event {
         private static final HandlerList handlers = new HandlerList();
+        @Override @NotNull
         public HandlerList getHandlers() {
             return handlers;
         }

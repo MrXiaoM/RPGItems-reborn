@@ -15,10 +15,11 @@ import think.rpgitems.item.RPGItem;
 
 import java.util.List;
 
+@Getter @Setter
 public class ItemUpdateEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-
-    public @NotNull HandlerList getHandlers() {
+    @Override @NotNull
+    public HandlerList getHandlers() {
         return handlers;
     }
     public static HandlerList getHandlerList() {
@@ -26,23 +27,15 @@ public class ItemUpdateEvent extends Event {
     }
     @Nullable
     public final Player player;
-    @NotNull
     public final RPGItem rpg;
-    @NotNull
     public final ItemStack item;
     /**
      * if true, updateItem() method only update item material and lore. Modify other value is not available.
      */
     public final boolean isLoreAndMaterialOnly;
-    @Getter
-    @Setter
     private Material material;
-    @Setter
-    @Getter
     @Nullable
     private Integer customModelData;
-    @Getter
-    @Setter
     private List<ItemFlag> itemFlags;
     public ItemUpdateEvent(@NotNull RPGItem rpg, @Nullable Player player, @NotNull ItemStack item, boolean isLoreAndMaterialOnly, Material material, @Nullable Integer customModelData, List<ItemFlag> itemFlags) {
         this.rpg = rpg;

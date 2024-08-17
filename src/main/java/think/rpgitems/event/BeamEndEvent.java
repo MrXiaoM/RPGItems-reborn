@@ -1,21 +1,24 @@
 package think.rpgitems.event;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
+@Getter @Setter
 public class BeamEndEvent extends Event {
-    public static final HandlerList handlerList = new HandlerList();
-
-    @Override
+    private static final HandlerList handlers = new HandlerList();
+    @Override @NotNull
     public HandlerList getHandlers() {
-        return handlerList;
+        return handlers;
     }
-    public static HandlerList getHandlerList(){
-        return handlerList;
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     private final Player player;
@@ -30,25 +33,5 @@ public class BeamEndEvent extends Event {
         this.location = location;
         this.itemStack = itemStack;
         this.depth = depth;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public Entity getFromEntity() {
-        return fromEntity;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public ItemStack getItemStack() {
-        return itemStack;
-    }
-
-    public int getDepth() {
-        return depth;
     }
 }

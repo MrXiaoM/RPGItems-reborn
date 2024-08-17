@@ -2,16 +2,16 @@ package think.rpgitems.event;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemsLoadedEvent extends Event {
-    public static final HandlerList handlerList = new HandlerList();
-
-    @Override
+    private static final HandlerList handlers = new HandlerList();
+    @Override @NotNull
     public HandlerList getHandlers() {
-        return handlerList;
+        return handlers;
     }
-    public static HandlerList getHandlerList(){
-        return handlerList;
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public ItemsLoadedEvent() {

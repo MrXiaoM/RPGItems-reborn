@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import think.rpgitems.item.RPGItem;
 
-@Getter
+@Getter @Setter
 public class RPGDamageMeleeEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     @Override @NotNull
@@ -22,16 +22,14 @@ public class RPGDamageMeleeEvent extends PlayerEvent implements Cancellable {
         return handlers;
     }
 
-    @Setter
     private boolean cancelled = false;
     private final RPGItem rpg;
     private final ItemStack item;
     private final Entity entity;
     private final double originalDamage;
-    @Setter
     private double damage;
 
-    public RPGDamageMeleeEvent(@NotNull Player player, RPGItem rpg, ItemStack item, Entity entity, double originalDamage, double damage) {
+    public RPGDamageMeleeEvent(Player player, RPGItem rpg, ItemStack item, Entity entity, double originalDamage, double damage) {
         super(player);
         this.rpg = rpg;
         this.item = item;

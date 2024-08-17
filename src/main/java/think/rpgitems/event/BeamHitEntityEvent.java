@@ -1,5 +1,7 @@
 package think.rpgitems.event;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -9,27 +11,27 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
+@Getter @Setter
 public class BeamHitEntityEvent extends Event {
-    public static final HandlerList handlerList = new HandlerList();
-
-    @Override
+    private static final HandlerList handlers = new HandlerList();
+    @Override @NotNull
     public HandlerList getHandlers() {
-        return handlerList;
+        return handlers;
     }
-
-    public static HandlerList getHandlerList(){
-        return handlerList;
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     private final Player player;
     private final Entity from;
     private final LivingEntity entity;
-    private ItemStack itemStack;
-    private double damage;
     private final Location loc;
     private final BoundingBox boundingBox;
     private final Vector velocity;
+    private ItemStack itemStack;
+    private double damage;
     private int depth;
 
     public BeamHitEntityEvent(Player player, Entity from, LivingEntity entity, ItemStack itemStack, double damage, Location loc, BoundingBox boundingBox, Vector vector, int depth){
@@ -42,45 +44,5 @@ public class BeamHitEntityEvent extends Event {
         this.boundingBox = boundingBox;
         this.velocity = vector;
         this.depth = depth;
-    }
-
-    public BoundingBox getBoundingBox() {
-        return boundingBox;
-    }
-
-    public Vector getVelocity() {
-        return velocity;
-    }
-
-    public ItemStack getItemStack() {
-        return itemStack;
-    }
-
-    public void setDamage(double damage) {
-        this.damage = damage;
-    }
-
-    public Entity getFrom() {
-        return from;
-    }
-
-    public LivingEntity getEntity() {
-        return entity;
-    }
-
-    public double getDamage() {
-        return damage;
-    }
-
-    public Location getLoc() {
-        return loc;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public int getDepth() {
-        return depth;
     }
 }

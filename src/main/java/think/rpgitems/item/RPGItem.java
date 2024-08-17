@@ -1334,6 +1334,11 @@ public class RPGItem implements RPGBaseHolder {
     }
 
     public <TEvent extends Event, TPower extends Pimpl, TResult, TReturn> TReturn power(Player player, ItemStack i, TEvent event, Trigger<TEvent, TPower, TResult, TReturn> trigger, Object context) {
+        RPGPowerTriggerPreEvent<TEvent, TPower, TResult, TReturn> e = new RPGPowerTriggerPreEvent<>(player, this, i, event, trigger, context);
+        Bukkit.getPluginManager().callEvent(e);
+        if (e.isCancelled()) {
+            return trigger.def(player, i, event);
+        }
         powerCustomTrigger(player, i, event, trigger, context);
 
         Pair<List<Power>, List<Condition<?>>> pair = getAllPowersAndConditions(i);
@@ -1354,7 +1359,11 @@ public class RPGItem implements RPGBaseHolder {
                     boolean flag = true;
                     if (power.getPower() instanceof BasePower) {
                         BasePower base = (BasePower) power.getPower();
-                        if (!plugin.magic.costMagic(player, base.getCostMagic())) {
+                        PowerResult<TResult> skipping = e.getSkippingPowersById().get(base.getPowerId());
+                        if (skipping != null) {
+                            result = skipping;
+                            flag = false;
+                        } else if (!plugin.magic.costMagic(player, base.getCostMagic())) {
                             result = PowerResult.cost();
                             flag = false;
                             magicFlag += base.getCostMagic();

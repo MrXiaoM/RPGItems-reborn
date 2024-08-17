@@ -1042,7 +1042,7 @@ public class AdminCommands extends RPGCommandReceiver {
     @SubCommand(value = "print", tabCompleter = "itemCompleter")
     public void itemInfo(CommandSender sender, Arguments args) {
         RPGItem item = getItem(args.nextString(), sender, true);
-        item.print(sender);
+        print(sender, item, true);
     }
 
     @SubCommand(value = "enchantment", tabCompleter = "itemCompleter")
@@ -2147,5 +2147,54 @@ public class AdminCommands extends RPGCommandReceiver {
             return true;
         }
         return false;
+    }
+
+    public static void print(CommandSender sender, RPGItem item, boolean advance) {
+        String author = item.getAuthor();
+        BaseComponent authorComponent = new TextComponent(author);
+        try {
+            UUID uuid = UUID.fromString(item.getAuthor());
+            OfflinePlayer authorPlayer = Bukkit.getOfflinePlayer(uuid);
+            author = authorPlayer.getName();
+            authorComponent = AdminCommands.getAuthorComponent(authorPlayer, author);
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        String locale = RPGItems.plugin.cfg.language;
+        if (sender instanceof Player) {
+            locale = ((Player) sender).getLocale();
+            new Message("")
+                    .append(I18n.getInstance(((Player) sender).getLocale()).format("message.item.print"), item.toItemStack((Player) sender))
+                    .send(sender);
+        } else {
+            List<String> lines = item.getTooltipLines();
+            for (String line : lines) {
+                sender.sendMessage(line);
+            }
+        }
+        I18n.getInstance(locale);
+
+        new Message("").append(I18n.formatDefault("message.print.author"), Collections.singletonMap("{author}", authorComponent)).send(sender);
+        if (!advance) {
+            return;
+        }
+
+        new Message(I18n.formatDefault("message.print.license", item.getLicense())).send(sender);
+        new Message(I18n.formatDefault("message.print.note", item.getNote())).send(sender);
+
+        sender.sendMessage(I18n.formatDefault("message.durability.info", item.getMaxDurability(), item.getDefaultDurability(), item.getDurabilityLowerBound(), item.getDurabilityUpperBound()));
+        if (item.isCustomItemModel()) {
+            sender.sendMessage(I18n.formatDefault("message.print.customitemmodel", item.getItem().name() + ":" + item.getDataValue()));
+        }
+        if (!item.getItemFlags().isEmpty()) {
+            StringBuilder str = new StringBuilder();
+            for (ItemFlag flag : item.getItemFlags()) {
+                if (str.length() != 0) {
+                    str.append(", ");
+                }
+                str.append(flag.name());
+            }
+            sender.sendMessage(I18n.formatDefault("message.print.itemflags") + str);
+        }
     }
 }

@@ -38,7 +38,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
-import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.data.Context;
 import think.rpgitems.data.FactorModifier;
 import think.rpgitems.event.*;
@@ -54,7 +53,6 @@ import think.rpgitems.utils.ColorHelper;
 import think.rpgitems.utils.ISubItemTagContainer;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.MessageType;
-import think.rpgitems.utils.nyaacore.Message;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
@@ -63,7 +61,6 @@ import think.rpgitems.utils.pdc.ItemPDC;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
@@ -78,6 +75,8 @@ import java.util.stream.Stream;
 
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
+import static think.rpgitems.utils.nyaacore.utils.ReflectionUtils.getPropVal;
+import static think.rpgitems.utils.nyaacore.utils.ReflectionUtils.setPropVal;
 
 @SuppressWarnings({"deprecation", "rawtypes", "unused"})
 public class RPGItem implements RPGBaseHolder {
@@ -1613,59 +1612,6 @@ public class RPGItem implements RPGBaseHolder {
         return Event.Result.ALLOW;
     }
 
-    public void print(CommandSender sender) {
-        print(sender, true);
-    }
-
-    public void print(CommandSender sender, boolean advance) {
-        String author = this.getAuthor();
-        BaseComponent authorComponent = new TextComponent(author);
-        try {
-            UUID uuid = UUID.fromString(this.getAuthor());
-            OfflinePlayer authorPlayer = Bukkit.getOfflinePlayer(uuid);
-            author = authorPlayer.getName();
-            authorComponent = AdminCommands.getAuthorComponent(authorPlayer, author);
-        } catch (IllegalArgumentException ignored) {
-        }
-
-        String locale = RPGItems.plugin.cfg.language;
-        if (sender instanceof Player) {
-            locale = ((Player) sender).getLocale();
-            new Message("")
-                    .append(I18n.getInstance(((Player) sender).getLocale()).format("message.item.print"), toItemStack((Player) sender))
-                    .send(sender);
-        } else {
-            List<String> lines = getTooltipLines();
-            for (String line : lines) {
-                sender.sendMessage(line);
-            }
-        }
-        I18n.getInstance(locale);
-
-        new Message("").append(I18n.formatDefault("message.print.author"), Collections.singletonMap("{author}", authorComponent)).send(sender);
-        if (!advance) {
-            return;
-        }
-
-        new Message(I18n.formatDefault("message.print.license", getLicense())).send(sender);
-        new Message(I18n.formatDefault("message.print.note", getNote())).send(sender);
-
-        sender.sendMessage(I18n.formatDefault("message.durability.info", getMaxDurability(), getDefaultDurability(), getDurabilityLowerBound(), getDurabilityUpperBound()));
-        if (isCustomItemModel()) {
-            sender.sendMessage(I18n.formatDefault("message.print.customitemmodel", getItem().name() + ":" + getDataValue()));
-        }
-        if (!getItemFlags().isEmpty()) {
-            StringBuilder str = new StringBuilder();
-            for (ItemFlag flag : getItemFlags()) {
-                if (str.length() != 0) {
-                    str.append(", ");
-                }
-                str.append(flag.name());
-            }
-            sender.sendMessage(I18n.formatDefault("message.print.itemflags") + str);
-        }
-    }
-
     @Deprecated
     public void setItemStackDurability(ItemStack item, int val) {
         setItemStackDurability(null, item, val);
@@ -1727,9 +1673,7 @@ public class RPGItem implements RPGBaseHolder {
                 item.setItemMeta(itemMeta);
                 return false;
             }
-            if (durability <= val
-                        && hasMarker(Unbreakable.class)
-                        && !isCustomItemModel()) {
+            if (durability <= val && hasMarker(Unbreakable.class) && !isCustomItemModel()) {
                 tagContainer.commit();
                 item.setItemMeta(itemMeta);
                 return false;
@@ -1865,9 +1809,7 @@ public class RPGItem implements RPGBaseHolder {
         keys.put(power, key);
         String placeholderId = power.getPlaceholderId();
         placeholders.put(placeholderId, power);
-        if (update) {
-            rebuild();
-        }
+        if (update) rebuild();
     }
 
     @Override
@@ -1896,9 +1838,7 @@ public class RPGItem implements RPGBaseHolder {
         keys.put(condition, key);
         String placeholderId = condition.getPlaceholderId();
         placeholders.put(placeholderId, condition);
-        if (update) {
-            rebuild();
-        }
+        if (update) rebuild();
     }
 
     @Override
@@ -2068,8 +2008,6 @@ public class RPGItem implements RPGBaseHolder {
         return newPh;
     }
 
-
-
     public void updateFromTemplate(RPGItem target) throws UnknownPowerException {
         Set<String> templatePlaceHolders = target.getTemplatePlaceHolders();
         Map<String, List<String>> powerMap = new LinkedHashMap<>();
@@ -2122,35 +2060,6 @@ public class RPGItem implements RPGBaseHolder {
         }
 
         ItemManager.save(this);
-    }
-
-    private Object getPropVal(Class<?> aClass, String propName, PlaceholderHolder placeholder) throws IllegalAccessException {
-        Field getMethod = getField(aClass, propName);
-        getMethod.setAccessible(true);
-        return getMethod.get(placeholder);
-    }
-
-    private void setPropVal(Class<?> aClass, String propName, PlaceholderHolder placeholder, Object value) throws IllegalAccessException {
-        Field getMethod = getField(aClass, propName);
-        getMethod.setAccessible(true);
-        getMethod.set(placeholder, value);
-    }
-
-
-    private Field getField(Class<?> aClass, String methodName) {
-        Field getMethod;
-        while (true){
-            try{
-                getMethod = aClass.getDeclaredField(methodName);
-                break;
-            }catch (NoSuchFieldException e){
-                aClass = aClass.getSuperclass();
-            }
-            if (aClass == null){
-                throw new RuntimeException("invalid placeholder");
-            }
-        }
-        return getMethod;
     }
 
     private void copyFromTemplate(RPGItem target) throws UnknownPowerException {

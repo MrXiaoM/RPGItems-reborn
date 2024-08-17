@@ -16,6 +16,7 @@ import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 
 import java.util.Optional;
 
+import static think.rpgitems.commands.AdminCommands.print;
 import static think.rpgitems.item.RPGItem.TAG_IS_MODEL;
 import static think.rpgitems.item.RPGItem.TAG_META;
 
@@ -36,7 +37,7 @@ public class UserCommands extends RPGCommandReceiver {
         Player p = asPlayer(sender);
         RPGItem item = getItem(sender, false);
         ItemStack itemStack = p.getInventory().getItemInMainHand();
-        item.print(sender, false);
+        print(sender, item, false);
         PersistentDataContainer tagContainer = itemStack.getItemMeta().getPersistentDataContainer();
         PersistentDataContainer metaTag = ItemPDC.getTag(tagContainer, TAG_META);
         Optional<Boolean> optIsModel = ItemPDC.optBoolean(metaTag, TAG_IS_MODEL);

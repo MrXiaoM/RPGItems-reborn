@@ -34,7 +34,6 @@ import java.util.zip.DeflaterInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
-@SuppressWarnings({"unused"})
 public final class ItemPDC { // TODO: 通过 NBT-API 实现 ItemPDC，而非使用 Bukkit 内置实现
 
     public static final PersistentDataType<byte[], UUID> BA_UUID = new UUIDPersistentDataType();
@@ -59,22 +58,6 @@ public final class ItemPDC { // TODO: 通过 NBT-API 实现 ItemPDC，而非使�
         return value;
     }
 
-    public static <T, Z> Z putIfAbsent(PersistentDataContainer container, NamespacedKey key, PersistentDataType<T, Z> type, Supplier<? extends Z> mappingFunction) {
-        return computeIfAbsent(container, key, type, (ignored) -> mappingFunction.get());
-    }
-
-    public static <T, Z> Z putIfAbsent(PersistentDataContainer container, NamespacedKey key, PersistentDataType<T, Z> type, Function<NamespacedKey, ? extends Z> mappingFunction) {
-        Z old = container.get(key, type);
-        if (old == null) {
-            container.set(key, type, mappingFunction.apply(key));
-            return null;
-        }
-        return old;
-    }
-
-    public static <T, Z> Z putValueIfAbsent(PersistentDataContainer container, NamespacedKey key, PersistentDataType<T, Z> type, Z value) {
-        return putIfAbsent(container, key, type, (ignored) -> value);
-    }
 
     public static Boolean getBoolean(PersistentDataContainer container, NamespacedKey key) {
         return container.get(key, BYTE_BOOLEAN);
@@ -83,14 +66,6 @@ public final class ItemPDC { // TODO: 通过 NBT-API 实现 ItemPDC，而非使�
     public static Optional<Boolean> optBoolean(PersistentDataContainer container, NamespacedKey key) {
         if (!container.has(key, BYTE_BOOLEAN)) return Optional.empty();
         return Optional.ofNullable(container.get(key, BYTE_BOOLEAN));
-    }
-
-    public static Byte getByte(PersistentDataContainer container, NamespacedKey key) {
-        return container.get(key, PersistentDataType.BYTE);
-    }
-
-    public static Short getShort(PersistentDataContainer container, NamespacedKey key) {
-        return container.get(key, PersistentDataType.SHORT);
     }
 
     public static Integer getInt(PersistentDataContainer container, NamespacedKey key) {
@@ -104,40 +79,12 @@ public final class ItemPDC { // TODO: 通过 NBT-API 实现 ItemPDC，而非使�
         return i != null ? OptionalInt.of(i) : OptionalInt.empty();
     }
 
-    public static Long getLong(PersistentDataContainer container, NamespacedKey key) {
-        return container.get(key, PersistentDataType.LONG);
-    }
-
-    public static Float getFloat(PersistentDataContainer container, NamespacedKey key) {
-        return container.get(key, PersistentDataType.FLOAT);
-    }
-
-    public static Double getDouble(PersistentDataContainer container, NamespacedKey key) {
-        return container.get(key, PersistentDataType.DOUBLE);
-    }
-
     public static String getString(PersistentDataContainer container, NamespacedKey key) {
         return container.get(key, PersistentDataType.STRING);
     }
 
     public static String getString(PersistentDataContainer container, String key) {
         return container.get(PowerManager.parseKey(key), PersistentDataType.STRING);
-    }
-
-    public static byte[] getByteArray(PersistentDataContainer container, NamespacedKey key) {
-        return container.get(key, PersistentDataType.BYTE_ARRAY);
-    }
-
-    public static int[] getIntArray(PersistentDataContainer container, NamespacedKey key) {
-        return container.get(key, PersistentDataType.INTEGER_ARRAY);
-    }
-
-    public static long[] getLongArray(PersistentDataContainer container, NamespacedKey key) {
-        return container.get(key, PersistentDataType.LONG_ARRAY);
-    }
-
-    public static UUID getUUID(PersistentDataContainer container, NamespacedKey key) {
-        return container.get(key, BA_UUID);
     }
 
     public static Optional<UUID> optUUID(PersistentDataContainer container, NamespacedKey key) {

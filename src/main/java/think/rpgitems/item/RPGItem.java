@@ -23,6 +23,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemFlag;
@@ -40,8 +41,7 @@ import think.rpgitems.RPGItems;
 import think.rpgitems.commands.AdminCommands;
 import think.rpgitems.data.Context;
 import think.rpgitems.data.FactorModifier;
-import think.rpgitems.event.ItemUpdateEvent;
-import think.rpgitems.event.LoreUpdateEvent;
+import think.rpgitems.event.*;
 import think.rpgitems.power.*;
 import think.rpgitems.power.cond.SlotCondition;
 import think.rpgitems.power.marker.*;
@@ -1121,14 +1121,14 @@ public class RPGItem implements RPGBaseHolder {
     /**
      * Event-type independent melee damage event
      *
-     * @param p            Player who launched the damager
-     * @param originDamage Origin damage value
-     * @param stack        ItemStack of this item
-     * @param entity       Victim of this damage event
-     * @return Final damage or -1 if should cancel this event
+     * @param p              Player who launched the damager
+     * @param originalDamage Origin damage value
+     * @param stack          ItemStack of this item
+     * @param entity         Victim of this damage event
+     * @return Final damage or -1 if this event should be cancelled
      */
-    public double meleeDamage(Player p, double originDamage, ItemStack stack, Entity entity) {
-        double damage = originDamage;
+    public double meleeDamage(Player p, double originalDamage, ItemStack stack, Entity entity) {
+        double damage = originalDamage;
         if (!canDoMeleeTo(stack, entity) || ItemManager.canUse(p, this) == Event.Result.DENY) {
             return -1;
         }
@@ -1148,7 +1148,7 @@ public class RPGItem implements RPGBaseHolder {
                 damage = min != max ? (min + ThreadLocalRandom.current().nextInt(max - min + 1)) : min;
 
                 if (getDamageMode() == DamageMode.MULTIPLY) {
-                    damage *= originDamage;
+                    damage *= originalDamage;
                     break;
                 }
 
@@ -1165,7 +1165,7 @@ public class RPGItem implements RPGBaseHolder {
                 damage = damage + strength - weak;
 
                 if (getDamageMode() == DamageMode.ADDITIONAL) {
-                    damage += originDamage;
+                    damage += originalDamage;
                 }
                 if (damage < 0) damage = 0;
                 break;
@@ -1173,21 +1173,23 @@ public class RPGItem implements RPGBaseHolder {
                 //no-op
                 break;
         }
-        return damage;
+        RPGDamageMeleeEvent event = new RPGDamageMeleeEvent(p, this, stack, entity, originalDamage, damage);
+        Bukkit.getPluginManager().callEvent(event);
+        return event.isCancelled() ? -1 : event.getDamage();
     }
 
     /**
      * Event-type independent projectile damage event
      *
-     * @param p            Player who launched the damager
-     * @param originDamage Origin damage value
-     * @param stack        ItemStack of this item
-     * @param damager      Projectile of this damage event
-     * @param entity       Victim of this damage event
-     * @return Final damage or -1 if should cancel this event
+     * @param p              Player who launched the damager
+     * @param originalDamage Origin damage value
+     * @param stack          ItemStack of this item
+     * @param damager        Projectile of this damage event
+     * @param entity         Victim of this damage event
+     * @return Final damage or -1 if this event should be cancelled
      */
-    public double projectileDamage(Player p, double originDamage, ItemStack stack, Entity damager, Entity entity) {
-        double damage = originDamage;
+    public double projectileDamage(Player p, double originalDamage, ItemStack stack, Projectile damager, Entity entity) {
+        double damage = originalDamage;
         if (ItemManager.canUse(p, this) == Event.Result.DENY) {
             return -1;
         }
@@ -1209,7 +1211,7 @@ public class RPGItem implements RPGBaseHolder {
                 damage = min != max ? (min + ThreadLocalRandom.current().nextInt(max - min + 1)) : min;
 
                 if (getDamageMode() == DamageMode.MULTIPLY) {
-                    damage *= originDamage;
+                    damage *= originalDamage;
                     break;
                 }
 
@@ -1218,14 +1220,16 @@ public class RPGItem implements RPGBaseHolder {
                     damage *= damager.getMetadata("RPGItems.Force").get(0).asFloat();
                 }
                 if (getDamageMode() == DamageMode.ADDITIONAL) {
-                    damage += originDamage;
+                    damage += originalDamage;
                 }
                 break;
             case VANILLA:
                 //no-op
                 break;
         }
-        return damage;
+        RPGDamageProjectileEvent event = new RPGDamageProjectileEvent(p, this, stack, damager, entity, originalDamage, damage);
+        Bukkit.getPluginManager().callEvent(event);
+        return event.isCancelled() ? -1 : event.getDamage();
     }
 
     @Deprecated
@@ -1236,29 +1240,34 @@ public class RPGItem implements RPGBaseHolder {
     /**
      * Event-type independent take damage event
      *
-     * @param p            Player taking damage
-     * @param originDamage Origin damage value
-     * @param stack        ItemStack of this item
-     * @param damager      Cause of this damage. May be null
-     * @return Final damage or -1 if should cancel this event
+     * @param p              Player taking damage
+     * @param originalDamage Origin damage value
+     * @param stack          ItemStack of this item
+     * @param damager        Cause of this damage. May be null
+     * @return Final damage or -1 if this event should be cancelled
      */
-    public double takeDamage(Player p, double originDamage, ItemStack stack, Entity damager, boolean projectile) {
+    public double takeDamage(Player p, double originalDamage, ItemStack stack, Entity damager, boolean projectile) {
         if (ItemManager.canUse(p, this) == Event.Result.DENY) {
-            return originDamage;
+            return originalDamage;
         }
         boolean can;
         if (!isHitCostByDamage()) {
             can = consumeDurability(p, stack, getHitCost());
         } else {
-            can = consumeDurability(p, stack, (int) (getHitCost() * originDamage / 100d));
+            can = consumeDurability(p, stack, (int) (getHitCost() * originalDamage / 100d));
         }
         if (can) {
             double rate = projectile && getArmourProjectile() > 0 ? getArmourProjectile() : getArmour();
-            if (rate > 0) {
-                originDamage -= Math.round(originDamage * (rate / 100d));
+            RPGDamageTakeEvent event = new RPGDamageTakeEvent(p, this, stack, damager, originalDamage, projectile, rate);
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
+                return -1;
+            }
+            if (event.getArmour() > 0) {
+                return originalDamage - Math.round(originalDamage * (event.getArmour() / 100d));
             }
         }
-        return originDamage;
+        return originalDamage;
     }
 
     /**

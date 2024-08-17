@@ -96,7 +96,7 @@ dependencies {
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") { isTransitive = false }
 
-    shadowImpl("de.tr7zw:item-nbt-api:2.13.1")
+    shadowImpl("de.tr7zw:item-nbt-api:2.13.2")
 
     shadow(project(":paper"))
     for (proj in rootProject.project(":nms").subprojects) {

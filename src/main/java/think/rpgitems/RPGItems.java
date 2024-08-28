@@ -83,6 +83,16 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
     public final MagicValues magic = new MagicValues(this);
 
     @SuppressWarnings({"unchecked", "JavaReflectionInvocation"})
+    public static <T> T forceWrap(final PowerPlain obj, final Class<T> implInterface) {
+        InvocationHandler invocationHandler = (proxy, method, args) -> {
+            if (!method.getName().equals("fire") && args[0] instanceof Player && args[1] instanceof RPGItem && args[2] instanceof ItemStack) {
+                return obj.getClass().getDeclaredMethod("fire", Player.class, RPGItem.class, ItemStack.class).invoke(obj, args[0], args[1], args[2]);
+            }
+            return obj.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(obj, args);
+        };
+        return (T) Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class[]{implInterface}, invocationHandler);
+    }
+    @SuppressWarnings({"unchecked", "JavaReflectionInvocation"})
     private static <T> T getWrapper(final PowerPlain obj, final Class<T> implInterface, final String delegateMethod) {
         InvocationHandler invocationHandler = (proxy, method, args) -> {
             if (!method.getName().equals(delegateMethod)) {

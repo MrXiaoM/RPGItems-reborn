@@ -382,7 +382,7 @@ public class PowerManager {
                 return (T) func.apply(pimpl);
             }
         }
-        throw new ClassCastException("power " + pimpl.getClass().getName() + " can not be cast to " + specified.getName());
+        return null;
     }
 
     public static void registerOverride(NamespacedKey origin, NamespacedKey override) {

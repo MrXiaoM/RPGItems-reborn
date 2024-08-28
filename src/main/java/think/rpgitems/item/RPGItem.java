@@ -75,6 +75,7 @@ import java.util.stream.Stream;
 
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
+import static think.rpgitems.RPGItems.forceWrap;
 import static think.rpgitems.utils.nyaacore.utils.ReflectionUtils.getPropVal;
 import static think.rpgitems.utils.nyaacore.utils.ReflectionUtils.setPropVal;
 
@@ -1948,10 +1949,17 @@ public class RPGItem implements RPGBaseHolder {
                 .filter(p -> p.getTriggers().contains(trigger) || BaseTriggers.CUSTOM_TRIGGER.filter(p, trigger, stack))
                 .map(p -> {
                     Class<? extends Power> cls = p.getClass();
+                    boolean isCustomTrigger = !p.getStoneFlag().isEmpty();
                     Power proxy = Interceptor.create(p, player, stack, trigger);
-                    return PowerManager.createImpl(cls, proxy);
+                    Pimpl pimpl = PowerManager.createImpl(cls, proxy);
+
+                    T power = pimpl.cast(trigger.getPowerClass());
+                    if (power != null) return power;
+                    if (isCustomTrigger && pimpl instanceof PowerPlain) {
+                        return forceWrap((PowerPlain) pimpl, trigger.getPowerClass());
+                    }
+                    throw new ClassCastException("power " + pimpl.getClass().getName() + " can not be cast to " + trigger.getPowerClass().getName());
                 })
-                .map(p -> p.cast(trigger.getPowerClass()))
                 .collect(Collectors.toList());
     }
 

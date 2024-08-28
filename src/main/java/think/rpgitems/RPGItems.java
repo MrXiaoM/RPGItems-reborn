@@ -88,7 +88,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
             if (!method.getName().equals(delegateMethod)) {
                 return obj.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(obj, args);
             } else {
-                return obj.getClass().getDeclaredMethod("fire", Player.class, ItemStack.class).invoke(obj, args[0], args[1]);
+                return obj.getClass().getDeclaredMethod("fire", Player.class, RPGItem.class, ItemStack.class).invoke(obj, args[0], args[1], args[2]);
             }
         };
         return (T) Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class[]{implInterface}, invocationHandler);

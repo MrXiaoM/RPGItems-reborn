@@ -1949,7 +1949,8 @@ public class RPGItem implements RPGBaseHolder {
                 .filter(p -> p.getTriggers().contains(trigger) || BaseTriggers.CUSTOM_TRIGGER.filter(p, trigger, stack))
                 .map(p -> {
                     Class<? extends Power> cls = p.getClass();
-                    boolean isCustomTrigger = !p.getStoneFlag().isEmpty();
+                    boolean isCustomTrigger = p.getTriggers().contains(BaseTriggers.CUSTOM_TRIGGER)
+                            && !p.getStoneFlag().isEmpty();
                     Power proxy = Interceptor.create(p, player, stack, trigger);
                     Pimpl pimpl = PowerManager.createImpl(cls, proxy);
 

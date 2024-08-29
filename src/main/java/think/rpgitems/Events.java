@@ -916,8 +916,9 @@ public class Events implements Listener {
             if (projectile.hasMetadata("RPGItems.OriginalForce")) {
                 double damage = e.getDamage() * projectile.getMetadata("RPGItems.Force").get(0).asFloat() / projectile.getMetadata("RPGItems.OriginalForce").get(0).asFloat();
                 e.setDamage(damage);
+                return damage;
             }
-            return -1;
+            return e.getDamage();
         }
         RPGItem rItem = ItemManager.getItem(projectileID).orElse(null);
         if (rItem == null || !(projectile.getShooter() instanceof Player))

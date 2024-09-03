@@ -1242,4 +1242,17 @@ public class Events implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onGrindstoneClick(InventoryClickEvent e) {
+        if (!(e.getWhoClicked() instanceof Player)) return;
+        if (e.getView().getType().name().equalsIgnoreCase("GRINDSTONE")) {
+            RPGItem rpg = ItemManager.toRPGItem(e.getCurrentItem()).orElse(null);
+            if (rpg == null || rpg.getEnchantMap() == null || rpg.getEnchantMap().isEmpty()) return;
+            Player player = (Player) e.getWhoClicked();
+            String message = I18n.getFormatted(player, "message.error.grindstone_click");
+            player.sendMessage(message);
+            e.setCancelled(true);
+        }
+    }
 }

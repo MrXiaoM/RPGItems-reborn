@@ -40,6 +40,7 @@ message:
       &c&l建议停止服务器并手动检查物品配置及其备份，并向我们提交BUG并附带上后台日志，谢谢。
       &e%s
     invalid_regex: 无效的正则表达式
+    grindstone_click: '&c禁止将此神器祛魔'
   wgcustomflag:
     disable: Worldguard 自定义标志已禁用
     enable: Worldguard 自定义标志已启用

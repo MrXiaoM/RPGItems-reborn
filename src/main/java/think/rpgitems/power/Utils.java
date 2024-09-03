@@ -243,14 +243,18 @@ public class Utils {
             if (showWarn) {
                 I18n i18n = I18n.getInstance(player.getLocale());
                 String displayName = item.getDisplayName();
-                if (showPower) {
-                    String message = i18n.getFormatted("message.cooldown.power", ((double) (cooldown - nowTime)) / 50d / 20d, displayName, power.getLocalizedName(player));
-                    if (player.hasPermission("rpgitems.actionbar.cooldown")) player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
-                    else player.sendMessage(message);
-                } else {
-                    String message = i18n.getFormatted("message.cooldown.general", ((double) (cooldown - nowTime)) / 50d / 20d, displayName);
-                    if (player.hasPermission("rpgitems.actionbar.cooldown")) player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
-                    else player.sendMessage(message);
+                if (player.hasPermission("rpgitems.show.cooldown")) {
+                    if (showPower) {
+                        String message = i18n.getFormatted("message.cooldown.power", ((double) (cooldown - nowTime)) / 50d / 20d, displayName, power.getLocalizedName(player));
+                        if (player.hasPermission("rpgitems.actionbar.cooldown"))
+                            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+                        else player.sendMessage(message);
+                    } else {
+                        String message = i18n.getFormatted("message.cooldown.general", ((double) (cooldown - nowTime)) / 50d / 20d, displayName);
+                        if (player.hasPermission("rpgitems.actionbar.cooldown"))
+                            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+                        else player.sendMessage(message);
+                    }
                 }
             }
             return false;

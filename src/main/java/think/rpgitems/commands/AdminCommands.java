@@ -25,7 +25,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
-import think.rpgitems.gui.GuiItemEditor;
 import think.rpgitems.item.*;
 import think.rpgitems.power.*;
 import think.rpgitems.support.WGSupport;
@@ -60,6 +59,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static think.rpgitems.gui.editor.EditorHelper.openGuiEditor;
 import static think.rpgitems.item.RPGItem.AttributeMode.FULL_UPDATE;
 import static think.rpgitems.item.RPGItem.AttributeMode.PARTIAL_UPDATE;
 import static think.rpgitems.item.RPGItem.*;
@@ -978,8 +978,8 @@ public class AdminCommands extends RPGCommandReceiver {
             return;
         }
         Player player = (Player) sender;
-        RPGItem item = getItem(args.nextString(), sender);
-        plugin.gui.openGui(new GuiItemEditor(player, item));
+        RPGBaseHolder rpg = getStoneOrItem(args.nextString(), sender);
+        openGuiEditor(player, rpg);
     }
 
     @SubCommand(value = "itemHand", tabCompleter = "rpgStoneOrItemCompleter")

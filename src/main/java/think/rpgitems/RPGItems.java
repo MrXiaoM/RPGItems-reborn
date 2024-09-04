@@ -36,6 +36,7 @@ import think.rpgitems.support.WGSupport;
 import think.rpgitems.utils.cast.PluginUtils;
 import think.rpgitems.utils.nms.NMS;
 import think.rpgitems.utils.nyaacore.NyaaCoreLoader;
+import think.rpgitems.utils.prompt.PromptManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -78,6 +79,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
     List<Plugin> managedPlugins = new ArrayList<>();
     public Configuration cfg;
     public GuiManager gui;
+    public PromptManager prompt;
     private final NyaaCoreLoader nyaaCoreLoader = new NyaaCoreLoader(this);
     public final List<Runnable> disableHook = new ArrayList<>();
     public final MagicValues magic = new MagicValues(this);
@@ -277,6 +279,7 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         }
 
         gui = new GuiManager(this);
+        prompt = new PromptManager(this);
         magic.onEnable();
 
         new AdminCommands(this).registerToBukkit(getCommand("rpgitem"));

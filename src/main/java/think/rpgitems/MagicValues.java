@@ -94,11 +94,16 @@ public class MagicValues implements Listener {
         updateBossBar(player);
     }
 
-    public boolean costMagic(Player player, int value) {
+    public boolean hasMagic(Player player, int value) {
         if (value <= 0) return true;
         int magic = getUserMagic(player);
-        if (magic < value) return false;
+        return magic >= value;
+    }
+
+    public void costMagic(Player player, int value) {
+        if (value <= 0) return;
+        int magic = getUserMagic(player);
+        if (magic < value) return;
         setUserMagic(player, magic - value);
-        return true;
     }
 }

@@ -1363,7 +1363,7 @@ public class RPGItem implements RPGBaseHolder {
                         if (skipping != null) {
                             result = skipping;
                             flag = false;
-                        } else if (!plugin.magic.costMagic(player, base.getCostMagic())) {
+                        } else if (!plugin.magic.hasMagic(player, base.getCostMagic())) {
                             result = PowerResult.cost();
                             flag = false;
                             magicFlag += base.getCostMagic();
@@ -1374,6 +1374,9 @@ public class RPGItem implements RPGBaseHolder {
                             result = handleContext(player, i, event, trigger, power);
                         } else {
                             result = trigger.run(this, power, player, i, event, context);
+                        }
+                        if (result.isOK() && power.getPower() instanceof BasePower) {
+                            plugin.magic.costMagic(player, ((BasePower) power.getPower()).getCostMagic());
                         }
                     }
                     resultMap.put(power.getPower(), result);

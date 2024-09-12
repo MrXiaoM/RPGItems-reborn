@@ -43,10 +43,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -164,14 +161,32 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         ItemManager.reload(plugin);
     }
 
+    private static <T extends Pimpl> void registerFallbackAdapter(Class<T> powerClass, String method) {
+        PowerManager.registerAdapter(PowerPlain.class, powerClass, p -> getWrapper(p, powerClass, method));
+    }
+
     void loadPowers() {
         PowerManager.clear();
         logger.log(Level.INFO, "Loading powers...");
         BaseTriggers.load();
-        PowerManager.registerAdapter(PowerPlain.class, PowerOffhandClick.class, p -> getWrapper(p, PowerOffhandClick.class, "offhandClick"));
-        PowerManager.registerAdapter(PowerPlain.class, PowerSprint.class, p -> getWrapper(p, PowerSprint.class, "sprint"));
-        PowerManager.registerAdapter(PowerPlain.class, PowerSneak.class, p -> getWrapper(p, PowerSneak.class, "sneak"));
-        PowerManager.registerAdapter(PowerPlain.class, PowerAttachment.class, p -> getWrapper(p, PowerAttachment.class, "attachment"));
+        new HashMap<Class<? extends Pimpl>, String>() {{
+            // power impl adapters that fallback to PowerPlain
+            put(PowerOffhandClick.class, "offhandClick");
+            put(PowerSprint.class, "sprint");
+            put(PowerSneak.class, "sneak");
+            put(PowerSneaking.class, "sneaking");
+            put(PowerAttachment.class, "attachment");
+            put(PowerHit.class, "hit");
+            put(PowerHitTaken.class, "takeHit");
+            put(PowerHurt.class, "hurt");
+            put(PowerProjectileLaunch.class, "projectileLaunch");
+            put(PowerProjectileHit.class, "projectileHit");
+
+            for (Entry<Class<? extends Pimpl>, String> entry : entrySet()) {
+                registerFallbackAdapter(entry.getKey(), entry.getValue());
+            }
+        }};
+
         PowerManager.registerConditions(RPGItems.plugin, Power.class.getPackage().getName() + ".cond");
         PowerManager.registerPowers(RPGItems.plugin, Power.class.getPackage().getName() + ".impl");
         PowerManager.registerMarkers(RPGItems.plugin, Power.class.getPackage().getName() + ".marker");

@@ -1,5 +1,6 @@
 package think.rpgitems;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import de.tr7zw.changeme.nbtapi.NBT;
@@ -42,6 +43,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.logging.Level;
@@ -165,27 +167,33 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         PowerManager.registerAdapter(PowerPlain.class, powerClass, p -> getWrapper(p, powerClass, method));
     }
 
+    private static <T extends Pimpl> void registerFallbackAdapter(Class<T> powerInterface) {
+        if (!powerInterface.isInterface()) return;
+        for (Method method : powerInterface.getDeclaredMethods()) {
+            Class<?>[] args = method.getParameterTypes();
+            if (args.length < 3) continue;
+            if (args[0].isAssignableFrom(Player.class)
+            && args[1].isAssignableFrom(RPGItem.class)
+            && args[2].isAssignableFrom(ItemStack.class)) {
+                registerFallbackAdapter(powerInterface, method.getName());
+                break;
+            }
+        }
+    }
+
     void loadPowers() {
         PowerManager.clear();
         logger.log(Level.INFO, "Loading powers...");
         BaseTriggers.load();
-        new HashMap<Class<? extends Pimpl>, String>() {{
-            // power impl adapters that fallback to PowerPlain
-            put(PowerOffhandClick.class, "offhandClick");
-            put(PowerSprint.class, "sprint");
-            put(PowerSneak.class, "sneak");
-            put(PowerSneaking.class, "sneaking");
-            put(PowerAttachment.class, "attachment");
-            put(PowerHit.class, "hit");
-            put(PowerHitTaken.class, "takeHit");
-            put(PowerHurt.class, "hurt");
-            put(PowerProjectileLaunch.class, "projectileLaunch");
-            put(PowerProjectileHit.class, "projectileHit");
 
-            for (Entry<Class<? extends Pimpl>, String> entry : entrySet()) {
-                registerFallbackAdapter(entry.getKey(), entry.getValue());
-            }
-        }};
+        Lists.newArrayList( // register power fallback adapters
+                PowerAttachment.class, PowerBowShoot.class, PowerEntity.class,
+                PowerHit.class, PowerHitTaken.class, PowerHurt.class, PowerLeftClick.class,
+                PowerLivingEntity.class, PowerLocation.class, PowerMainhandItem.class,
+                PowerOffhandClick.class, PowerOffhandItem.class, PowerProjectileHit.class,
+                PowerProjectileLaunch.class, PowerRightClick.class, PowerSneak.class, PowerSneaking.class,
+                PowerSprint.class, PowerTick.class
+        ).forEach(RPGItems::registerFallbackAdapter);
 
         PowerManager.registerConditions(RPGItems.plugin, Power.class.getPackage().getName() + ".cond");
         PowerManager.registerPowers(RPGItems.plugin, Power.class.getPackage().getName() + ".impl");

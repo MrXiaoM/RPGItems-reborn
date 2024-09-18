@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AtomicDouble;
+import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatMessageType;
@@ -73,6 +74,7 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static de.tr7zw.changeme.nbtapi.utils.MinecraftVersion.MC1_21_R1;
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
 import static think.rpgitems.RPGItems.forceWrap;
@@ -1089,10 +1091,25 @@ public class RPGItem implements RPGBaseHolder {
                         attributeModifier.operation,
                         attributeModifier.slot
                 );
+                String uuidStr = uuid.toString();
                 if (old != null) {
-                    old.entries().stream().filter(m -> m.getValue().getUniqueId().equals(uuid)).findAny().ifPresent(
-                            e -> itemMeta.removeAttributeModifier(e.getKey(), e.getValue())
-                    );
+                    boolean is121 = MinecraftVersion.isAtLeastVersion(MC1_21_R1);
+                    for (Entry<Attribute, org.bukkit.attribute.AttributeModifier> entry : old.entries()) {
+                        if (is121) {
+                            // 1.21 使用 NamespacedKey 而不是 UUID，
+                            // 原有 getUniqueId 部分被粗暴地改为了 UUID.fromString(getKey().toString())
+                            // 目前只有这个方法来兼容
+                            String targetKey = entry.getValue().serialize().get("key").toString();
+                            if (targetKey.equals(uuidStr)) {
+                                itemMeta.removeAttributeModifier(entry.getKey(), entry.getValue());
+                                break;
+                            }
+                        }
+                        else if (entry.getValue().getUniqueId().equals(uuid)) {
+                            itemMeta.removeAttributeModifier(entry.getKey(), entry.getValue());
+                            break;
+                        }
+                    }
                 }
                 itemMeta.addAttributeModifier(attribute, modifier);
             }

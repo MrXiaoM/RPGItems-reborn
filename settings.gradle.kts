@@ -11,6 +11,7 @@ listOf(
     ":paper:bukkit",
     ":nms",
     ":nms:shared",
+    /*
     ":nms:1_8_R1",
     ":nms:1_8_R2",
     ":nms:1_8_R3",
@@ -21,6 +22,7 @@ listOf(
     ":nms:1_12_R1",
     ":nms:1_13_R1",
     ":nms:1_13_R2",
+     */
     ":nms:1_14_R1",
     ":nms:1_15_R1",
     ":nms:1_16_R1",

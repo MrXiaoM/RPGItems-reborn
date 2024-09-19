@@ -8,7 +8,6 @@ import think.rpgitems.utils.nyaacore.cmdreceiver.Arguments;
 import think.rpgitems.utils.nyaacore.cmdreceiver.SubCommand;
 
 import static think.rpgitems.commands.AdminCommands.msgs;
-import static think.rpgitems.commands.AdminCommands.readOnly;
 
 public class MagicCommands extends RPGCommandReceiver {
     RPGItems plugin;
@@ -24,7 +23,6 @@ public class MagicCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "add")
     public void add(CommandSender sender, Arguments arguments) {
-        if (readOnly(sender)) return;
         Player player = arguments.nextPlayer();
         int value = arguments.nextInt();
         boolean isSilent = arguments.nextString("").equals("-s");
@@ -39,7 +37,6 @@ public class MagicCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "sub")
     public void sub(CommandSender sender, Arguments arguments) {
-        if (readOnly(sender)) return;
         Player player = arguments.nextPlayer();
         int value = arguments.nextInt();
         boolean isSilent = arguments.nextString("").equals("-s");
@@ -53,7 +50,6 @@ public class MagicCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "set")
     public void set(CommandSender sender, Arguments arguments) {
-        if (readOnly(sender)) return;
         Player player = arguments.nextPlayer();
         int value = arguments.nextInt();
         boolean isSilent = arguments.nextString("").equals("-s");
@@ -67,7 +63,6 @@ public class MagicCommands extends RPGCommandReceiver {
 
     @SubCommand(value = "get")
     public void get(CommandSender sender, Arguments arguments) {
-        if (readOnly(sender)) return;
         Player player = arguments.nextPlayer();
         int magic = plugin.magic.getUserMagic(player);
         int total = plugin.magic.getUserTotalMagic(player);

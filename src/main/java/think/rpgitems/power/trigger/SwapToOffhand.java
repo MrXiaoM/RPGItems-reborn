@@ -22,7 +22,10 @@ class SwapToOffhand extends Trigger<PlayerSwapHandItemsEvent, PowerMainhandItem,
 
     @Override
     public Boolean next(Boolean a, PowerResult<Boolean> b) {
-        return b.isOK() ? b.data() && a : a;
+        if (!b.isOK()) return a;
+        Boolean r = b.data();
+        if (r == null) return a;
+        return r && a;
     }
 
     @Override

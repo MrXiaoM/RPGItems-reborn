@@ -39,9 +39,7 @@ import think.rpgitems.utils.nms.NMS;
 import think.rpgitems.utils.nyaacore.NyaaCoreLoader;
 import think.rpgitems.utils.prompt.PromptManager;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -50,6 +48,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static think.rpgitems.utils.cast.PluginUtils.stackTraceToString;
 
 public final class RPGItems extends JavaPlugin implements PluginMessageListener {
 
@@ -392,5 +392,36 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
             command.setExecutor(null);
             command.setTabCompleter(null);
         }
+    }
+
+    /**
+     * 保存资源到 RPGItems 文件夹
+     * @param ext 资源所在插件实例
+     * @param name 文件名
+     * @return 保存失败时返回 false，保存成功或文件已存在时返回 true
+     */
+    public static boolean saveResource(JavaPlugin ext, String name) {
+        File file = new File(plugin.getDataFolder(), name);
+        if (!file.exists()) {
+            InputStream resource = ext.getResource(name);
+            return resource != null && save(file, resource);
+        }
+        return true;
+    }
+
+    private static boolean save(File file, InputStream resource) {
+        try (FileOutputStream os = new FileOutputStream(file)) {
+            try (resource) {
+                byte[] buffer = new byte[1024 * 10];
+                int len;
+                while ((len = resource.read(buffer)) != -1) {
+                    os.write(buffer, 0, len);
+                }
+            }
+            return true;
+        } catch (IOException e) {
+            plugin.getLogger().warning(stackTraceToString(e));
+        }
+        return false;
     }
 }

@@ -104,6 +104,11 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
         };
         return (T) Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class[]{implInterface}, invocationHandler);
     }
+
+    public List<Plugin> ext() {
+        return Collections.unmodifiableList(managedPlugins);
+    }
+
     @Override
     public void onLoad() {
         plugin = this;

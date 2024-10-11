@@ -1169,6 +1169,12 @@ public class Events implements Listener {
             RPGStone stone = ItemManager.toRPGStone(cursor).orElse(null);
             if (rpg != null && stone != null && item.getAmount() == 1 && cursor.getAmount() == 1) {
                 e.setCancelled(true);
+                if (!stone.getAllowRPGItems().isEmpty()) {
+                    if (!stone.getAllowRPGItems().contains(rpg.getName())) {
+                        player.sendMessage(I18n.getFormatted(player, "message.stone.apply-not-allowed"));
+                        return;
+                    }
+                }
                 int limited = plugin.cfg.stoneMaxCount;
                 Map<RPGStone, String> map = ItemManager.toRPGStoneList(item);
                 if (map.size() >= limited) {

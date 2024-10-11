@@ -58,6 +58,7 @@ public class RPGStone implements RPGBaseHolder {
 
     @Getter @Setter private List<String> allowTriggers = new ArrayList<>();
     @Getter @Setter private List<String> allowTriggersArmour = new ArrayList<>();
+    @Getter @Setter private List<String> allowRPGItems = new ArrayList<>();
 
     @Getter @Setter private double successRate = 1;
     @Getter @Setter private List<String> successCommands = new ArrayList<>();
@@ -147,6 +148,7 @@ public class RPGStone implements RPGBaseHolder {
 
         setAllowTriggers(s.getStringList("allowTriggers"));
         setAllowTriggersArmour(s.getStringList("allowTriggersArmour"));
+        setAllowRPGItems(s.getStringList("allowRPGItems"));
 
         setSuccessRate(s.getDouble("successRate"));
         setSuccessCommands(s.getStringList("successCommands"));
@@ -202,6 +204,7 @@ public class RPGStone implements RPGBaseHolder {
 
         s.set("allowTriggers", getAllowTriggers());
         s.set("allowTriggersArmour", getAllowTriggersArmour());
+        s.set("allowRPGItems", getAllowRPGItems());
 
         s.set("successRate", getSuccessRate());
         s.set("successCommands", getSuccessCommands());

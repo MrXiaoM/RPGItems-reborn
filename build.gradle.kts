@@ -49,6 +49,7 @@ allprojects {
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
         maven("https://mvn.lumine.io/repository/maven/")
+        maven("https://repo.dmulloy2.net/repository/public/")
         maven("https://jitpack.io")
     }
 

@@ -1,10 +1,14 @@
 package think.rpgitems.utils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +18,22 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static think.rpgitems.RPGItems.adv;
+
 public class ColorHelper {
     private static final Pattern startWithColor = Pattern.compile("^(&[LMNKOlmnko])+");
     private static final Pattern gradientPattern = Pattern.compile("\\{(#[ABCDEFabcdef0123456789]{6}):(#[ABCDEFabcdef0123456789]{6}):(.*)}");
     private static final Pattern hexPattern = Pattern.compile("&(#[ABCDEFabcdef0123456789]{6})");
     private static final Pattern translatePattern = Pattern.compile("<translate:(.*?)>");
+    private static final MiniMessage miniMessage = MiniMessage.builder().postProcessor((it) -> it.decoration(TextDecoration.ITALIC, false)).build();
+
+    public static Component miniMessage(String s) {
+        return miniMessage.deserialize(legacyToMiniMessage(s));
+    }
+
+    public static void send(Player player, String s) {
+        adv().player(player).sendMessage(miniMessage(s));
+    }
 
     public static void parseAndSend(CommandSender sender, String s) {
         List<BaseComponent> builder = split(translatePattern, parseColor(s), regexResult -> {
@@ -175,5 +190,78 @@ public class ColorHelper {
             this.isMatched = result != null;
             this.text = text;
         }
+    }
+
+
+    public static String legacyToMiniMessage(String legacy) {
+        StringBuilder stringBuilder = new StringBuilder();
+        char[] chars = legacy.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            if (!isColorCode(chars[i])) {
+                stringBuilder.append(chars[i]);
+                continue;
+            }
+            if (i + 1 >= chars.length) {
+                stringBuilder.append(chars[i]);
+                continue;
+            }
+            switch (chars[i+1]) {
+                case '0': stringBuilder.append("<black>"); break;
+                case '1': stringBuilder.append("<dark_blue>"); break;
+                case '2': stringBuilder.append("<dark_green>"); break;
+                case '3': stringBuilder.append("<dark_aqua>"); break;
+                case '4': stringBuilder.append("<dark_red>"); break;
+                case '5': stringBuilder.append("<dark_purple>"); break;
+                case '6': stringBuilder.append("<gold>"); break;
+                case '7': stringBuilder.append("<gray>"); break;
+                case '8': stringBuilder.append("<dark_gray>"); break;
+                case '9': stringBuilder.append("<blue>"); break;
+                case 'a': stringBuilder.append("<green>"); break;
+                case 'b': stringBuilder.append("<aqua>"); break;
+                case 'c': stringBuilder.append("<red>"); break;
+                case 'd': stringBuilder.append("<light_purple>"); break;
+                case 'e': stringBuilder.append("<yellow>"); break;
+                case 'f': stringBuilder.append("<white>"); break;
+                case 'r': stringBuilder.append("<reset><!i>"); break;
+                case 'l': stringBuilder.append("<b>"); break;
+                case 'm': stringBuilder.append("<st>"); break;
+                case 'o': stringBuilder.append("<i>"); break;
+                case 'n': stringBuilder.append("<u>"); break;
+                case 'k': stringBuilder.append("<o>"); break;
+                case 'x': {
+                    if (i + 13 >= chars.length
+                            || !isColorCode(chars[i+2])
+                            || !isColorCode(chars[i+4])
+                            || !isColorCode(chars[i+6])
+                            || !isColorCode(chars[i+8])
+                            || !isColorCode(chars[i+10])
+                            || !isColorCode(chars[i+12])) {
+                        stringBuilder.append(chars[i]);
+                        continue;
+                    }
+                    stringBuilder
+                            .append("<#")
+                            .append(chars[i+3])
+                            .append(chars[i+5])
+                            .append(chars[i+7])
+                            .append(chars[i+9])
+                            .append(chars[i+11])
+                            .append(chars[i+13])
+                            .append(">");
+                    i += 12;
+                    break;
+                }
+                default: {
+                    stringBuilder.append(chars[i]);
+                    continue;
+                }
+            }
+            i++;
+        }
+        return stringBuilder.toString();
+    }
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean isColorCode(char c) {
+        return c == '§' || c == '&';
     }
 }

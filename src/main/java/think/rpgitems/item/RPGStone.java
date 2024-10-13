@@ -21,6 +21,7 @@ import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.utils.ColorHelper;
 import think.rpgitems.utils.ISubItemTagContainer;
+import think.rpgitems.utils.ItemUtils;
 import think.rpgitems.utils.MaterialUtils;
 import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
 import think.rpgitems.utils.pdc.ItemPDC;
@@ -50,7 +51,6 @@ public class RPGStone implements RPGBaseHolder {
     @Getter private final String name;
 
     private String displayName;
-    private String displayNameColored;
     @Setter @Getter private List<String> description = new ArrayList<>();
     @Setter @Getter private List<String> extraDescription = new ArrayList<>();
     @Getter @Setter private boolean customItemModel;
@@ -188,7 +188,7 @@ public class RPGStone implements RPGBaseHolder {
         s.set("name", getName());
         s.set("uid", getUid());
 
-        s.set("display", getDisplayNameRaw().replaceAll("§", "&"));
+        s.set("display", getDisplayName());
 
         ArrayList<String> descriptionConv = new ArrayList<>(getDescription());
         descriptionConv.replaceAll(s1 -> s1.replaceAll("§", "&"));
@@ -341,21 +341,22 @@ public class RPGStone implements RPGBaseHolder {
             ((LeatherArmorMeta) meta).setColor(Color.fromRGB(getDataValue()));
         }
 
-        meta.setDisplayName(getDisplayName());
-        meta.setLore(new ArrayList<>(getDescription()));
-
         if (loreOnly) {
             rpgitemsTagContainer.commit();
             item.setItemMeta(meta);
             if (!useCustomTrigger()) ItemTagUtils.remove(item, NBT_POWER_STONE_TRIGGER);
-            return;
+        } else {
+            if (isCustomItemModel()) {
+                meta.setCustomModelData(getCustomModelData());
+            }
+            rpgitemsTagContainer.commit();
+            item.setItemMeta(meta);
         }
 
-        if (isCustomItemModel()) {
-            meta.setCustomModelData(getCustomModelData());
-        }
-        rpgitemsTagContainer.commit();
-        item.setItemMeta(meta);
+        ItemUtils.setItemDisplayName(item, getDisplayName());
+        ItemUtils.setItemLore(item, new ArrayList<>(getDescription()));
+
+        if (loreOnly) return;
 
         ItemTagUtils.setInt(item, NBT_POWER_STONE_UID, uid);
         if (RPGItems.plugin.cfg.itemStackUuid) {
@@ -389,17 +390,13 @@ public class RPGStone implements RPGBaseHolder {
         }
     }
 
-    public String getDisplayNameRaw() {
-        return displayName;
-    }
     @Override
     public String getDisplayName() {
-        return displayNameColored;
+        return displayName;
     }
     @Override
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-        this.displayNameColored = ColorHelper.parseColor(displayName);
     }
     @Override
     public void addDescription(String str) {

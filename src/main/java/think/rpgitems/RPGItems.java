@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import de.tr7zw.changeme.nbtapi.NBT;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -74,6 +75,10 @@ public final class RPGItems extends JavaPlugin implements PluginMessageListener 
 
     public static Logger logger;
     public static RPGItems plugin;
+    private static BukkitAudiences adventure;
+    public static BukkitAudiences adv() {
+        return adventure;
+    }
 
     List<Plugin> managedPlugins = new ArrayList<>();
     public Configuration cfg;

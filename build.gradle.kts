@@ -98,6 +98,9 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") { isTransitive = false }
 
     shadowImpl("de.tr7zw:item-nbt-api:2.13.2")
+    shadowImpl("net.kyori:adventure-api:4.17.0")
+    shadowImpl("net.kyori:adventure-platform-bukkit:4.3.4")
+    shadowImpl("net.kyori:adventure-text-minimessage:4.17.0")
 
     shadow(project(":paper"))
     for (proj in rootProject.project(":nms").subprojects) {
@@ -132,6 +135,7 @@ tasks {
         configurations = listOf(project.configurations.shadow.get())
         mapOf(
             "de.tr7zw.changeme.nbtapi" to "nbtapi",
+            "net.kyori" to "kyori",
         ).forEach { (original, target) ->
             relocate(original, "think.rpgitems.utils.$target")
         }

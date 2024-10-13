@@ -50,10 +50,7 @@ import think.rpgitems.power.proxy.Interceptor;
 import think.rpgitems.power.trigger.BaseTriggers;
 import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.support.MythicSupport;
-import think.rpgitems.utils.ColorHelper;
-import think.rpgitems.utils.ISubItemTagContainer;
-import think.rpgitems.utils.MaterialUtils;
-import think.rpgitems.utils.MessageType;
+import think.rpgitems.utils.*;
 import think.rpgitems.utils.nyaacore.Pair;
 import think.rpgitems.utils.nyaacore.utils.ItemStackUtils;
 import think.rpgitems.utils.nyaacore.utils.ItemTagUtils;
@@ -78,6 +75,7 @@ import static de.tr7zw.changeme.nbtapi.utils.MinecraftVersion.MC1_21_R1;
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
 import static think.rpgitems.RPGItems.forceWrap;
+import static think.rpgitems.utils.ColorHelper.send;
 import static think.rpgitems.utils.nyaacore.utils.ReflectionUtils.getPropVal;
 import static think.rpgitems.utils.nyaacore.utils.ReflectionUtils.setPropVal;
 
@@ -133,7 +131,6 @@ public class RPGItem implements RPGBaseHolder {
     @Getter @Setter private boolean hasPermission;
     @Setter private String permission;
     private String displayName;
-    private String displayNameColored;
     @Getter @Setter private String factor;
     @Getter @Setter Map<String, FactorModifier> factorModifiers = new HashMap<>();
     @Getter private int damageMin = 0;
@@ -632,7 +629,7 @@ public class RPGItem implements RPGBaseHolder {
 
         s.set("haspermission", isHasPermission());
         s.set("permission", getPermission());
-        s.set("display", getDisplayNameRaw().replaceAll("§", "&"));
+        s.set("display", getDisplayName());
         s.set("factor", getFactor());
 
         for (FactorModifier modifier : factorModifiers.values()) {
@@ -883,16 +880,7 @@ public class RPGItem implements RPGBaseHolder {
         LoreUpdateEvent loreUpdateEvent = new LoreUpdateEvent(this, player, item, oldLore, lore);
         Bukkit.getPluginManager().callEvent(loreUpdateEvent);
         item = loreUpdateEvent.item;
-        meta.setLore(loreUpdateEvent.newLore);
-
-        //quality prefix
-        String qualityPrefix = plugin.cfg.qualityPrefixes.get(getQuality());
-        if (qualityPrefix != null) {
-            if (meta.hasDisplayName() && !meta.getDisplayName().startsWith(qualityPrefix)) {
-                String displayName = meta.getDisplayName();
-                meta.setDisplayName(qualityPrefix + displayName);
-            }
-        }
+        ItemUtils.setItemLore(item, loreUpdateEvent.newLore);
 
         if (armour > 0 || armourProjectile > 0 || !armourExpression.isEmpty()) {
             String m = item.getType().name().toUpperCase();
@@ -920,31 +908,33 @@ public class RPGItem implements RPGBaseHolder {
         if (loreOnly) {
             rpgitemsTagContainer.commit();
             item.setItemMeta(meta);
-            return;
-        }
+        } else {
+            meta.setUnbreakable(hasMarker(Unbreakable.class));
+            meta.removeItemFlags(meta.getItemFlags().toArray(new ItemFlag[0]));
 
-        meta.setUnbreakable(isCustomItemModel() || hasMarker(Unbreakable.class));
-        meta.removeItemFlags(meta.getItemFlags().toArray(new ItemFlag[0]));
+            meta.setCustomModelData(itemUpdateEvent.getCustomModelData());
+            for (ItemFlag flag : itemUpdateEvent.getItemFlags()) {
+                meta.addItemFlags(flag);
+            }
+            if (getEnchantMode() == EnchantMode.DISALLOW) {
+                Set<Enchantment> enchs = meta.getEnchants().keySet();
+                for (Enchantment e : enchs) {
+                    meta.removeEnchant(e);
+                }
+            }
+            Map<Enchantment, Integer> enchantMap = getEnchantMap();
+            if (enchantMap != null) {
+                for (Entry<Enchantment, Integer> e : enchantMap.entrySet()) {
+                    meta.addEnchant(e.getKey(), Math.max(meta.getEnchantLevel(e.getKey()), e.getValue()), true);
+                }
+            }
+            checkAndMakeUnique(rpgitemsTagContainer);
+            rpgitemsTagContainer.commit();
+            item.setItemMeta(refreshAttributeModifiers(meta));
+        }
+        ItemUtils.setItemLore(item, loreUpdateEvent.newLore);
 
-        meta.setCustomModelData(itemUpdateEvent.getCustomModelData());
-        for (ItemFlag flag : itemUpdateEvent.getItemFlags()) {
-            meta.addItemFlags(flag);
-        }
-        if (getEnchantMode() == EnchantMode.DISALLOW) {
-            Set<Enchantment> enchs = meta.getEnchants().keySet();
-            for (Enchantment e : enchs) {
-                meta.removeEnchant(e);
-            }
-        }
-        Map<Enchantment, Integer> enchantMap = getEnchantMap();
-        if (enchantMap != null) {
-            for (Entry<Enchantment, Integer> e : enchantMap.entrySet()) {
-                meta.addEnchant(e.getKey(), Math.max(meta.getEnchantLevel(e.getKey()), e.getValue()), true);
-            }
-        }
-        checkAndMakeUnique(rpgitemsTagContainer);
-        rpgitemsTagContainer.commit();
-        item.setItemMeta(refreshAttributeModifiers(meta));
+        if (loreOnly) return;
 
         ItemTagUtils.setInt(item, NBT_UID, uid);
         if (RPGItems.plugin.cfg.itemStackUuid) {
@@ -1568,6 +1558,11 @@ public class RPGItem implements RPGBaseHolder {
         return null;
     }
 
+    public String getQualityPrefix() {
+        String qualityPrefix = plugin.cfg.qualityPrefixes.get(getQuality());
+        return qualityPrefix == null ? "" : qualityPrefix;
+    }
+
     @Deprecated
     public ItemStack toItemStack() {
         return toItemStack(null);
@@ -1582,8 +1577,8 @@ public class RPGItem implements RPGBaseHolder {
             ItemPDC.set(rpgitemsTagContainer, TAG_STACK_ID, UUID.randomUUID());
         }
         rpgitemsTagContainer.commit();
-        meta.setDisplayName(getDisplayName());
         rStack.setItemMeta(meta);
+        ItemUtils.setItemDisplayName(rStack, getQualityPrefix() + getDisplayName());
 
         updateItem(player, rStack, false);
         return rStack;
@@ -1604,8 +1599,8 @@ public class RPGItem implements RPGBaseHolder {
         ItemTagUtils.setBoolean(itemStack, NBT_IS_MODEL, true);
 
         meta.commit();
-        itemMeta.setDisplayName(getDisplayName());
         itemStack.setItemMeta(itemMeta);
+        ItemUtils.setItemDisplayName(itemStack, getQualityPrefix() + getDisplayName());
     }
 
     public void unModel(ItemStack itemStack, Player owner) {
@@ -1620,14 +1615,14 @@ public class RPGItem implements RPGBaseHolder {
         }
         meta.remove(TAG_IS_MODEL);
         meta.commit();
-        itemMeta.setDisplayName(getDisplayName());
         itemStack.setItemMeta(itemMeta);
+        ItemUtils.setItemDisplayName(itemStack, getQualityPrefix() + getDisplayName());
     }
 
     public Event.Result checkPermission(Player p, boolean showWarn) {
         if (isHasPermission() && !p.hasPermission(getPermission())) {
             if (showWarn)
-                p.sendMessage(I18n.getInstance(p.getLocale()).format("message.error.permission", getDisplayName()));
+                send(p, I18n.getInstance(p.getLocale()).format("message.error.permission", getDisplayName()));
             return Event.Result.DENY;
         }
         return Event.Result.ALLOW;
@@ -2249,18 +2244,13 @@ public class RPGItem implements RPGBaseHolder {
         return rate.get();
     }
 
-
-    public String getDisplayNameRaw() {
-        return displayName;
-    }
     @Override
     public String getDisplayName() {
-        return displayNameColored;
+        return displayName;
     }
     @Override
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-        this.displayNameColored = ColorHelper.parseColor(displayName);
     }
 
     public void setDurabilityBound(int min, int max) {

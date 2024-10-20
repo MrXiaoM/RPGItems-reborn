@@ -71,6 +71,7 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static de.tr7zw.changeme.nbtapi.utils.MinecraftVersion.MC1_14_R1;
 import static de.tr7zw.changeme.nbtapi.utils.MinecraftVersion.MC1_21_R1;
 import static org.bukkit.Material.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
@@ -185,6 +186,7 @@ public class RPGItem implements RPGBaseHolder {
     @Getter @Setter private int durabilityLowerBound;
     @Getter @Setter private int durabilityUpperBound;
     @Getter @Setter private BarFormat barFormat = BarFormat.DEFAULT;
+    @Getter @Setter private boolean durabilityVanilla = plugin.cfg.defaultVanillaDurability;
 
     @Getter @Setter private int blockBreakingCost = 0;
     @Getter @Setter private int hittingCost = 0;
@@ -454,6 +456,7 @@ public class RPGItem implements RPGBaseHolder {
         if (getDefaultDurability() <= 0) {
             setDefaultDurability(getMaxDurability());
         }
+        setDurabilityVanilla(s.getBoolean("durabilityVanilla", plugin.cfg.defaultVanillaDurability));
         setDurabilityLowerBound(s.getInt("durabilityLowerBound", 0));
         setDurabilityUpperBound(s.getInt("durabilityUpperBound", getItem().getMaxDurability()));
         if (s.isBoolean("forceBar")) {
@@ -724,6 +727,7 @@ public class RPGItem implements RPGBaseHolder {
         s.set("hitCostByDamage", isHitCostByDamage());
         s.set("maxDurability", getMaxDurability());
         s.set("defaultDurability", getDefaultDurability());
+        s.set("durabilityVanilla", isDurabilityVanilla());
         s.set("durabilityLowerBound", getDurabilityLowerBound());
         s.set("durabilityUpperBound", getDurabilityUpperBound());
         s.set("hasDurabilityBar", isHasDurabilityBar());
@@ -857,19 +861,22 @@ public class RPGItem implements RPGBaseHolder {
         if (meta instanceof LeatherArmorMeta) {
             ((LeatherArmorMeta) meta).setColor(Color.fromRGB(getDataValue()));
         }
-        Damageable damageable = (Damageable) meta;
-        if (getMaxDurability() > 0) {
-            int durability = ItemPDC.computeIfAbsent(rpgitemsTagContainer, TAG_DURABILITY, PersistentDataType.INTEGER, this::getDefaultDurability);
-            if (isCustomItemModel()) {
-                damageable.setDamage(getDataValue());
+        if (!isDurabilityVanilla() && meta instanceof Damageable) {
+            // TODO: Damageable 不兼容 1.12 以下版本
+            Damageable damageable = (Damageable) meta;
+            if (getMaxDurability() > 0) {
+                int durability = ItemPDC.computeIfAbsent(rpgitemsTagContainer, TAG_DURABILITY, PersistentDataType.INTEGER, this::getDefaultDurability);
+                if (isCustomItemModel()) {
+                    damageable.setDamage(getDataValue());
+                } else {
+                    damageable.setDamage((getItem().getMaxDurability() - ((short) ((double) getItem().getMaxDurability() * ((double) durability / (double) getMaxDurability())))));
+                }
             } else {
-                damageable.setDamage((getItem().getMaxDurability() - ((short) ((double) getItem().getMaxDurability() * ((double) durability / (double) getMaxDurability())))));
-            }
-        } else {
-            if (isCustomItemModel()) {
-                damageable.setDamage(getDataValue());
-            } else {
-                damageable.setDamage(getItem().getMaxDurability() != 0 ? 0 : getDataValue());
+                if (isCustomItemModel()) {
+                    damageable.setDamage(getDataValue());
+                } else {
+                    damageable.setDamage(getItem().getMaxDurability() != 0 ? 0 : getDataValue());
+                }
             }
         }
         // Patch for mcMMO buff. See SkillUtils.java#removeAbilityBuff in mcMMO
@@ -912,7 +919,9 @@ public class RPGItem implements RPGBaseHolder {
             meta.setUnbreakable(hasMarker(Unbreakable.class));
             meta.removeItemFlags(meta.getItemFlags().toArray(new ItemFlag[0]));
 
-            meta.setCustomModelData(itemUpdateEvent.getCustomModelData());
+            if (MinecraftVersion.isAtLeastVersion(MC1_14_R1)) {
+                meta.setCustomModelData(itemUpdateEvent.getCustomModelData());
+            }
             for (ItemFlag flag : itemUpdateEvent.getItemFlags()) {
                 meta.addItemFlags(flag);
             }
@@ -1676,8 +1685,17 @@ public class RPGItem implements RPGBaseHolder {
 
     public boolean consumeDurability(@Nullable Player player, ItemStack item, int val, boolean checkbound) {
         if (val == 0) return true;
-        int durability;
         ItemMeta itemMeta = item.getItemMeta();
+        if (durabilityVanilla) {
+            // TODO: Damageable 不兼容 1.12 以下版本
+            if (!(itemMeta instanceof Damageable)) return false;
+            Damageable damageable = (Damageable) itemMeta;
+            int value = damageable.getDamage() + val;
+            if (value > item.getType().getMaxDurability()) return false;
+            damageable.setDamage(value);
+            return true;
+        }
+        int durability;
         if (getMaxDurability() != -1) {
             ISubItemTagContainer tagContainer = ItemPDC.makeTag(Objects.requireNonNull(itemMeta), TAG_META);
             durability = ItemPDC.computeIfAbsent(tagContainer, TAG_DURABILITY, PersistentDataType.INTEGER, this::getDefaultDurability);

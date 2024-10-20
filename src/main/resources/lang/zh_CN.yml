@@ -1,5 +1,7 @@
 message:
   line_separator: ' '
+  on: '开启'
+  off: '关闭'
   error:
     invalid_command_arg: '加载技能失败：%s，%s'
     legacy_name: '%s 在 Spigot 1.13 有一个新名字：%s'
@@ -93,6 +95,7 @@ message:
     bound: 耐久下界和上界已设置为 %s 与 %s
     default: 默认耐久已设置为 %s
     toggle: 耐久条已切换
+    vanilla: 原版耐久模式已切换为 %s
   worldguard:
     disable: Worldguard支持已禁用
     error: 没有发现Worldguard插件

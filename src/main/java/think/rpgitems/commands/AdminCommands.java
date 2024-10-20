@@ -1304,7 +1304,7 @@ public class AdminCommands extends RPGCommandReceiver {
     }
 
     @SubCommand(value = "durability", tabCompleter = "itemCompleter")
-    @Completion("item:infinite,default,bound,togglebar,barformat")
+    @Completion("item:infinite,default,bound,togglebar,barformat,vanilla")
     public void itemDurability(CommandSender sender, Arguments args) {
         if (readOnly(sender)) return;
         RPGItem item = getItem(args.nextString(), sender);
@@ -1362,6 +1362,14 @@ public class AdminCommands extends RPGCommandReceiver {
                     ItemManager.refreshItem();
                     ItemManager.save(item);
                     msgs(sender, "message.barformat." + item.getBarFormat().name());
+                    break;
+                }
+                case "vanilla": {
+                    item.setDurabilityVanilla(!item.isDurabilityVanilla());
+                    item.rebuild();
+                    ItemManager.refreshItem();
+                    ItemManager.save(item);
+                    msgs(sender, "message.durability.vanilla", I18n.getFormatted(sender, item.isDurabilityVanilla() ? "message.on" : "message.off"));
                     break;
                 }
                 default:

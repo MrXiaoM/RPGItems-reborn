@@ -87,6 +87,9 @@ public class Configuration extends PluginConfigure {
     @Serializable(name = "item.defaults.force_bar", alias = "forceBar")
     public boolean forceBar = false;
 
+    @Serializable(name = "item.defaults.vanilla_durability")
+    public boolean defaultVanillaDurability = false;
+
     @Serializable(name = "item.defaults.license")
     public String defaultLicense = "All Right Reserved";
 

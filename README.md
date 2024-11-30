@@ -4,7 +4,7 @@
 
 The NyaaCat RPGItems-reloaded plugin continued from [NyaaCat/RPGItems-reloaded](https://github.com/NyaaCat/RPGItems-reloaded).
 
-Active developing from [SweetRiceMC](https://www.pds.ink) developers team.
+Our server admin team use another RPG plugin now. So the project may not active developing.
 
 Take it easy. **NO ANY** hard-dependency plugin is needed this time. Install just one plugin is OK! And one plugin file supports multi Minecraft versions from `1.8` to `1.21`!
 

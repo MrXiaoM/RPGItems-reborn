@@ -11,8 +11,8 @@ plugins {
     id ("org.ajoberstar.grgit") version "5.0.0"
 }
 
-var majorVersion = "3"
-var minorVersion = "12"
+var majorVersion = "4"
+var minorVersion = "0"
 val repo: Grgit = Grgit.open(mapOf("currentDir" to project.projectDir))
 
 val commit: Commit = repo.head()

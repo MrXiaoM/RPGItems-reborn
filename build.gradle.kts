@@ -97,10 +97,10 @@ dependencies {
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") { isTransitive = false }
 
-    shadowImpl("de.tr7zw:item-nbt-api:2.13.2")
-    shadowImpl("net.kyori:adventure-api:4.17.0")
-    shadowImpl("net.kyori:adventure-platform-bukkit:4.3.4")
-    shadowImpl("net.kyori:adventure-text-minimessage:4.17.0")
+    shadowImpl("de.tr7zw:item-nbt-api:2.15.0")
+    shadowImpl("net.kyori:adventure-api:4.21.0")
+    shadowImpl("net.kyori:adventure-platform-bukkit:4.4.0")
+    shadowImpl("net.kyori:adventure-text-minimessage:4.21.0")
 
     shadow(project(":paper"))
     for (proj in rootProject.project(":nms").subprojects) {
